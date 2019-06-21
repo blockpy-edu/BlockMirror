@@ -1,0 +1,22 @@
+{
+  "name": "blockmirror",
+  "version": "1.0.0",
+  "description": "A dual block/text editor using Blockly and CodeMirror for Python",
+  "main": "webpack.config.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockpy-edu/BlockMirror.git"
+  },
+  "author": "acbart",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blockpy-edu/BlockMirror/issues"
+  },
+  "homepage": "https://github.com/blockpy-edu/BlockMirror#readme"
+}
