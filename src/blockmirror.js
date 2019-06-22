@@ -14,17 +14,24 @@ BlockMirror.prototype.validateConfiguration = function(configuration) {
     this.configuration = {};
     
     // Container
-    if ("container" in configuration) {
+    if ('container' in configuration) {
         this.configuration.container = configuration.container;
     } else {
-        throw new Error("Invalid configuration: Missing 'container' property.")
+        throw new Error('Invalid configuration: Missing "container" property.')
     }
     
     // blocklyPath
-    if ("blocklyMediaPath" in configuration) {
+    if ('blocklyMediaPath' in configuration) {
         this.configuration.blocklyMediaPath = configuration.blocklyMediaPath;
     } else {
         this.configuration.blocklyMediaPath = '../../blockly/media/';
+    }
+    
+    // Run function
+    if ('run' in configuration) {
+        this.configuration.run = configuration.run;
+    } else {
+        this.configuration.run = function(){console.log('Ran!');};
     }
     
     // readOnly
@@ -36,15 +43,28 @@ BlockMirror.prototype.validateConfiguration = function(configuration) {
 
 BlockMirror.prototype.initializeVariables = function() {
     this.tags = {
-        'toolbar': document.createElement("div"),
-        'blockEditor': document.createElement("div"),
-        'blockArea': document.createElement("div"),
-        'textEditor': document.createElement("div"),
+        'toolbar': document.createElement('div'),
+        'blockContainer': document.createElement('div'),
+        'blockEditor': document.createElement('div'),
+        'blockArea': document.createElement('div'),
+        'textContainer': document.createElement('div'),
+        'textArea': document.createElement('textarea'),
     };
+    // Toolbar
+    this.configuration.container.appendChild(this.tags.toolbar);
+    // Block side
+    this.configuration.container.appendChild(this.tags.blockContainer);
+    this.tags.blockContainer.appendChild(this.tags.blockEditor);
+    this.tags.blockContainer.appendChild(this.tags.blockArea);
+    // Text side
+    this.configuration.container.appendChild(this.tags.textContainer);
+    this.tags.textContainer.appendChild(this.tags.textArea);
+    
     for (var name in this.tags) {
-        this.configuration.container.appendChild(this.tags[name]);
+        this.tags[name].style['box-sizing'] = 'border-box';
     }
     
+    // Files
     this.files = [];
     
     this.views = ['blocks', 'text'];
@@ -52,6 +72,51 @@ BlockMirror.prototype.initializeVariables = function() {
 
 function BlockMirrorTextEditor(blockMirror) {
     this.blockMirror = blockMirror;
+    
+    let codeMirrorOptions = {
+        mode: {
+            name: 'python',
+            version: 3,
+            singleLineStringErrors: false
+        },
+        readOnly: blockMirror.configuration.readOnly,
+        showCursorWhenSelecting: true,
+        lineNumbers: true,
+        firstLineNumber: 1,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        matchBrackets: true,
+        extraKeys: {
+            'Tab': 'indentMore', 
+            'Shift-Tab': 'indentLess',
+            'Ctrl-Enter': blockMirror.run,
+            'Esc': this.defocus.bind(this)
+        }
+    };
+    this.codeMirror = CodeMirror.fromTextArea(blockMirror.tags.textArea, codeMirrorOptions);
+    this.codeMirror.on('change', this.changed.bind(this));
+    this.codeMirror.setSize(null, '100%');
+    blockMirror.tags.textContainer.style.border= '1px solid lightgray';
+    blockMirror.tags.textContainer.style.float = 'left';
+    this.updateWidth();
+    blockMirror.tags.textContainer.style.height = blockMirror.configuration.height;
+}
+
+BlockMirrorTextEditor.prototype.defocus = function() {
+    this.codeMirror.display.input.blur();
+}
+
+BlockMirrorTextEditor.prototype.changed = function() {
+    // TODO
+}
+
+BlockMirrorTextEditor.prototype.updateWidth = function() {
+    var newWidth = '0%';
+    if (this.blockMirror.views.includes('text')) {
+        newWidth = (100 / this.blockMirror.views.length)+'%';
+    }
+    this.blockMirror.tags.textContainer.style.width = newWidth;
 }
 
 function BlockMirrorBlockEditor(blockMirror) {
@@ -74,8 +139,10 @@ function BlockMirrorBlockEditor(blockMirror) {
     
     // Configure Blockly DIV
     //blockMirror.tags.blockEditor.style.resize = 'horizontal';
+    blockMirror.tags.blockContainer.style.float = 'left';
     blockMirror.tags.blockEditor.style.position = 'absolute';
     this.updateWidth();
+    blockMirror.tags.blockEditor.style.width = '100%';
     blockMirror.tags.blockArea.style.height = blockMirror.configuration.height;
     
     window.addEventListener('resize', this.resized.bind(this), false);
@@ -87,7 +154,7 @@ BlockMirrorBlockEditor.prototype.updateWidth = function() {
     if (this.blockMirror.views.includes('blocks')) {
         newWidth = (100 / this.blockMirror.views.length)+'%';
     }
-    this.blockMirror.tags.blockArea.style.width = newWidth;
+    this.blockMirror.tags.blockContainer.style.width = newWidth;
     this.resized();
 }
 
