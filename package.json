@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/blockpy-edu/BlockMirror/issues"
   },
-  "homepage": "https://github.com/blockpy-edu/BlockMirror#readme"
+  "homepage": "https://github.com/blockpy-edu/BlockMirror#readme",
+  "dependencies": {
+    "codemirror": "^5.48.0"
+  }
 }
