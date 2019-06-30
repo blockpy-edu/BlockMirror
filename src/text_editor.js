@@ -104,3 +104,11 @@ BlockMirrorTextEditor.prototype.setMode = function(mode) {
         this.textSidebar.style.width = '0px';
     }
 }
+
+BlockMirrorTextEditor.prototype.setCode = function(filename, code) {
+    if (code == undefined || code.trim() == "") {
+        this.codeMirror.setValue("\n");
+    } else {
+        this.codeMirror.setValue(code);
+    }
+};

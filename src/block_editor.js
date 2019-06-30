@@ -61,7 +61,8 @@ BlockMirrorBlockEditor.prototype.makeToolbox = function() {
     xml += '<category name="Variables" custom="VARIABLE" colour="240">' +
            '</category>';
     xml += '<category name="Iteration" colour="300">' +
-           '<block type="controls_forEach"></block>' +
+           '<block type="ast_For"></block>' +
+           '<block type="ast_ForElse"></block>' +
            '</category>';
     xml += '</xml>';
     return xml;
@@ -74,6 +75,7 @@ BlockMirrorBlockEditor.prototype.remakeToolbox = function() {
 
 BlockMirrorBlockEditor.prototype.changed = function() {
     // todo
+    this.blockMirror.textEditor.setCode('__main__', this.getText());
     console.log("Changed block");
 }
 
@@ -118,4 +120,25 @@ BlockMirrorBlockEditor.prototype.setMode = function(mode) {
     } else {
         this.blockContainer.style.height = '0%';
     }
+}
+
+/**
+ * Attempts to update the model for the current code file from the 
+ * block workspace. Might be prevented if an update event was already
+ * percolating.
+ */
+BlockMirrorBlockEditor.prototype.getText = function() {
+    return Blockly.Python.workspaceToCode(this.workspace);
+}
+
+/**
+ * Attempts to update the model for the current code file from the 
+ * block workspace. Might be prevented if an update event was already
+ * percolating.
+ */
+BlockMirrorBlockEditor.prototype.setText = function(code) {
+    var result = this.blockMirror.textToBlocks.convertSource('__main__.py', code);
+    var xml_code = Blockly.Xml.textToDom(result.xml);
+    this.workspace.clear();
+    Blockly.Xml.domToWorkspace(xml_code, this.workspace);
 }

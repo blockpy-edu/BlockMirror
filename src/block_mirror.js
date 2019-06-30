@@ -1,3 +1,34 @@
+/**
+
+External visible stuff
+
+Changing mode/code/filename can fail on the block side
+
+setMode(mode) -> bool
+setFilename(filename) -> bool
+setCode(filename, code) -> bool
+setHighlight(line) -> bool
+setReadOnly(isReadOnly)
+setToolbox(string)
+    'basic'
+    'advanced'
+    'complete'
+    list[list[string]]
+onChange(event) ->
+    onModeChange
+    onFilenameChange
+    onCodeChange
+    
+getCode(filename) -> string
+getCode() -> string
+getFilename() -> string
+getMode() -> string
+getImage(callback)
+
+lastBlockConversionFailure: {} or null
+
+
+*/
 
 /**
  *
@@ -8,6 +39,8 @@ function BlockMirror(configuration) {
     this.textEditor = new BlockMirrorTextEditor(this);
     this.blockEditor = new BlockMirrorBlockEditor(this);
     this.textToBlocks = new BlockMirrorTextToBlocks(this);
+    
+    Sk.configure({});
     
     this.setMode(this.configuration.viewMode);
 }
