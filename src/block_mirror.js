@@ -7,7 +7,6 @@ function BlockMirror(configuration) {
     this.initializeVariables();
     this.textEditor = new BlockMirrorTextEditor(this);
     this.blockEditor = new BlockMirrorBlockEditor(this);
-    //this.toolbar = new BlockMirrorToolbar(this);
     this.textToBlocks = new BlockMirrorTextToBlocks(this);
     
     this.setMode(this.configuration.viewMode);
