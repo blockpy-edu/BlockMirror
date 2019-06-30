@@ -1,6 +1,7 @@
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_For",
   "message0": "for each item %1 in list %2 : %3 %4",
+  //"message0": "for %1 in %2 : %3 %4",
   "args0": [
     {
       "type": "input_value",
