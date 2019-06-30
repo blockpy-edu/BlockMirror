@@ -4,9 +4,6 @@
     <meta charset="utf-8">
     <title>Simple BlockMirror Example</title>
     
-    <!-- BlockMirror -->
-    <script src="../src/blockmirror.js" type="text/javascript"></script>
-    
     <!-- Blockly -->
     <script src="../../blockly/blockly_compressed.js" type="text/javascript"></script>
     <script src="../../blockly/blocks_compressed.js" type="text/javascript"></script>
@@ -17,17 +14,48 @@
     <script src="../lib/codemirror/codemirror.js" type="text/javascript"></script>
     <script src="../lib/codemirror/python.js" type="text/javascript"></script>
     
+    <!-- Skulpt -->
+    <script src="../../skulpt/dist/skulpt.js" type="text/javascript"></script>
+    <script src="../../skulpt/dist/skulpt-stdlib.js" type="text/javascript"></script>
+    
+    <!-- BlockMirror -->
+    <script src="../src/block_mirror.js" type="text/javascript"></script>
+    <script src="../src/text_to_blocks.js" type="text/javascript"></script>
+    <script src="../src/text_editor.js" type="text/javascript"></script>
+    <script src="../src/block_editor.js" type="text/javascript"></script>
+    <script src="../src/toolbar.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="../src/block_mirror.css">
+    
   </head>
   <body>
   
     <div style="width:900px; margin:0 auto;"
          id='example-frame'>
+         
+         <div class="btn-group" data-toggle="buttons" data-bind="visible: !assignment.upload()">
+            <label onclick="editor.setMode('block');">
+                <input type="radio" name="blockpy-mode-set" autocomplete="off"> Blocks
+            </label>
+            <label onclick="editor.setMode('split');">
+                <input type="radio" name="blockpy-mode-set" autocomplete="off" checked> Split
+            </label>
+            <label onclick="editor.setMode('text');">
+                <input type="radio" name="blockpy-mode-set" autocomplete="off"> Text
+            </label>
+        </div>
+         
+         
+         
         <div id="blockmirror-editor"></div>
     </div>
     
     <script type="text/javascript">
         var editor = new BlockMirror({
             'container': document.getElementById('blockmirror-editor'),
+        });
+        editor.setCode('__main__', 'a = 0\nb=0\nprint(b)');
+        editor.addChangeListener(function(event) {
+            console.log('Change! Better save:', event)
         });
     </script>
   </body>
