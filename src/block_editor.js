@@ -76,7 +76,7 @@ BlockMirrorBlockEditor.prototype.remakeToolbox = function() {
 BlockMirrorBlockEditor.prototype.changed = function() {
     // todo
     this.blockMirror.textEditor.setCode('__main__', this.getText());
-    console.log("Changed block");
+    //console.log("Changed block");
 }
 
 /**

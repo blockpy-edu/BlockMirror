@@ -44,7 +44,7 @@ BlockMirrorTextEditor.prototype.defocus = function() {
 
 BlockMirrorTextEditor.prototype.changed = function() {
     // TODO
-    console.log("Changed text");
+    //console.log("Changed text");
 }
 
 BlockMirrorTextEditor.prototype.updateWidth = function() {
