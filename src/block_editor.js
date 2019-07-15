@@ -64,6 +64,9 @@ BlockMirrorBlockEditor.prototype.makeToolbox = function() {
            '<block type="ast_For"></block>' +
            '<block type="ast_ForElse"></block>' +
            '</category>';
+    xml += '<category name="Values" colour="300">' +
+           '<block type="ast_Num"></block>'
+           '</category>';
     xml += '</xml>';
     return xml;
 }

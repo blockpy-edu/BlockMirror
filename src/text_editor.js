@@ -112,3 +112,7 @@ BlockMirrorTextEditor.prototype.setCode = function(filename, code) {
         this.codeMirror.setValue(code);
     }
 };
+
+BlockMirrorTextEditor.prototype.getCode = function() {
+    return this.codeMirror.getValue();
+}

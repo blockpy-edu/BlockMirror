@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="blockly" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/../blockly" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../blockly" />
+    </CLASSES>
+    <DOCUMENTATION>
+      <root url="https://developers.google.com/blockly/reference/overview" />
+    </DOCUMENTATION>
+    <SOURCES />
+  </library>
+</component>

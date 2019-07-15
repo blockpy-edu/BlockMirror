@@ -1,23 +1,11 @@
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_For",
   "message0": "for each item %1 in list %2 : %3 %4",
-  //"message0": "for %1 in %2 : %3 %4",
   "args0": [
-    {
-      "type": "input_value",
-      "name": "TARGET",
-    },
-    {
-      "type": "input_value",
-      "name": "ITER"
-    },
-    {
-      "type": "input_dummy"
-    },
-    {
-      "type": "input_statement",
-      "name": "BODY"
-    }
+    { "type": "input_value", "name": "TARGET" },
+    { "type": "input_value", "name": "ITER" },
+    { "type": "input_dummy" },
+    { "type": "input_statement", "name": "BODY" }
   ],
   "inputsInline": true,
   "previousStatement": null,
@@ -31,28 +19,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_ForElse",
   "message0": "for each item %1 in list %2 : %3 %4 else: %5 %6",
   "args0": [
-    {
-      "type": "input_value",
-      "name": "TARGET",
-    },
-    {
-      "type": "input_value",
-      "name": "ITER"
-    },
-    {
-      "type": "input_dummy"
-    },
-    {
-      "type": "input_statement",
-      "name": "BODY"
-    },
-    {
-      "type": "input_dummy"
-    },
-    {
-      "type": "input_statement",
-      "name": "ELSE"
-    }
+    { "type": "input_value", "name": "TARGET" },
+    { "type": "input_value", "name": "ITER" },
+    { "type": "input_dummy" },
+    { "type": "input_statement", "name": "BODY" },
+    { "type": "input_dummy" },
+    { "type": "input_statement", "name": "ELSE" }
   ],
   "inputsInline": true,
   "previousStatement": null,
