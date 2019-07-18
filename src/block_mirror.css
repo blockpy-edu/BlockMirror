@@ -1,6 +1,6 @@
 .CodeMirror-gutters {
     background-color: #ddd;
-    border-left: 1px solid #bbb;
+    /*border-left: 1px solid #bbb;*/
 }
 
 .CodeMirror-code div pre {

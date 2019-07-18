@@ -1,13 +1,14 @@
 function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
+    this.strictAnnotations = false;
     Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
 }
 
-BlockMirrorTextToBlocks.xmlToString = function(xml) {
+BlockMirrorTextToBlocks.xmlToString = function (xml) {
     return new XMLSerializer().serializeToString(xml);
 }
 
-BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function(python_source) {
+BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function (python_source) {
     var xml = document.createElement("xml");
     xml.appendChild(BlockMirrorTextToBlocks.raw_block(python_source));
     return BlockMirrorTextToBlocks.xmlToString(xml);
@@ -23,7 +24,7 @@ BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function(python_sou
  * @returns {Object} An object which will either have the converted
  *      source code or an error message and the code as a code-block.
  */
-BlockMirrorTextToBlocks.prototype.convertSource = function(filename, python_source) {
+BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_source) {
     var xml = document.createElement("xml");
     if (python_source.trim() === "") {
         return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null};
@@ -52,34 +53,36 @@ BlockMirrorTextToBlocks.prototype.convertSource = function(filename, python_sour
     this.measureNode(ast);
     var converted = this.convert(ast);
     if (converted !== null) {
-        for (var block = 0; block < converted.length; block+= 1) {
+        for (var block = 0; block < converted.length; block += 1) {
             xml.appendChild(converted[block]);
         }
     }
-    return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null,
-            "lineMap": this.lineMap, 'comments': this.comments};
+    return {
+        "xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null,
+        "lineMap": this.lineMap, 'comments': this.comments
+    };
 }
 
-BlockMirrorTextToBlocks.prototype.recursiveMeasure = function(node, nextBlockLine) {
-    if (node === undefined)  {
+BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLine) {
+    if (node === undefined) {
         return;
     }
     var myNext = nextBlockLine;
     if ("orelse" in node && node.orelse.length > 0) {
         if (node.orelse.length == 1 && node.orelse[0]._astname == "If") {
-            myNext = node.orelse[0].lineno-1;
+            myNext = node.orelse[0].lineno - 1;
         } else {
-            myNext = node.orelse[0].lineno-1-1;
+            myNext = node.orelse[0].lineno - 1 - 1;
         }
     }
     this.heights.push(nextBlockLine);
     if ("body" in node) {
         for (var i = 0; i < node.body.length; i++) {
             var next;
-            if (i+1 == node.body.length) {
+            if (i + 1 == node.body.length) {
                 next = myNext;
             } else {
-                next = node.body[i+1].lineno-1;
+                next = node.body[i + 1].lineno - 1;
             }
             this.recursiveMeasure(node.body[i], next);
         }
@@ -90,21 +93,21 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function(node, nextBlockLin
             if (i == node.orelse.length) {
                 next = nextBlockLine;
             } else {
-                next = 1+(node.orelse[i].lineno-1);
+                next = 1 + (node.orelse[i].lineno - 1);
             }
             this.recursiveMeasure(node.orelse[i], next);
         }
     }
 }
 
-BlockMirrorTextToBlocks.prototype.measureNode = function(node) {
+BlockMirrorTextToBlocks.prototype.measureNode = function (node) {
     this.heights = [];
-    this.recursiveMeasure(node, this.source.length-1);
+    this.recursiveMeasure(node, this.source.length - 1);
     this.heights.shift();
 }
 
-BlockMirrorTextToBlocks.prototype.getSourceCode = function(frm, to) {
-    var lines = this.source.slice(frm-1, to);
+BlockMirrorTextToBlocks.prototype.getSourceCode = function (frm, to) {
+    var lines = this.source.slice(frm - 1, to);
     // Strip out any starting indentation.
     if (lines.length > 0) {
         var indentation = lines[0].search(/\S/);
@@ -115,19 +118,19 @@ BlockMirrorTextToBlocks.prototype.getSourceCode = function(frm, to) {
     return lines.join("\n");
 }
 
-BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
+BlockMirrorTextToBlocks.prototype.convertBody = function (node, is_top_level) {
     this.levelIndex += 1;
     // Empty body, return nothing
     if (node.length == 0) {
         return null;
     }
-    
+
     // Final result list
     var children = [], // The complete set of peers
         root = null, // The top of the current peer
         current = null, // The bottom of the current peer
-        levelIndex = this.levelIndex; 
-        
+        levelIndex = this.levelIndex;
+
     function addPeer(peer) {
         if (root == null) {
             children.push(peer);
@@ -137,13 +140,13 @@ BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
         root = peer;
         current = peer;
     }
-    
+
     function finalizePeers() {
         if (root != null) {
             children.push(root);
         }
     }
-    
+
     function nestChild(child) {
         if (root == null) {
             root = child;
@@ -157,29 +160,29 @@ BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
             current = child;
         }
     }
-    
+
     var lineNumberInBody = 0,
         lineNumberInProgram,
-        previousLineInProgram=null,
+        previousLineInProgram = null,
         distance,
         skipped_line,
         commentCount,
         previousHeight = null,
         previousWasStatement = false;
-        visitedFirstLine = false;
-        
+    visitedFirstLine = false;
+
     // Iterate through each node
     for (var i = 0; i < node.length; i++) {
         lineNumberInBody += 1;
-        
+
         lineNumberInProgram = node[i].lineno;
         distance = 0, wasFirstLine = true;
         if (previousLineInProgram != null) {
-            distance = lineNumberInProgram - previousLineInProgram-1;
+            distance = lineNumberInProgram - previousLineInProgram - 1;
             wasFirstLine = false;
         }
         lineNumberInBody += distance;
-        
+
         // Handle earlier comments
         commentCount = 0;
         for (var commentLineInProgram in this.comments) {
@@ -188,7 +191,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
                 if (previousLineInProgram == null) {
                     nestChild(commentChild);
                 } else {
-                    skipped_previous_line = Math.abs(previousLineInProgram-commentLineInProgram) > 1;
+                    skipped_previous_line = Math.abs(previousLineInProgram - commentLineInProgram) > 1;
                     if (is_top_level && skipped_previous_line) {
                         addPeer(commentChild);
                     } else {
@@ -202,51 +205,51 @@ BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
                 commentCount += 1;
             }
         }
-        
+
         distance = lineNumberInProgram - this.highestLineSeen;
         this.highestLineSeen = Math.max(lineNumberInProgram, this.highestLineSeen);
-        
+
         // Now convert the actual node
         var height = this.heights.shift();
         var originalSourceCode = this.getSourceCode(lineNumberInProgram, height);
         var newChild = this.convertStatement(node[i], originalSourceCode, is_top_level);
-        
+
         // Skip null blocks (e.g., imports)
         if (newChild == null) {
             continue;
         }
-        
+
         skipped_line = distance > 1;
         previousLineInProgram = lineNumberInProgram;
         previousHeight = height;
-        
+
         // Handle top-level expression blocks
         if (is_top_level && newChild.constructor == Array) {
             addPeer(newChild[0]);
-        // Handle skipped line
+            // Handle skipped line
         } else if (is_top_level && skipped_line && visitedFirstLine) {
             addPeer(newChild);
-        // The previous line was not a Peer
+            // The previous line was not a Peer
         } else if (is_top_level && !previousWasStatement) {
             addPeer(newChild);
-        // Otherwise, always embed it in there.
+            // Otherwise, always embed it in there.
         } else {
             nestChild(newChild);
         }
         previousWasStatement = newChild.constructor !== Array;
-        
+
         visitedFirstLine = true;
     }
-    
-    
+
+
     // Handle comments that are on the very last line
-    var lastLineNumber = lineNumberInProgram+1
+    var lastLineNumber = lineNumberInProgram + 1
     if (lastLineNumber in this.comments) {
         commentChild = this.Comment(this.comments[lastLineNumber], lastLineNumber);
         nestChild(commentChild);
         delete this.comments[lastLineNumber];
     }
-    
+
     // Handle any extra comments that stuck around
     if (is_top_level) {
         for (var commentLineInProgram in this.comments) {
@@ -263,32 +266,36 @@ BlockMirrorTextToBlocks.prototype.convertBody = function(node, is_top_level) {
             delete this.comments[lastLineNumber];
         }
     }
-    
-    
+
+
     finalizePeers();
-    
+
     this.levelIndex -= 1;
-    
+
     return children;
 }
 
-BlockMirrorTextToBlocks.prototype.convert = function(node, is_top_level) {
-    return this['ast_'+node._astname](node, is_top_level);
+BlockMirrorTextToBlocks.prototype.convert = function (node, is_top_level) {
+    let functionName = 'ast_' + node._astname;
+    if (this[functionName] === undefined) {
+        throw new Error("Could not find function: "+functionName);
+    }
+    return this[functionName](node, is_top_level);
 }
 
 function arrayMax(array) {
-  return array.reduce(function(a, b) {
-    return Math.max(a, b);
-  });
+    return array.reduce(function (a, b) {
+        return Math.max(a, b);
+    });
 }
 
 function arrayMin(array) {
-  return array.reduce(function(a, b) {
-    return Math.min(a, b);
-  });
+    return array.reduce(function (a, b) {
+        return Math.min(a, b);
+    });
 }
 
-BlockMirrorTextToBlocks.prototype.convertStatement = function(node, full_source, is_top_level) {
+BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source, is_top_level) {
     try {
         return this.convert(node, is_top_level);
     } catch (e) {
@@ -299,7 +306,7 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function(node, full_source,
     }
 }
 
-BlockMirrorTextToBlocks.prototype.getChunkHeights = function(node) {
+BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
     var lineNumbers = [];
     if (node.hasOwnProperty("lineno")) {
         lineNumbers.push(node.lineno);
@@ -319,7 +326,7 @@ BlockMirrorTextToBlocks.prototype.getChunkHeights = function(node) {
     return lineNumbers;
 }
 
-BlockMirrorTextToBlocks.create_block = function(type, lineNumber, fields, values, settings, mutations, statements) {
+BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, values, settings, mutations, statements) {
     var newBlock = document.createElement("block");
     // Settings
     newBlock.setAttribute("type", type);
@@ -331,23 +338,23 @@ BlockMirrorTextToBlocks.create_block = function(type, lineNumber, fields, values
     // Mutations
     if (mutations !== undefined && Object.keys(mutations).length > 0) {
         var newMutation = document.createElement("mutation");
-        for (var mutation in mutations) {
+        for (let mutation in mutations) {
             var mutationValue = mutations[mutation];
-            if (mutation.charAt(0) == '@') {
+            if (mutation.charAt(0) === '@') {
                 newMutation.setAttribute(mutation.substr(1), mutationValue);
             } else if (mutationValue != null && mutationValue.constructor === Array) {
                 for (var i = 0; i < mutationValue.length; i++) {
-                    var mutationNode = document.createElement(mutation);
+                    let mutationNode = document.createElement(mutation);
                     mutationNode.setAttribute("name", mutationValue[i]);
                     newMutation.appendChild(mutationNode);
                 }
             } else {
-                var mutationNode = document.createElement("arg");
-                if (mutation.charAt(0) == '*') {
+                let mutationNode = document.createElement("arg");
+                if (mutation.charAt(0) === '!') {
                     mutationNode.setAttribute("name", "");
                 } else {
                     mutationNode.setAttribute("name", mutation);
-                }                
+                }
                 if (mutationValue !== null) {
                     mutationNode.appendChild(mutationValue);
                 }
@@ -396,30 +403,63 @@ BlockMirrorTextToBlocks.create_block = function(type, lineNumber, fields, values
     return newBlock;
 }
 
-BlockMirrorTextToBlocks.raw_block = function(txt) {
+BlockMirrorTextToBlocks.raw_block = function (txt) {
     // TODO: lineno as second parameter!
-    return BlockMirrorTextToBlocks.create_block("raw_block", 0, { "TEXT": txt });
+    return BlockMirrorTextToBlocks.create_block("raw_block", 0, {"TEXT": txt});
 }
 
 BlockMirrorTextToBlocks.BLOCKS = [];
 
-BlockMirrorTextToBlocks.prototype['ast_Module'] = function(node) {
+BlockMirrorTextToBlocks.prototype['ast_Module'] = function (node) {
     return this.convertBody(node.body, true);
-}
+};
 
-BlockMirrorTextToBlocks.prototype['ast_Interactive'] = function(node) {
+BlockMirrorTextToBlocks.prototype['ast_Interactive'] = function (node) {
     return this.convertBody(node.body);
-}
+};
 
 BlockMirrorTextToBlocks.prototype['ast_Expression'] = BlockMirrorTextToBlocks.prototype['ast_Interactive'];
 BlockMirrorTextToBlocks.prototype['ast_Suite'] = BlockMirrorTextToBlocks.prototype['ast_Module'];
 
-BlockMirrorTextToBlocks.prototype['ast_Pass'] = function() {
+BlockMirrorTextToBlocks.prototype['ast_Pass'] = function () {
     return null; //block("controls_pass");
-}
+};
 
-BlockMirrorTextToBlocks.prototype['ast_Name'] = function() {
-    return null; //block("controls_pass");
-}
+
+BlockMirrorTextToBlocks.prototype.convertElements = function (key, values) {
+    var output = {};
+    for (var i = 0; i < values.length; i++) {
+        output[key + i] = this.convert(values[i]);
+    }
+    return output;
+};
+
+BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
+    'abs': {
+        'returns': true,
+        'full': ['x']
+    },
+    'setattr': {
+        'returns': false,
+        'full': ['object', 'name', 'value']
+    },
+    'sorted': {
+        'full': ['iterable', '*', '**key', '**reverse'],
+        'simple': ['iterable'],
+        'returns': true,
+    }
+};
+
+BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES = {
+    'append': {
+        'returns': false,
+        'full': ['x']
+    },
+    'replace': {
+        'returns': true,
+        'full': ['old', 'new', 'count'],
+        'simple': ['old', 'new']
+    }
+};
 
 Blockly.Python['blank'] = '___';

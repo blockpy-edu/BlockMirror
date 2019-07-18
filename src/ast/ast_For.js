@@ -64,10 +64,10 @@ BlockMirrorTextToBlocks.prototype['ast_For'] = function(node) {
     }
 
     return BlockMirrorTextToBlocks.create_block(blockName, node.lineno, {
-    }, {}, {
+    }, {
         "ITER": this.convert(iter),
         "TARGET": this.convert(target)
-    }, {}, bodies);
+    }, {}, {}, bodies);
 }
 
 Blockly.Python['ast_ForElse'] = Blockly.Python['ast_For'];

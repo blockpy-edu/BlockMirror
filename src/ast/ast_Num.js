@@ -30,7 +30,7 @@ Blockly.Python['ast_Num'] = function(block) {
 
 BlockMirrorTextToBlocks.prototype['ast_Num'] = function(node) {
     var n = node.n;
-    return BlockMirrorTextToBlocks.create_block("math_number", node.lineno, {
+    return BlockMirrorTextToBlocks.create_block("ast_Num", node.lineno, {
         "NUM": Sk.ffi.remapToJs(n)
     });
 }

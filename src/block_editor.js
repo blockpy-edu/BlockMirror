@@ -65,22 +65,23 @@ BlockMirrorBlockEditor.prototype.makeToolbox = function() {
            '<block type="ast_ForElse"></block>' +
            '</category>';
     xml += '<category name="Values" colour="300">' +
-           '<block type="ast_Num"></block>'
+           '<block type="ast_Num"></block>' +
            '</category>';
+    //xml += '<category name="Values" colour="300"><button value="From Code">From Code</button></category>';
     xml += '</xml>';
     return xml;
-}
+};
 
 BlockMirrorBlockEditor.prototype.remakeToolbox = function() {
     this.workspace.updateToolbox(this.makeToolbox());
     this.resized();
-}
+};
 
 BlockMirrorBlockEditor.prototype.changed = function() {
     // todo
     this.blockMirror.textEditor.setCode('__main__', this.getText());
     //console.log("Changed block");
-}
+};
 
 /**
  * Retrieves the current width of the Blockly Toolbox, unless
@@ -117,7 +118,7 @@ BlockMirrorBlockEditor.prototype.setMode = function(mode) {
     this.workspace.setVisible(configuration.visible);
     
     if (configuration.visible) {
-        this.blockContainer.style.height = '100%';
+        this.blockContainer.style.height = this.blockMirror.configuration.height;
         this.blockEditor.style.width = '100%';
         this.resized();
     } else {
