@@ -7,7 +7,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "args0": [
         {"type": "input_dummy"},
         {"type": "input_statement", "name": "STACK", "align": "RIGHT"},
-        {"type": "input_value", "name": "RETURNS", "align": "RIGHT"}
+        {"type": "field_checkbox", "name": "RETURNS", "checked": true, "align": "RIGHT"}
     ],
     "style": "procedure_blocks",
     "enableContextMenu": false
@@ -73,6 +73,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     }
 });
 
+// TODO: Figure out an elegant "complexity" flag feature to allow different levels of Mutators
+
 Blockly.Blocks['ast_FunctionDef'] = {
     init: function () {
         this.appendDummyInput()
@@ -81,6 +83,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.decoratorsCount_ = 0;
         this.parametersCount_ = 0;
         this.hasReturn_ = false;
+        this.mutatorComplexity_ = 0;
         this.appendStatementInput("BODY")
             .setCheck(null);
         this.setInputsInline(false);
@@ -90,6 +93,8 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.setTooltip("");
         this.setHelpUrl("");
         this.updateShape_();
+        this.setMutator(new Blockly.Mutator(['ast_FunctionMutantParameter',
+            'ast_FunctionMutantParameterType']));
     },
     /**
      * Create XML to represent list inputs.
@@ -113,6 +118,21 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.parametersCount_ = parseInt(xmlElement.getAttribute('parameters'), 10);
         this.hasReturn_ = "true" === xmlElement.getAttribute('returns');
         this.updateShape_();
+    },
+    setReturnAnnotation_: function(status) {
+        let currentReturn = this.getInput('RETURNS');
+        if (status) {
+            if (!currentReturn) {
+                this.appendValueInput("RETURNS")
+                    .setCheck(null)
+                    .setAlign(Blockly.ALIGN_RIGHT)
+                    .appendField("returns");
+            }
+            this.moveInputBefore('RETURNS', 'BODY');
+        } else if (!status && currentReturn) {
+            this.removeInput('RETURNS');
+        }
+        this.hasReturn_ = status;
     },
     updateShape_: function () {
         // Set up decorators and parameters
@@ -144,19 +164,128 @@ Blockly.Blocks['ast_FunctionDef'] = {
             }
         });
         // Set up optional Returns annotation
-        let currentReturn = this.getInput('RETURNS');
-        if (this.hasReturn_) {
-            if (!currentReturn) {
-                this.appendValueInput("RETURNS")
-                    .setCheck(null)
-                    .setAlign(Blockly.ALIGN_RIGHT)
-                    .appendField("returns");
-            }
-            this.moveInputBefore('RETURNS', 'BODY');
-        } else if (!this.hasReturn_ && currentReturn) {
-            this.removeInput('RETURNS');
+        this.setReturnAnnotation_(this.hasReturn_);
+    },
+    /**
+     * Populate the mutator's dialog with this block's components.
+     * @param {!Blockly.Workspace} workspace Mutator's workspace.
+     * @return {!Blockly.Block} Root block in mutator.
+     * @this Blockly.Block
+     */
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('ast_FunctionHeaderMutator');
+        containerBlock.initSvg();
+
+        // Check/uncheck the allow statement box.
+        if (this.getInput('RETURNS')) {
+            containerBlock.setFieldValue(
+                this.hasReturn_ ? 'TRUE' : 'FALSE', 'RETURNS');
+        } else {
+            // TODO: set up "canReturns" for lambda mode
+            //containerBlock.getField('RETURNS').setVisible(false);
         }
-    }
+
+        // Set up parameters
+        var connection = containerBlock.getInput('STACK').connection;
+        let parameters = [];
+        for (var i = 0; i < this.parametersCount_; i++) {
+            let parameter = this.getInput('PARAMETER' + i).connection;
+            let sourceType = parameter.targetConnection.getSourceBlock().type;
+            let createName = 'ast_FunctionMutant' + sourceType.substring('ast_Function'.length);
+            var itemBlock = workspace.newBlock(createName);
+            itemBlock.initSvg();
+            connection.connect(itemBlock.previousConnection);
+            connection = itemBlock.nextConnection;
+            parameters.push(itemBlock);
+        }
+        return containerBlock;
+    },
+    /**
+     * Reconfigure this block based on the mutator dialog's components.
+     * @param {!Blockly.Block} containerBlock Root block in mutator.
+     * @this Blockly.Block
+     */
+    compose: function (containerBlock) {
+        var itemBlock = containerBlock.getInputTargetBlock('STACK');
+        // Count number of inputs.
+        var connections = [];
+        let blockTypes = [];
+        while (itemBlock) {
+            connections.push(itemBlock.valueConnection_);
+            blockTypes.push(itemBlock.type);
+            itemBlock = itemBlock.nextConnection &&
+                itemBlock.nextConnection.targetBlock();
+        }
+        // Disconnect any children that don't belong.
+        for (let i = 0; i < this.parametersCount_; i++) {
+            var connection = this.getInput('PARAMETER' + i).connection.targetConnection;
+            if (connection && connections.indexOf(connection) === -1) {
+                // Disconnect all children of this block
+                let connectedBlock = connection.getSourceBlock();
+                for (let j = 0; j < connectedBlock.inputList.length; j++) {
+                    let field = connectedBlock.inputList[j].connection;
+                    if (field && field.targetConnection) {
+                        field.targetConnection.getSourceBlock().unplug(true);
+                    }
+                }
+                connection.disconnect();
+                connection.getSourceBlock().dispose();
+            }
+        }
+        this.parametersCount_ = connections.length;
+        this.updateShape_();
+        // Reconnect any child blocks.
+        for (let i = 0; i < this.parametersCount_; i++) {
+            Blockly.Mutator.reconnect(connections[i], this, 'PARAMETER' + i);
+            if (!connections[i]) {
+                let createName = 'ast_Function' + blockTypes[i].substring('ast_FunctionMutant'.length);
+                let itemBlock = this.workspace.newBlock(createName);
+                itemBlock.setDeletable(false);
+                itemBlock.setMovable(false);
+                itemBlock.initSvg();
+                this.getInput('PARAMETER' + i).connection.connect(itemBlock.outputConnection);
+                itemBlock.render();
+                //this.get(itemBlock, 'ADD'+i)
+            }
+        }
+        // Show/hide the returns annotation
+        let hasReturns = containerBlock.getFieldValue('RETURNS');
+        if (hasReturns !== null) {
+            hasReturns = hasReturns === 'TRUE';
+            if (this.hasReturn_ != hasReturns) {
+                if (hasReturns) {
+                    this.setReturnAnnotation_(true);
+                    Blockly.Mutator.reconnect(this.returnConnection_, this, 'RETURNS');
+                    this.returnConnection_ = null;
+                } else {
+                    let returnConnection = this.getInput('RETURNS').connection
+                    this.returnConnection_ = returnConnection.targetConnection;
+                    if (this.returnConnection_) {
+                        let returnBlock = returnConnection.targetBlock();
+                        returnBlock.unplug();
+                        returnBlock.bumpNeighbours_();
+                    }
+                    this.setReturnAnnotation_(false);
+                }
+            }
+        }
+    },
+    /**
+     * Store pointers to any connected child blocks.
+     * @param {!Blockly.Block} containerBlock Root block in mutator.
+     * @this Blockly.Block
+     */
+    saveConnections: function (containerBlock) {
+        var itemBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 0;
+        while (itemBlock) {
+            var input = this.getInput('PARAMETER' + i);
+            itemBlock.valueConnection_ = input && input.connection.targetConnection;
+            i++;
+            itemBlock = itemBlock.nextConnection &&
+                itemBlock.nextConnection.targetBlock();
+        }
+    },
 };
 
 Blockly.Python['ast_FunctionDef'] = function (block) {
@@ -183,7 +312,7 @@ Blockly.Python['ast_FunctionDef'] = function (block) {
     }
     // Body
     let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
-    return decorators.join('') + "def " + name + "(" + parameters.join(', ') + ")" + returns + ":\n" + body + "\n";
+    return decorators.join('') + "def " + name + "(" + parameters.join(', ') + ")" + returns + ":\n" + body;
 };
 
 BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values) {
@@ -216,8 +345,8 @@ BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno) {
         for (let i = 0; i < positional.length; i++) {
             let childValues = {};
             let type = 'ast_FunctionParameter';
-            if (defaults[defaultOffset+i]) {
-                childValues['DEFAULT'] = this.convert(defaults[defaultOffset+i]);
+            if (defaults[defaultOffset + i]) {
+                childValues['DEFAULT'] = this.convert(defaults[defaultOffset + i]);
                 type += "Default";
             }
             values['PARAMETER' + totalArgs] = this.parseArg(positional[i], type, lineno, childValues);
@@ -249,7 +378,7 @@ BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno) {
     }
 
     return totalArgs;
-}
+};
 
 BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node) {
     let name = node.name;

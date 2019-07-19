@@ -250,8 +250,7 @@ Blockly.Blocks['ast_Call'] = {
             container.appendChild(parameter);
         }
         return container;
-    }
-    ,
+    },
     /**
      * Parse XML to restore the (non-editable) name and parameters.
      * @param {!Element} xmlElement XML storage element.
@@ -275,8 +274,7 @@ Blockly.Blocks['ast_Call'] = {
         if (this.simpleName_ !== null) {
             this.renameProcedure(this.getProcedureCall(), this.simpleName_);
         }
-    }
-    ,
+    },
     /**
      * Return all variables referenced by this block.
      * @return {!Array.<!Blockly.VariableModel>} List of variable models.

@@ -1,21 +1,8 @@
-[ ] FunctionDef
-[ ] Param
-[ ] ClassDef
-[ ] With
-[ ] Lambda
-[ ] Return
-[ ] Yield
-[ ] YieldFrom
-[ ] If
-[ ] Import
-[ ] ImportFrom
-[ ] Global
-[ ] Nonlocal
-[ ] Try
-[ ] ExceptHandler
-[ ] While
-[ ] Break
-[ ] Continue
+[X] If
+[X] Import
+[X] ImportFrom
+[X] While
+[X] With
 [-] AsyncFor
 [-] AsyncFunctionDef
 [-] AsyncWith
@@ -25,6 +12,8 @@
 [-] Bytes
 [-] Ellipsis
 [-] Expression
+[-] Nonlocal
+[-] Param
 [X] Add
 [X] And
 [X] Assert
@@ -36,19 +25,25 @@
 [X] BitOr
 [X] BitXor
 [X] BoolOp
+[X] Break
 [X] Call
+[X] ClassDef
 [X] Compare
+[X] Continue
 [X] Del
 [X] Delete
 [X] Dict
 [X] DictComp
 [X] Div
 [X] Eq
+[X] ExceptHandler
 [X] Expr
 [X] ExtSlice
 [X] FloorDiv
 [X] For
+[X] FunctionDef
 [X] GeneratorExp
+[X] Global
 [X] Gt
 [X] GtE
 [X] IfExp
@@ -59,6 +54,7 @@
 [X] Is
 [X] IsNot
 [X] LShift
+[X] Lambda
 [X] List
 [X] ListComp
 [X] Load
@@ -79,6 +75,7 @@
 [X] Pow
 [X] RShift
 [X] Raise
+[X] Return
 [X] Set
 [X] SetComp
 [X] Slice
@@ -88,7 +85,10 @@
 [X] Sub
 [X] Subscript
 [X] Suite
+[X] Try
 [X] Tuple
 [X] UAdd
 [X] USub
 [X] UnaryOp
+[X] Yield
+[X] YieldFrom
