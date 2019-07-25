@@ -3,9 +3,7 @@ Blockly.Blocks['ast_Global'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.nameCount_ = 1;
         this.appendDummyInput('GLOBAL')
             .appendField("make global", "START_GLOBALS");
@@ -67,7 +65,7 @@ Blockly.Python['ast_Global'] = function (block) {
     return 'global ' + elements.join(', ') + "\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Global'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Global'] = function (node, parent) {
     let names = node.names;
 
     let fields = {};

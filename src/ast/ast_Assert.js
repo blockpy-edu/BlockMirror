@@ -8,9 +8,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC,
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -22,9 +20,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC,
 });
 
 Blockly.Python['ast_Assert'] = function (block) {
@@ -38,17 +34,17 @@ Blockly.Python['ast_AssertFull'] = function (block) {
     return "assert " + test + ", "+msg+"\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Assert'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Assert'] = function (node, parent) {
     var test = node.test;
     var msg = node.msg;
     if (msg == null) {
         return BlockMirrorTextToBlocks.create_block("ast_Assert", node.lineno, {}, {
-            "TEST": this.convert(test)
+            "TEST": this.convert(test, node)
         });
     } else {
         return BlockMirrorTextToBlocks.create_block("ast_AssertFull", node.lineno, {}, {
-            "TEST": this.convert(test),
-            "MSG": this.convert(msg)
+            "TEST": this.convert(test, node),
+            "MSG": this.convert(msg, node)
         });
     }
 };

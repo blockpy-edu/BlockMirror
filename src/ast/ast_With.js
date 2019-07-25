@@ -4,7 +4,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "message0": "context %1",
     "args0": [{"type": "input_value", "name": "CONTEXT"}],
     "enableContextMenu": false,
-    "colour": 60,
+    "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
     "inputsInline": false,
 });
 Blockly.Python["ast_WithItem"] = function (block) {
@@ -19,7 +19,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "args0": [{"type": "input_value", "name": "CONTEXT"},
         {"type": "input_value", "name": "AS"}],
     "enableContextMenu": false,
-    "colour": 60,
+    "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
     "inputsInline": true,
 });
 Blockly.Python["ast_WithItemAs"] = function (block) {
@@ -41,9 +41,7 @@ Blockly.Blocks['ast_With'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setTooltip("");
-        this.setHelpUrl("");
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
         this.updateShape_();
     },
     /**
@@ -78,7 +76,7 @@ Blockly.Blocks['ast_With'] = {
     },
     updateShape_: function () {
         // With clauses
-        for (let i = 1; i < this.itemCount_; i++) {
+        for (var i = 1; i < this.itemCount_; i++) {
             let input = this.getInput('ITEM' + i);
             if (!input) {
                 input = this.appendValueInput('ITEM' + i);
@@ -90,7 +88,7 @@ Blockly.Blocks['ast_With'] = {
             i++;
         }
         // Reposition everything
-        for (let i = 0; i < this.itemCount_; i++) {
+        for (i = 0; i < this.itemCount_; i++) {
             this.moveInputBefore('ITEM' + i, 'BODY');
         }
     },
@@ -108,7 +106,7 @@ Blockly.Python['ast_With'] = function (block) {
     return "with " + items.join(', ') + ":\n" + body;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_With'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_With'] = function (node, parent) {
     let items = node.items;
     let body = node.body;
 
@@ -119,14 +117,14 @@ BlockMirrorTextToBlocks.prototype['ast_With'] = function (node) {
     for (let i = 0; i < items.length; i++) {
         let hasRename = items[i].optional_vars;
         renamedItems.push(hasRename);
-        let innerValues = {'CONTEXT':this.convert(items[i].context_expr)};
+        let innerValues = {'CONTEXT':this.convert(items[i].context_expr, node)};
         if (hasRename) {
-            innerValues['AS'] = this.convert(items[i].optional_vars);
+            innerValues['AS'] = this.convert(items[i].optional_vars, node);
             values['ITEM'+i] = BlockMirrorTextToBlocks.create_block("ast_WithItemAs", node.lineno,
-                {}, innerValues);;
+                {}, innerValues, this.LOCKED_BLOCK);
         } else {
             values['ITEM'+i] = BlockMirrorTextToBlocks.create_block("ast_WithItem", node.lineno,
-                {}, innerValues);;
+                {}, innerValues, this.LOCKED_BLOCK);
         }
     }
     mutations['as'] = renamedItems;
@@ -136,6 +134,6 @@ BlockMirrorTextToBlocks.prototype['ast_With'] = function (node) {
         {
             "inline": "false"
         }, mutations, {
-            'BODY': this.convertBody(body)
+            'BODY': this.convertBody(body, node)
         });
 };

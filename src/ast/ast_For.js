@@ -10,9 +10,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 120,
-  "tooltip": "",
-  "helpUrl": ""
+  "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 })
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -29,9 +27,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 120,
-  "tooltip": "",
-  "helpUrl": ""
+  "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 })
 
 Blockly.Python['ast_For'] = function(block) {
@@ -49,24 +45,24 @@ Blockly.Python['ast_For'] = function(block) {
   return code;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_For'] = function(node) {
+BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
     var target = node.target;
     var iter = node.iter;
     var body = node.body;
     var orelse = node.orelse;
     
     var blockName = 'ast_For';
-    var bodies = {'BODY': this.convertBody(body)};
+    var bodies = {'BODY': this.convertBody(body, node)};
     
     if (orelse.length > 0) {
         blockName = "ast_ForElse";
-        bodies['ELSE'] = this.convertBody(orelse);
+        bodies['ELSE'] = this.convertBody(orelse, node);
     }
 
     return BlockMirrorTextToBlocks.create_block(blockName, node.lineno, {
     }, {
-        "ITER": this.convert(iter),
-        "TARGET": this.convert(target)
+        "ITER": this.convert(iter, node),
+        "TARGET": this.convert(target, node)
     }, {}, {}, bodies);
 }
 

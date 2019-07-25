@@ -21,9 +21,7 @@ Blockly.Blocks['ast_AugAssign'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("variable_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.updateShape_();
         this.updatePreposition_(this.initialPreposition_);
     },
@@ -98,18 +96,18 @@ Blockly.Python['ast_AugAssign'] = function (block) {
 };
 
 
-BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
     let target = node.target;
     let op = node.op.name;
     let value = node.value;
 
-    let values = {'VALUE': this.convert(value)};
+    let values = {'VALUE': this.convert(value, node)};
     let fields = {'OP_NAME': op};
     let simpleTarget = target._astname === 'Name';
     if (simpleTarget) {
         fields['VAR'] = Sk.ffi.remapToJs(target.id);
     } else {
-        values['TARGET'] = this.convert(value);
+        values['TARGET'] = this.convert(value, node);
     }
 
     let preposition = op;

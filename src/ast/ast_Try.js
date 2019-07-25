@@ -16,9 +16,7 @@ Blockly.Blocks['ast_Try'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.EXCEPTIONS);
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -121,7 +119,7 @@ Blockly.Python['ast_Try'] = function (block) {
     return "try:\n" + body + handlers.join("") + orelse + finalbody;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node, parent) {
     let body = node.body;
     let handlers = node.handlers;
     let orelse = node.orelse;
@@ -135,22 +133,22 @@ BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node) {
         "@HANDLERS": handlers.length
     };
 
-    let statements = {"BODY": this.convertBody(body)};
+    let statements = {"BODY": this.convertBody(body, node)};
     if (orelse !== null) {
-        statements['ORELSE'] = this.convertBody(orelse);
+        statements['ORELSE'] = this.convertBody(orelse, node);
     }
     if (finalbody !== null && finalbody.length) {
-        statements['FINALBODY'] = this.convertBody(finalbody);
+        statements['FINALBODY'] = this.convertBody(finalbody, node);
     }
 
     let handledLevels = [];
     for (let i = 0; i < handlers.length; i++) {
         let handler = handlers[i];
-        statements["HANDLER" + i] = this.convertBody(handler.body);
+        statements["HANDLER" + i] = this.convertBody(handler.body, node);
         if (handler.type === null) {
             handledLevels.push(BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL);
         } else {
-            values["TYPE" + i] = this.convert(handler.type);
+            values["TYPE" + i] = this.convert(handler.type, node);
             if (handler.name === null) {
                 handledLevels.push(BlockMirrorTextToBlocks.HANDLERS_NO_AS);
             } else {

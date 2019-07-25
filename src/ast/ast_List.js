@@ -5,12 +5,11 @@ Blockly.Blocks['ast_List'] = {
      */
     init: function () {
         this.setHelpUrl(Blockly.Msg['LISTS_CREATE_WITH_HELPURL']);
-        this.setStyle('list_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'List');
         this.setMutator(new Blockly.Mutator(['ast_List_create_with_item']));
-        this.setTooltip(Blockly.Msg['LISTS_CREATE_WITH_TOOLTIP']);
     },
     /**
      * Create XML to represent list inputs.
@@ -139,11 +138,10 @@ Blockly.Blocks['ast_List_create_with_container'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('list_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
         this.appendDummyInput()
             .appendField('Add new list elements below');
         this.appendStatementInput('STACK');
-        this.setTooltip(Blockly.Msg['LISTS_CREATE_WITH_CONTAINER_TOOLTIP']);
         this.contextMenu = false;
     }
 };
@@ -154,12 +152,11 @@ Blockly.Blocks['ast_List_create_with_item'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('list_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
         this.appendDummyInput()
             .appendField('Element');
         this.setPreviousStatement(true);
         this.setNextStatement(true);
-        this.setTooltip(Blockly.Msg['LISTS_CREATE_WITH_ITEM_TOOLTIP']);
         this.contextMenu = false;
     }
 };
@@ -175,12 +172,12 @@ Blockly.Python['ast_List'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_List'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {
     var elts = node.elts;
     var ctx = node.ctx;
 
     return BlockMirrorTextToBlocks.create_block("ast_List", node.lineno, {},
-        this.convertElements("ADD", elts),
+        this.convertElements("ADD", elts, node),
         {
             "inline": elts.length > 3 ? "false" : "true",
         }, {

@@ -12,9 +12,7 @@ Blockly.Blocks['ast_Lambda'] = {
             .setCheck(null);
         this.setInputsInline(false);
         this.setOutput(true);
-        this.setStyle("procedure_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
         this.updateShape_();
     },
     mutationToDom: Blockly.Blocks['ast_FunctionDef'].mutationToDom,
@@ -35,11 +33,11 @@ Blockly.Python['ast_Lambda'] = function (block) {
     return ["lambda " + parameters.join(', ') + ": " + body, Blockly.Python.ORDER_LAMBDA];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
     let args = node.args;
     let body = node.body;
 
-    let values = {'BODY': this.convert(body)};
+    let values = {'BODY': this.convert(body, node)};
 
     let parsedArgs = 0;
     if (args !== null) {

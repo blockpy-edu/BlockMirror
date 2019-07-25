@@ -5,9 +5,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         {"type": "field_variable", "name": "VAR", "variable": "%{BKY_VARIABLES_DEFAULT_NAME}"}
     ],
     "output": null,
-    "style": "variable_blocks",
-    "helpUrl": "%{BKY_VARIABLES_GET_HELPURL}",
-    "tooltip": "%{BKY_VARIABLES_GET_TOOLTIP}",
+    "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES,
     "extensions": ["contextMenu_variableSetterGetter_forBlockMirror"]
 })
 
@@ -81,7 +79,7 @@ Blockly.Python['ast_Name'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node, parent) {
     var id = node.id;
     var ctx = node.ctx;
     if (id.v == Blockly.Python.blank) {

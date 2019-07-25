@@ -7,9 +7,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": "ComprehensionFor",
-    "style": 'loop_blocks',
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -20,9 +18,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": "ComprehensionIf",
-    "style": 'loop_blocks',
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
 
 Blockly.Blocks['ast_Comp_create_with_container'] = {
@@ -31,7 +27,7 @@ Blockly.Blocks['ast_Comp_create_with_container'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('loop_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
         this.appendDummyInput()
             .appendField('Add new comprehensions below');
         this.appendDummyInput()
@@ -47,7 +43,7 @@ Blockly.Blocks['ast_Comp_create_with_for'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('loop_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
         this.appendDummyInput()
             .appendField('For clause');
         this.setPreviousStatement(true);
@@ -62,7 +58,7 @@ Blockly.Blocks['ast_Comp_create_with_if'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('loop_blocks');
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
         this.appendDummyInput()
             .appendField('If clause');
         this.setPreviousStatement(true);
@@ -71,11 +67,11 @@ Blockly.Blocks['ast_Comp_create_with_if'] = {
     }
 };
 
-BlockMirrorTextToBlocks.BRACE_STYLE = {
-    'ListComp': {start: '[', end: ']'},
-    'SetComp': {start: '{', end: '}'},
-    'GeneratorExp': {start: '(', end: ')'},
-    'DictComp': {start: '{', end: '}'},
+BlockMirrorTextToBlocks.COMP_SETTINGS = {
+    'ListComp': {start: '[', end: ']', color: BlockMirrorTextToBlocks.COLOR.LIST},
+    'SetComp': {start: '{', end: '}', color: BlockMirrorTextToBlocks.COLOR.SET},
+    'GeneratorExp': {start: '(', end: ')', color: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
+    'DictComp': {start: '{', end: '}', color: BlockMirrorTextToBlocks.COLOR.DICTIONARY},
 };
 
 ['ListComp', 'SetComp', 'GeneratorExp', 'DictComp'].forEach(function (kind) {
@@ -86,14 +82,15 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
          */
         init: function () {
             this.setStyle('loop_blocks');
+            this.setColour(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color);
             this.itemCount_ = 3;
             let input = this.appendValueInput("ELT")
-                .appendField(BlockMirrorTextToBlocks.BRACE_STYLE[kind].start);
+                .appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start);
             if (kind === 'DictComp') {
                 input.setCheck('DictPair');
             }
             this.appendDummyInput("END_BRACKET")
-                .appendField(BlockMirrorTextToBlocks.BRACE_STYLE[kind].end);
+                .appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end);
             this.updateShape_();
             this.setOutput(true);
             this.setMutator(new Blockly.Mutator(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
@@ -259,9 +256,9 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
     Blockly.Python['ast_' + kind] = function (block) {
         // elt
         let elt;
-        if (kind == 'DictComp') {
+        if (kind === 'DictComp') {
             let child = block.getInputTargetBlock('ELT');
-            if (child === null || child.type != 'ast_DictItem') {
+            if (child === null || child.type !== 'ast_DictItem') {
                 elt = (Blockly.Python.blank + ": " + Blockly.Python.blank);
             } else {
                 let key = Blockly.Python.valueToCode(child, 'KEY', Blockly.Python.ORDER_NONE) ||
@@ -296,13 +293,13 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
             }
         }
         // Put it all together
-        let code = BlockMirrorTextToBlocks.BRACE_STYLE[kind].start
+        let code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start
             + elt + " " + elements.join(' ') +
-            BlockMirrorTextToBlocks.BRACE_STYLE[kind].end;
+            BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
         return [code, Blockly.Python.ORDER_ATOMIC];
     };
 
-    BlockMirrorTextToBlocks.prototype['ast_' + kind] = function (node) {
+    BlockMirrorTextToBlocks.prototype['ast_' + kind] = function (node, parent) {
         let generators = node.generators;
 
         let elements = {};
@@ -311,8 +308,8 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
             let value = node.value;
             elements["ELT"] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {},
                 {
-                    "KEY": this.convert(key),
-                    "VALUE": this.convert(value)
+                    "KEY": this.convert(key, node),
+                    "VALUE": this.convert(value, node)
                 },
                 {
                     "inline": "true",
@@ -321,7 +318,7 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
                 });
         } else {
             let elt = node.elt;
-            elements["ELT"] = this.convert(elt);
+            elements["ELT"] = this.convert(elt, node);
         }
         let DEFAULT_SETTINGS = {
             "inline": "true",
@@ -336,15 +333,15 @@ BlockMirrorTextToBlocks.BRACE_STYLE = {
             let is_async = generators[i].is_async;
             elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionFor", node.lineno, {},
                 {
-                    "ITER": this.convert(iter),
-                    "TARGET": this.convert(target)
+                    "ITER": this.convert(iter, node),
+                    "TARGET": this.convert(target, node)
                 },
                 DEFAULT_SETTINGS);
             g += 1;
             for (let j = 0; j < ifs.length; j++) {
                 elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionIf", node.lineno, {},
                     {
-                        "TEST": this.convert(ifs[j])
+                        "TEST": this.convert(ifs[j], node)
                     },
                     DEFAULT_SETTINGS);
                 g += 1;

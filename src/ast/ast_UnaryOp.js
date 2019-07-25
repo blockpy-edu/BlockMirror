@@ -6,7 +6,7 @@ BlockMirrorTextToBlocks.UNARYOPS = [
 ];
 
 BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
-    Blockly.Constants.Math.TOOLTIPS_BY_OP[unaryop[1]] = unaryop[2];
+    //Blockly.Constants.Math.TOOLTIPS_BY_OP[unaryop[1]] = unaryop[2];
 
     let fullName = "ast_UnaryOp" + unaryop[1];
 
@@ -18,7 +18,9 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
         ],
         "inputsInline": false,
         "output": null,
-        "style": (unaryop[1] == 'Not' ? "logic_blocks" : "math_blocks")
+        "colour": (unaryop[1] == 'Not' ?
+            BlockMirrorTextToBlocks.COLOR.LOGIC :
+            BlockMirrorTextToBlocks.COLOR.MATH)
     });
 
     Blockly.Python[fullName] = function (block) {
@@ -30,12 +32,12 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
     };
 });
 
-BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
     let op = node.op.name;
     let operand = node.operand;
 
     return BlockMirrorTextToBlocks.create_block('ast_UnaryOp' + op, node.lineno, {}, {
-        "VALUE": this.convert(operand)
+        "VALUE": this.convert(operand, node)
     }, {
         "inline": false
     });

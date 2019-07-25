@@ -6,7 +6,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": false,
     "output": null,
-    "colour": 40
+    "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES
 });
 
 Blockly.Python['ast_Starred'] = function (block) {
@@ -17,12 +17,12 @@ Blockly.Python['ast_Starred'] = function (block) {
     return [code, order];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Starred'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Starred'] = function (node, parent) {
     let value = node.value;
     let ctx = node.ctx;
 
     return BlockMirrorTextToBlocks.create_block('ast_Starred', node.lineno, {}, {
-        "VALUE": this.convert(value)
+        "VALUE": this.convert(value, node)
     }, {
         "inline": true
     });

@@ -9,9 +9,7 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("variable_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.initialized_ = true;
         this.updateShape_();
     },
@@ -73,9 +71,7 @@ Blockly.Blocks['ast_AnnAssign'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("variable_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.strAnnotations_ = false;
         this.initialized_ = true;
     },
@@ -154,7 +150,7 @@ BlockMirrorTextToBlocks.prototype.getBuiltinAnnotation = function (annotation) {
 
     // Potentially filter out unknown annotations
     if (result !== false && this.strictAnnotations) {
-        if (this.strictAnnotations.indexOf(result) !== null) {
+        if (this.strictAnnotations.indexOf(result) !== -1) {
             return result;
         } else {
             return false;
@@ -164,7 +160,7 @@ BlockMirrorTextToBlocks.prototype.getBuiltinAnnotation = function (annotation) {
     }
 }
 
-BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
     let target = node.target;
     let annotation = node.annotation;
     let value = node.value;
@@ -172,7 +168,7 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node) {
     let values = {};
     let mutations = {'@initialized': false};
     if (value !== null) {
-        values['VALUE'] = this.convert(value);
+        values['VALUE'] = this.convert(value, node);
         mutations['@initialized'] = true;
     }
 
@@ -192,8 +188,8 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node) {
                 "inline": "true",
             }, mutations);
     } else {
-        values['TARGET'] = this.convert(target);
-        values['ANNOTATION'] = this.convert(annotation);
+        values['TARGET'] = this.convert(target, node);
+        values['ANNOTATION'] = this.convert(annotation, node);
         return BlockMirrorTextToBlocks.create_block("ast_AnnAssignFull", node.lineno, {},
             values,
             {

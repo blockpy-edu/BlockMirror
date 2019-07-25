@@ -4,7 +4,7 @@ Blockly.Blocks['ast_Set'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Set');
@@ -136,7 +136,7 @@ Blockly.Blocks['ast_Set_create_with_container'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
         this.appendDummyInput()
             .appendField('Add new set elements below');
         this.appendStatementInput('STACK');
@@ -150,7 +150,7 @@ Blockly.Blocks['ast_Set_create_with_item'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
         this.appendDummyInput()
             .appendField('Element');
         this.setPreviousStatement(true);
@@ -173,11 +173,11 @@ Blockly.Python['ast_Set'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Set'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Set'] = function (node, parent) {
     var elts = node.elts;
 
     return BlockMirrorTextToBlocks.create_block("ast_Set", node.lineno, {},
-        this.convertElements("ADD", elts),
+        this.convertElements("ADD", elts, node),
         {
             "inline": elts.length > 3 ? "false" : "true",
         }, {

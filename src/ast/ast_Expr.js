@@ -7,10 +7,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": false,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 230,
-    "tooltip": "",
-    "helpUrl": ""
-})
+    "colour": BlockMirrorTextToBlocks.COLOR.PYTHON,
+});
 
 Blockly.Python['ast_Expr'] = function (block) {
     // Numeric value.
@@ -19,17 +17,18 @@ Blockly.Python['ast_Expr'] = function (block) {
     return value+"\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, is_top_level) {
+BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, parent) {
     var value = node.value;
 
-    var converted = this.convert(value);
-    if (converted.constructor == Array) {
+    var converted = this.convert(value, node);
+
+    if (converted.constructor === Array) {
         return converted[0];
-    } else if (is_top_level === true) {
-        return [this.convert(value)];
+    } else if (this.isTopLevel(parent)) {
+        return [this.convert(value, node)];
     } else {
         return BlockMirrorTextToBlocks.create_block("ast_Expr", node.lineno, {}, {
-            "VALUE": this.convert(value)
+            "VALUE": this.convert(value, node)
         });
     }
-}
+};

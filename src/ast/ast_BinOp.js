@@ -41,7 +41,7 @@ BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION = {};
 BlockMirrorTextToBlocks.BINOPS.forEach(function (binop) {
     BINOPS_BLOCKLY_GENERATE[binop[1]] = [" " + binop[0], binop[2]];
     BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[binop[1]] = binop[5];
-    Blockly.Constants.Math.TOOLTIPS_BY_OP[binop[1]] = binop[3];
+    //Blockly.Constants.Math.TOOLTIPS_BY_OP[binop[1]] = binop[3];
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -54,8 +54,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "style": "math_blocks",
-    "extensions": ["math_op_tooltip"]
+    "colour": BlockMirrorTextToBlocks.COLOR.MATH
+    //"extensions": ["math_op_tooltip"]
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -68,8 +68,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "style": "math_blocks",
-    "extensions": ["math_op_tooltip"]
+    "colour": BlockMirrorTextToBlocks.COLOR.MATH
+    //"extensions": ["math_op_tooltip"]
 });
 
 Blockly.Python['ast_BinOp'] = function (block) {
@@ -83,7 +83,7 @@ Blockly.Python['ast_BinOp'] = function (block) {
     return [code, order];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node, parent) {
     let left = node.left;
     let op = node.op.name;
     let right = node.right;
@@ -93,8 +93,8 @@ BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node) {
     return BlockMirrorTextToBlocks.create_block(blockName, node.lineno, {
         "OP": op
     }, {
-        "A": this.convert(left),
-        "B": this.convert(right)
+        "A": this.convert(left, node),
+        "B": this.convert(right, node)
     }, {
         "inline": true
     });

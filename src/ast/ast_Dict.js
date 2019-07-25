@@ -7,9 +7,7 @@ Blockly.Blocks['ast_DictItem'] = {
             .appendField(":");
         this.setInputsInline(true);
         this.setOutput(true, "DictPair");
-        this.setColour(70);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
     }
 };
 
@@ -19,7 +17,7 @@ Blockly.Blocks['ast_Dict'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(70);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Dict');
@@ -170,7 +168,7 @@ Blockly.Blocks['ast_Dict_create_with_container'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
         this.appendDummyInput()
             .appendField('Add new dict elements below');
         this.appendStatementInput('STACK');
@@ -184,7 +182,7 @@ Blockly.Blocks['ast_Dict_create_with_item'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
         this.appendDummyInput()
             .appendField('Element');
         this.setPreviousStatement(true);
@@ -212,7 +210,7 @@ Blockly.Python['ast_Dict'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node, parent) {
     let keys = node.keys;
     let values = node.values;
 
@@ -227,14 +225,10 @@ BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node) {
         let value = values[i];
         elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {},
             {
-                "KEY": this.convert(key),
-                "VALUE": this.convert(value)
+                "KEY": this.convert(key, node),
+                "VALUE": this.convert(value, node)
             },
-            {
-                "inline": "true",
-                'deletable': "false",
-                "movable": "false"
-            });
+            this.LOCKED_BLOCK);
     }
 
     return BlockMirrorTextToBlocks.create_block("ast_Dict", node.lineno, {},

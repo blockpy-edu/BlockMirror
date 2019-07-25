@@ -11,9 +11,7 @@ Blockly.Blocks['ast_ClassDef'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.OO);
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -108,7 +106,7 @@ Blockly.Python['ast_ClassDef'] = function (block) {
 }
 ;
 
-BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
     let name = node.name;
     let bases = node.bases;
     let keywords = node.keywords;
@@ -120,19 +118,19 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node) {
 
     if (decorator_list !== null) {
         for (let i = 0; i < decorator_list.length; i++) {
-            values['DECORATOR' + i] = this.convert(decorator_list[i]);
+            values['DECORATOR' + i] = this.convert(decorator_list[i], node);
         }
     }
 
     if (bases !== null) {
         for (let i = 0; i < bases.length; i++) {
-            values['BASE' + i] = this.convert(bases[i]);
+            values['BASE' + i] = this.convert(bases[i], node);
         }
     }
 
     if (keywords !== null) {
         for (let i = 0; i < keywords.length; i++) {
-            values['KEYWORDVALUE' + i] = this.convert(keywords[i].value);
+            values['KEYWORDVALUE' + i] = this.convert(keywords[i].value, node);
             let arg = keywords[i].arg;
             if (arg === null) {
                 fields['KEYWORDNAME' + i] = "**";
@@ -151,6 +149,6 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node) {
             "@bases": (bases === null ? 0 : bases.length),
             "@keywords": (keywords === null ? 0 : keywords.length),
         }, {
-            'BODY': this.convertBody(body)
+            'BODY': this.convertBody(body, node)
         });
 };

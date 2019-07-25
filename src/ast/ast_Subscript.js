@@ -2,9 +2,7 @@ Blockly.Blocks['ast_Subscript'] = {
     init: function () {
         this.setInputsInline(true);
         this.setOutput(true);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
         this.sliceKinds_ = ["I"];
 
         this.appendValueInput("VALUE")
@@ -159,45 +157,45 @@ var isWeirdSliceCase = function(slice) {
         slice.step.value === Sk.builtin.none.none$);
 }
 
-BlockMirrorTextToBlocks.prototype.addSliceDim = function (slice, i, values, mutations) {
+BlockMirrorTextToBlocks.prototype.addSliceDim = function (slice, i, values, mutations, node) {
     let sliceKind = slice._astname;
     if (sliceKind === "Index") {
-        values['INDEX' + i] = this.convert(slice.value);
+        values['INDEX' + i] = this.convert(slice.value, node);
         mutations.push("I");
     } else if (sliceKind === "Slice") {
         let L = "0", U = "0", S = "0";
         if (slice.lower !== null) {
-            values['SLICELOWER' + i] = this.convert(slice.lower);
+            values['SLICELOWER' + i] = this.convert(slice.lower, node);
             L = "1";
         }
         if (slice.upper !== null) {
-            values['SLICEUPPER' + i] = this.convert(slice.upper);
+            values['SLICEUPPER' + i] = this.convert(slice.upper, node);
             U = "1";
         }
         if (slice.step !== null && !isWeirdSliceCase(slice)) {
-            values['SLICESTEP' + i] = this.convert(slice.step);
+            values['SLICESTEP' + i] = this.convert(slice.step, node);
             S = "1";
         }
         mutations.push("S" + L + U + S);
     }
 }
 
-BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node, parent) {
     let value = node.value;
     let slice = node.slice;
     let ctx = node.ctx;
 
-    let values = {'VALUE': this.convert(value)};
+    let values = {'VALUE': this.convert(value, node)};
     let mutations = [];
 
     let sliceKind = slice._astname;
     if (sliceKind === "ExtSlice") {
         for (let i = 0; i < slice.dims.length; i += 1) {
             let dim = slice.dims[i];
-            this.addSliceDim(dim, i, values, mutations);
+            this.addSliceDim(dim, i, values, mutations, node);
         }
     } else {
-        this.addSliceDim(slice, 0, values, mutations);
+        this.addSliceDim(slice, 0, values, mutations, node);
     }
     return BlockMirrorTextToBlocks.create_block("ast_Subscript", node.lineno, {},
         values, {"inline": "true"}, {"arg": mutations});

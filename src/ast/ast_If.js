@@ -10,15 +10,13 @@ Blockly.Blocks['ast_If'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("logic_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.LOGIC);
         this.updateShape_();
     },
     // TODO: Not mutable currently
     updateShape_: function () {
         let latestInput = "BODY";
-        for (let i = 0; i < this.elifs_; i++) {
+        for (var i = 0; i < this.elifs_; i++) {
             if (!this.getInput('ELIF' + i)) {
                 this.appendValueInput('ELIFTEST' + i)
                     .appendField('elif');
@@ -43,7 +41,7 @@ Blockly.Blocks['ast_If'] = {
             block.removeInput('ORELSEBODY');
         }
 
-        for (let i = 0; i < this.elifs_; i++) {
+        for (i = 0; i < this.elifs_; i++) {
             if (this.orelse_) {
                 this.moveInputBefore('ELIFTEST' + i, 'ORELSETEST');
                 this.moveInputBefore('ELIFBODY' + i, 'ORELSETEST');
@@ -99,7 +97,7 @@ Blockly.Python['ast_If'] = function (block) {
     return test + body + elifs.join("") + orelse;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_If'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
     let test = node.test;
     let body = node.body;
     let orelse = node.orelse;
@@ -107,24 +105,24 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node) {
     let hasOrelse = false;
     let elifCount = 0;
 
-    let values = {"TEST": this.convert(test)};
-    let statements = {"BODY": this.convertBody(body)};
+    let values = {"TEST": this.convert(test, node)};
+    let statements = {"BODY": this.convertBody(body, node)};
 
     while (orelse !== undefined && orelse.length > 0) {
         if (orelse.length === 1) {
             if (orelse[0]._astname === "If") {
                 // This is an ELIF
                 this.heights.shift();
-                values['ELIFTEST' + elifCount] = this.convert(orelse[0].test);
-                statements['ELIFBODY' + elifCount] = this.convertBody(orelse[0].body);
+                values['ELIFTEST' + elifCount] = this.convert(orelse[0].test, node);
+                statements['ELIFBODY' + elifCount] = this.convertBody(orelse[0].body, node);
                 elifCount++;
             } else {
                 hasOrelse = true;
-                statements['ORELSEBODY'] = this.convertBody(orelse, false);
+                statements['ORELSEBODY'] = this.convertBody(orelse, node);
             }
         } else {
             hasOrelse = true;
-            statements['ORELSEBODY'] = this.convertBody(orelse, false);
+            statements['ORELSEBODY'] = this.convertBody(orelse, node);
         }
         orelse = orelse[0].orelse;
     }

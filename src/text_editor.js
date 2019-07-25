@@ -3,6 +3,12 @@ function BlockMirrorTextEditor(blockMirror) {
     this.textContainer = blockMirror.tags.textContainer;
     this.textArea = blockMirror.tags.textArea;
     this.textSidebar = blockMirror.tags.textSidebar;
+
+    // notification
+    this.silentEvents_ = false;
+
+    // Do we need to force an update?
+    this.outOfDate_ = null;
     
     let codeMirrorOptions = {
         mode: {
@@ -36,15 +42,11 @@ function BlockMirrorTextEditor(blockMirror) {
     this.textSidebar.style.height = '100%';
     this.textSidebar.style.float = 'left';
     this.textSidebar.style.backgroundColor = '#ddd';
+
 }
 
 BlockMirrorTextEditor.prototype.defocus = function() {
     this.codeMirror.display.input.blur();
-}
-
-BlockMirrorTextEditor.prototype.changed = function() {
-    // TODO
-    //console.log("Changed text");
 }
 
 BlockMirrorTextEditor.prototype.updateWidth = function() {
@@ -57,7 +59,7 @@ BlockMirrorTextEditor.prototype.updateWidth = function() {
 
 BlockMirrorTextEditor.prototype.setReadOnly = function(isReadOnly) {
     this.codeMirror.setOption('readOnly', isReadOnly);
-}
+};
 
 BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
     'split': {
@@ -75,11 +77,16 @@ BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
         'visible': false,
         'indentSidebar': false
     }
-}
+};
 
 BlockMirrorTextEditor.prototype.setMode = function(mode) {
     mode = mode.toLowerCase();
     let configuration = this.VIEW_CONFIGURATIONS[mode];
+    // If there is an update waiting and we're visible, then update
+    if (this.outOfDate_ !== null && this.isVisible()) {
+        this.setCode(this.outOfDate_, true);
+    }
+    // Show/hide editor
     this.textContainer.style.width = configuration.width;
     if (configuration.visible) {
         this.textContainer.style.height = this.blockMirror.configuration.height;
@@ -105,14 +112,34 @@ BlockMirrorTextEditor.prototype.setMode = function(mode) {
     }
 }
 
-BlockMirrorTextEditor.prototype.setCode = function(filename, code) {
-    if (code == undefined || code.trim() == "") {
-        this.codeMirror.setValue("\n");
-    } else {
+BlockMirrorTextEditor.prototype.setCode = function(code, quietly) {
+    this.silentEvents_ = quietly;
+
+    // Defaults to a single blank line
+    code = (code === undefined || code.trim() === "") ? "\n": code;
+
+    if (this.isVisible()) {
         this.codeMirror.setValue(code);
+        this.outOfDate_ = null;
+    } else {
+        this.outOfDate_ = code;
     }
 };
 
 BlockMirrorTextEditor.prototype.getCode = function() {
     return this.codeMirror.getValue();
-}
+};
+
+BlockMirrorTextEditor.prototype.changed = function(codeMirror, event) {
+    if (!this.silentEvents_) {
+        let newCode = this.getCode();
+        this.blockMirror.blockEditor.setCode(newCode, true);
+        this.blockMirror.code_ = newCode;
+    }
+    this.silentEvents_ = false;
+    //console.log("Changed text");
+};
+
+BlockMirrorTextEditor.prototype.isVisible = function() {
+    return this.blockMirror.VISIBLE_MODES.text.indexOf(this.blockMirror.mode_) !== -1;
+};

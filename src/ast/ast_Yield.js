@@ -6,9 +6,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": false,
     "output": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -16,9 +14,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "message0": "yield",
     "inputsInline": false,
     "output": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
 Blockly.Python['ast_Yield'] = function (block) {
@@ -30,14 +26,14 @@ Blockly.Python['ast_YieldFull'] = function (block) {
     return ["yield " + value, Blockly.Python.ORDER_LAMBDA];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {
     let value = node.value;
 
     if (value == null) {
         return BlockMirrorTextToBlocks.create_block("ast_Yield", node.lineno);
     } else {
         return BlockMirrorTextToBlocks.create_block("ast_YieldFull", node.lineno, {}, {
-            "VALUE": this.convert(value)
+            "VALUE": this.convert(value, node)
         });
     }
 };

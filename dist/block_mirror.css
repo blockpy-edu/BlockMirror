@@ -1,0 +1,12 @@
+.CodeMirror-gutters {
+    background-color: #ddd;
+    /*border-left: 1px solid #bbb;*/
+}
+
+.CodeMirror-code div pre {
+    border-bottom: 1px dashed rgba(1,1,1,.1);
+}
+
+.block-mirror-read-only .CodeMirror-scroll {
+    background-color: #E5E5E5;
+}

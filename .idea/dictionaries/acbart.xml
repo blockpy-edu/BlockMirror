@@ -3,8 +3,11 @@
     <words>
       <w>binops</w>
       <w>blockly</w>
+      <w>blockmirror</w>
       <w>finalbody</w>
+      <w>multilinetext</w>
       <w>orelse</w>
+      <w>premessage</w>
     </words>
   </dictionary>
 </component>

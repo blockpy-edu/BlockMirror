@@ -5,10 +5,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         { "type": "field_number", "name": "NUM", "value": 0}
     ],
     "output": "Number",
-    "helpUrl": "%{BKY_MATH_NUMBER_HELPURL}",
-    "style": "math_blocks",
-    "tooltip": "%{BKY_MATH_NUMBER_TOOLTIP}",
-    "extensions": ["parent_tooltip_when_inline"]
+    "colour": BlockMirrorTextToBlocks.COLOR.MATH
 })
 
 Blockly.Python['ast_Num'] = function(block) {
@@ -28,7 +25,7 @@ Blockly.Python['ast_Num'] = function(block) {
   return [code, order];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Num'] = function(node) {
+BlockMirrorTextToBlocks.prototype['ast_Num'] = function (node, parent) {
     var n = node.n;
     return BlockMirrorTextToBlocks.create_block("ast_Num", node.lineno, {
         "NUM": Sk.ffi.remapToJs(n)

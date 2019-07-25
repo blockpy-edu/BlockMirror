@@ -11,9 +11,7 @@ Blockly.Blocks['ast_Import'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.PYTHON);
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -28,7 +26,7 @@ Blockly.Blocks['ast_Import'] = {
             this.removeInput('FROM');
         }
         // Import clauses
-        for (let i = 0; i < this.nameCount_; i++) {
+        for (var i = 0; i < this.nameCount_; i++) {
             let input = this.getInput('CLAUSE' + i);
             if (!input) {
                 input = this.appendDummyInput('CLAUSE' + i)
@@ -55,7 +53,7 @@ Blockly.Blocks['ast_Import'] = {
         if (this.from_ && this.nameCount_ > 0) {
             this.moveInputBefore('FROM', 'CLAUSE0');
         }
-        for (let i = 0; i + 1 < this.nameCount_; i++) {
+        for (i = 0; i + 1 < this.nameCount_; i++) {
             this.moveInputBefore('CLAUSE' + i, 'CLAUSE' + (i + 1));
         }
     },
@@ -110,7 +108,7 @@ Blockly.Python['ast_Import'] = function (block) {
     return from + 'import ' + elements.join(', ') + "\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
     let names = node.names;
 
     let fields = {};

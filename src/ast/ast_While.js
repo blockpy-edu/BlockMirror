@@ -9,9 +9,7 @@ Blockly.Blocks['ast_While'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("loop_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -62,17 +60,17 @@ Blockly.Python['ast_While'] = function (block) {
     return test + body + orelse;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_While'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_While'] = function (node, parent) {
     let test = node.test;
     let body = node.body;
     let orelse = node.orelse;
 
-    let values = {"TEST": this.convert(test)};
-    let statements = {"BODY": this.convertBody(body)};
+    let values = {"TEST": this.convert(test, node)};
+    let statements = {"BODY": this.convertBody(body, node)};
 
     let hasOrelse = false;
     if (orelse !== null && orelse.length > 0) {
-        statements['ORELSEBODY'] = this.convertBody(orelse, false);
+        statements['ORELSEBODY'] = this.convertBody(orelse, node);
         hasOrelse = true;
     }
 

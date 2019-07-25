@@ -3,9 +3,7 @@ Blockly.Blocks['ast_Raise'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.EXCEPTIONS);
         this.exc_ = true;
         this.cause_ = false;
 
@@ -69,17 +67,17 @@ Blockly.Python['ast_Raise'] = function (block) {
     }
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Raise'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Raise'] = function (node, parent) {
     var exc = node.exc;
     var cause = node.cause;
     let values = {};
     let hasExc = false, hasCause = false;
     if (exc !== null) {
-        values['EXC'] = this.convert(exc);
+        values['EXC'] = this.convert(exc, node);
         hasExc = true;
     }
     if (cause !== null) {
-        values['CAUSE'] = this.convert(cause);
+        values['CAUSE'] = this.convert(cause, node);
         hasCause = true;
     }
     return BlockMirrorTextToBlocks.create_block("ast_Raise", node.lineno, {}, values, {}, {

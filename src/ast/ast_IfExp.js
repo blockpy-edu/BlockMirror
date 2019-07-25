@@ -8,26 +8,24 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "style": "logic_blocks",
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 Blockly.Python['ast_IfExp'] = function (block) {
-    var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
-    var body = Blockly.Python.valueToCode(block, 'BODY', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
-    var orelse = Blockly.Python.valueToCode(block, 'ORELSE', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
-    return body + " if " + test + " else " + orelse + "\n";
+    var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
+    var body = Blockly.Python.valueToCode(block, 'BODY', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
+    var orelse = Blockly.Python.valueToCode(block, 'ORELSE', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
+    return [body + " if " + test + " else " + orelse + "\n", Blockly.Python.ORDER_CONDITIONAL];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
     let test = node.test;
     let body = node.body;
     let orelse = node.orelse;
 
     return BlockMirrorTextToBlocks.create_block("ast_IfExp", node.lineno, {}, {
-        "TEST": this.convert(test),
-        "BODY": this.convert(body),
-        "ORELSE": this.convert(orelse)
+        "TEST": this.convert(test, node),
+        "BODY": this.convert(body, node),
+        "ORELSE": this.convert(orelse, node)
     });
 };

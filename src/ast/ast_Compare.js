@@ -29,7 +29,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "style": "logic_blocks"
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 Blockly.Python['ast_Compare'] = function (block) {
@@ -43,17 +43,17 @@ Blockly.Python['ast_Compare'] = function (block) {
     return [code, order];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node, parent) {
     var ops = node.ops;
     var left = node.left;
     var values = node.comparators;
-    var result_block = this.convert(left);
+    var result_block = this.convert(left, node);
     for (var i = 0; i < values.length; i += 1) {
         result_block = BlockMirrorTextToBlocks.create_block("ast_Compare", node.lineno, {
             "OP": ops[i].name
         }, {
             "A": result_block,
-            "B": this.convert(values[i])
+            "B": this.convert(values[i], node)
         }, {
             "inline": "true"
         });

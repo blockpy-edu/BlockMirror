@@ -8,9 +8,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "colour": 230,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.OO,
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -22,9 +20,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "colour": 230,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.OO,
 });
 
 Blockly.Python['ast_Attribute'] = function (block) {
@@ -44,7 +40,7 @@ Blockly.Python['ast_AttributeFull'] = function (block) {
     return [code, Blockly.Python.ORDER_MEMBER];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {
     let value = node.value;
     let attr = node.attr;
 
@@ -58,7 +54,7 @@ BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node) {
         return BlockMirrorTextToBlocks.create_block("ast_AttributeFull", node.lineno, {
             "ATTR": Sk.ffi.remapToJs(attr)
         }, {
-            "VALUE": this.convert(value)
+            "VALUE": this.convert(value, node)
         });
     }
 }

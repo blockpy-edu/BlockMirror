@@ -20,13 +20,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "inputsInline": true,
     "output": null,
-    "style": "logic_blocks"
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 Blockly.Python['ast_BoolOp'] = function (block) {
     // Operations 'and', 'or'.
-    var operator = (block.getFieldValue('OP') == 'And') ? 'and' : 'or';
-    var order = (operator == 'and') ? Blockly.Python.ORDER_LOGICAL_AND :
+    var operator = (block.getFieldValue('OP') === 'And') ? 'and' : 'or';
+    var order = (operator === 'and') ? Blockly.Python.ORDER_LOGICAL_AND :
         Blockly.Python.ORDER_LOGICAL_OR;
     var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
     var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
@@ -34,16 +34,16 @@ Blockly.Python['ast_BoolOp'] = function (block) {
     return [code, order];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
     var op = node.op;
     var values = node.values;
-    var result_block = this.convert(values[0]);
+    var result_block = this.convert(values[0], node);
     for (var i = 1; i < values.length; i += 1) {
         result_block = BlockMirrorTextToBlocks.create_block("ast_BoolOp", node.lineno, {
             "OP": op.name
         }, {
             "A": result_block,
-            "B": this.convert(values[i])
+            "B": this.convert(values[i], node)
         }, {
             "inline": "true"
         });

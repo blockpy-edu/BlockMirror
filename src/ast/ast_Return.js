@@ -7,9 +7,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -18,9 +16,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
 Blockly.Python['ast_Return'] = function (block) {
@@ -32,14 +28,14 @@ Blockly.Python['ast_ReturnFull'] = function (block) {
     return "return " + value + "\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Return'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Return'] = function (node, parent) {
     let value = node.value;
 
     if (value == null) {
         return BlockMirrorTextToBlocks.create_block("ast_Return", node.lineno);
     } else {
         return BlockMirrorTextToBlocks.create_block("ast_ReturnFull", node.lineno, {}, {
-            "VALUE": this.convert(value)
+            "VALUE": this.convert(value, node)
         });
     }
 };

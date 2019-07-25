@@ -4,15 +4,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": false,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 });
 
 Blockly.Python['ast_Continue'] = function (block) {
     return "continue\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Continue'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Continue'] = function (node, parent) {
     return BlockMirrorTextToBlocks.create_block("ast_Continue", node.lineno);
 };

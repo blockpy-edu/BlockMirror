@@ -100,8 +100,7 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
     if (variableModelList.length > 0) {
         // New variables are added to the end of the variableModelList.
         var mostRecentVariableFieldXmlString =
-            Blockly.Variables.generateVariableFieldXmlString(
-                variableModelList[variableModelList.length - 1]);
+                variableModelList[variableModelList.length - 1];
         if (Blockly.Blocks['ast_Assign']) {
             var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
             var blockText = '<xml>' +
@@ -122,7 +121,7 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
                 '<field name="NUM">1</field>' +
                 '</shadow>' +
                 '</value>' +
-                '<mutation allOptions="false" simpleTarget="true"></mutation>' +
+                '<mutation options="false" simple="true"></mutation>' +
                 '</block>' +
                 '</xml>';
             var block = Blockly.Xml.textToDom(blockText).firstChild;
@@ -132,12 +131,10 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
         if (Blockly.Blocks['ast_Name']) {
             variableModelList.sort(Blockly.VariableModel.compareByName);
             for (var i = 0, variable; variable = variableModelList[i]; i++) {
-                var blockText = '<xml>' +
-                    '<block type="ast_Name" gap="8">' +
-                    Blockly.Variables.generateVariableFieldXmlString(variable) +
-                    '</block>' +
-                    '</xml>';
-                var block = Blockly.Xml.textToDom(blockText).firstChild;
+                var block = Blockly.utils.xml.createElement('block');
+                block.setAttribute('type', 'ast_Name');
+                block.setAttribute('gap', 8);
+                block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
                 xmlList.push(block);
             }
         }

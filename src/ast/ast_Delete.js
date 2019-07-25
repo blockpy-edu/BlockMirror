@@ -3,9 +3,7 @@ Blockly.Blocks['ast_Delete'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.targetCount_ = 1;
 
         this.appendDummyInput()
@@ -60,11 +58,11 @@ Blockly.Python['ast_Delete'] = function (block) {
     return code;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Delete'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Delete'] = function (node, parent) {
     let targets = node.targets;
 
     return BlockMirrorTextToBlocks.create_block("ast_Delete", node.lineno, {},
-        this.convertElements("TARGET", targets),
+        this.convertElements("TARGET", targets, node),
         {
             "inline": "true",
         }, {

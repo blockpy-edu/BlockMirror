@@ -9,7 +9,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         {"type": "input_statement", "name": "STACK", "align": "RIGHT"},
         {"type": "field_checkbox", "name": "RETURNS", "checked": true, "align": "RIGHT"}
     ],
-    "style": "procedure_blocks",
+    "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
     "enableContextMenu": false
 });
 
@@ -34,7 +34,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         "message0": parameterDescription,
         "previousStatement": null,
         "nextStatement": null,
-        "style": "procedure_blocks",
+        "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
         "enableContextMenu": false
     });
     let realParameterBlock = {
@@ -42,7 +42,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         "output": "Parameter",
         "message0": parameterPrefix + (parameterPrefix ? ' ' : '') + "%1",
         "args0": [{"type": "field_variable", "name": "NAME", "variable": "param"}],
-        "style": "procedure_blocks",
+        "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
         "enableContextMenu": false,
         "inputsInline": (parameterTyped && parameterDefault),
     };
@@ -89,9 +89,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setStyle("procedure_blocks");
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
         this.updateShape_();
         this.setMutator(new Blockly.Mutator(['ast_FunctionMutantParameter',
             'ast_FunctionMutantParameterType']));
@@ -119,7 +117,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.hasReturn_ = "true" === xmlElement.getAttribute('returns');
         this.updateShape_();
     },
-    setReturnAnnotation_: function(status) {
+    setReturnAnnotation_: function (status) {
         let currentReturn = this.getInput('RETURNS');
         if (status) {
             if (!currentReturn) {
@@ -315,7 +313,7 @@ Blockly.Python['ast_FunctionDef'] = function (block) {
     return decorators.join('') + "def " + name + "(" + parameters.join(', ') + ")" + returns + ":\n" + body;
 };
 
-BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values) {
+BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values, node) {
     let settings = {
         "movable": false,
         "deletable": false
@@ -324,13 +322,13 @@ BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values
         return BlockMirrorTextToBlocks.create_block(type,
             lineno, {'NAME': Sk.ffi.remapToJs(arg.arg)}, values, settings);
     } else {
-        values['TYPE'] = this.convert(arg.annotation);
+        values['TYPE'] = this.convert(arg.annotation, node);
         return BlockMirrorTextToBlocks.create_block(type + "Type",
             lineno, {'NAME': Sk.ffi.remapToJs(arg.arg)}, values, settings);
     }
 };
 
-BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno) {
+BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno, node) {
     let positional = args.args,
         vararg = args.vararg,
         kwonlyargs = args.kwonlyargs,
@@ -341,21 +339,21 @@ BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno) {
     // args (positional)
     if (positional !== null) {
         // "If there are fewer defaults, they correspond to the last n arguments."
-        let defaultOffset = defaults !== null ? defaults.length - positional.length : 0;
+        let defaultOffset = defaults ? defaults.length - positional.length : 0;
         for (let i = 0; i < positional.length; i++) {
             let childValues = {};
             let type = 'ast_FunctionParameter';
             if (defaults[defaultOffset + i]) {
-                childValues['DEFAULT'] = this.convert(defaults[defaultOffset + i]);
+                childValues['DEFAULT'] = this.convert(defaults[defaultOffset + i], node);
                 type += "Default";
             }
-            values['PARAMETER' + totalArgs] = this.parseArg(positional[i], type, lineno, childValues);
+            values['PARAMETER' + totalArgs] = this.parseArg(positional[i], type, lineno, childValues, node);
             totalArgs += 1;
         }
     }
     // *arg
     if (vararg !== null) {
-        values['PARAMETER' + totalArgs] = this.parseArg(vararg, 'ast_FunctionParameterVararg', lineno, {});
+        values['PARAMETER' + totalArgs] = this.parseArg(vararg, 'ast_FunctionParameterVararg', lineno, {}, node);
         totalArgs += 1;
     }
     // keyword arguments that must be referenced by name
@@ -364,23 +362,23 @@ BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno) {
             let childValues = {};
             let type = 'ast_FunctionParameter';
             if (kw_defaults[i]) {
-                childValues['DEFAULT'] = this.convert(kw_defaults[i]);
+                childValues['DEFAULT'] = this.convert(kw_defaults[i], node);
                 type += "Default";
             }
-            values['PARAMETER' + totalArgs] = this.parseArg(kwonlyargs[i], type, lineno, childValues);
+            values['PARAMETER' + totalArgs] = this.parseArg(kwonlyargs[i], type, lineno, childValues, node);
             totalArgs += 1;
         }
     }
     // **kwarg
-    if (kwarg !== null) {
-        values['PARAMETER' + totalArgs] = this.parseArg(kwarg, 'ast_FunctionParameterKwarg', lineno, {});
+    if (kwarg) {
+        values['PARAMETER' + totalArgs] = this.parseArg(kwarg, 'ast_FunctionParameterKwarg', lineno, {}, node);
         totalArgs += 1;
     }
 
     return totalArgs;
 };
 
-BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
     let name = node.name;
     let args = node.args;
     let body = node.body;
@@ -391,7 +389,7 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node) {
 
     if (decorator_list !== null) {
         for (let i = 0; i < decorator_list.length; i++) {
-            values['DECORATOR' + i] = this.convert(decorator_list[i]);
+            values['DECORATOR' + i] = this.convert(decorator_list[i], node);
         }
     }
 
@@ -403,7 +401,7 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node) {
     let hasReturn = (returns !== null &&
         (returns._astname !== 'NameConstant' || returns.value !== Sk.builtin.none.none$));
     if (hasReturn) {
-        values['RETURNS'] = this.convert(returns);
+        values['RETURNS'] = this.convert(returns, node);
     }
 
     return BlockMirrorTextToBlocks.create_block("ast_FunctionDef", node.lineno, {
@@ -417,6 +415,6 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node) {
             "@parameters": parsedArgs,
             "@returns": hasReturn,
         }, {
-            'BODY': this.convertBody(body)
+            'BODY': this.convertBody(body, node)
         });
 };

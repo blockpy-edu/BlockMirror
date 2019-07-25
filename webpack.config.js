@@ -1,28 +1,48 @@
+const path = require('path');
+const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
+const Uglify = require("uglify-js");
+
 const config = {
-    entry: ['./src/blockmirror.js'],
+    entry: [
+        path.resolve(__dirname, 'src/main.js'),
+    ],
     output: {
-      path: __dirname + '/dist',
-      filename: 'blockmirror.js'
+        path: __dirname + '/dist',
+        filename: 'block_mirror.js',
+        library: 'BlockMirror'
     },
     module: {
-      loaders: [
-        {
-          loader:'babel-loader',
-          test: /\.js$/,
-          exclude:  /node_modules/,
-          query: {
-             presets: ['es2015'] 
-          }
-        }
-      ]
+        rules: [
+            /*{
+                loader: 'babel-loader',
+                test: /\.js$/,
+                exclude: /node_modules/,
+                query: {
+                    presets: ['es2015']
+                }
+            }*/
+        ]
     },
     resolve: {
-      extensions: ['.js']
+        extensions: ['.js']
     },
-    devServer:{
-      port: 3000,
-      contentBase: __dirname + '/dist',
-      inline: true
-    }
-}
+    plugins: [
+        new MergeIntoSingleFilePlugin({
+            files: {
+                "block_mirror.js": [
+                    path.resolve(__dirname, 'src/text_editor.js'),
+                    path.resolve(__dirname, 'src/block_mirror.js'),
+                ],
+                "block_mirror.css": [
+                    path.resolve(__dirname, 'src/block_mirror.css'),
+                ]
+            }
+        })
+    ]
+    /*devServer: {
+        port: 3000,
+        contentBase: __dirname + '/dist',
+        inline: true
+    }*/
+};
 module.exports = config;

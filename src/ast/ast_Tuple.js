@@ -4,7 +4,7 @@ Blockly.Blocks['ast_Tuple'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Tuple');
@@ -141,7 +141,7 @@ Blockly.Blocks['ast_Tuple_create_with_container'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
         this.appendDummyInput()
             .appendField('Add new tuple elements below');
         this.appendStatementInput('STACK');
@@ -155,7 +155,7 @@ Blockly.Blocks['ast_Tuple_create_with_item'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setColour(60);
+        this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
         this.appendDummyInput()
             .appendField('Element');
         this.setPreviousStatement(true);
@@ -179,12 +179,12 @@ Blockly.Python['ast_Tuple'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Tuple'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Tuple'] = function (node, parent) {
     var elts = node.elts;
     var ctx = node.ctx;
 
     return BlockMirrorTextToBlocks.create_block("ast_Tuple", node.lineno, {},
-        this.convertElements("ADD", elts),
+        this.convertElements("ADD", elts, node),
         {
             "inline": elts.length > 4 ? "false" : "true",
         }, {

@@ -3,9 +3,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "message0": "None",
     "args0": [],
     "output": "None",
-    "style": "logic_blocks",
-    "tooltip": "%{BKY_LOGIC_NULL_TOOLTIP}",
-    "helpUrl": "%{BKY_LOGIC_NULL_HELPURL}"
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -20,9 +18,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         }
     ],
     "output": "Boolean",
-    "style": "logic_blocks",
-    "tooltip": "%{BKY_LOGIC_BOOLEAN_TOOLTIP}",
-    "helpUrl": "%{BKY_LOGIC_BOOLEAN_HELPURL}"
+    "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 Blockly.Python['ast_NameConstantBoolean'] = function (block) {
@@ -37,7 +33,7 @@ Blockly.Python['ast_NameConstantNone'] = function (block) {
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
-BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) {
     let value = node.value;
 
     if (value === Sk.builtin.none.none$) {

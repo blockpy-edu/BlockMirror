@@ -1,13 +1,14 @@
+// TODO: Support stuff like "append" where the message is after the value input
+// TODO: Handle updating function/method definition -> update call
+
 Blockly.Blocks['ast_Call'] = {
     /**
      * Block for calling a procedure with no return value.
      * @this Blockly.Block
      */
     init: function () {
-        this.setStyle('procedure_blocks');
+        this.givenColour_ = BlockMirrorTextToBlocks.COLOR.FUNCTIONS
         this.setInputsInline(true);
-        // acbart: added simpleName to handle complex function calls (e.g., chained)
-        this.simpleName_ = "function";
         // Regular ('NAME') or Keyword (either '**' or '*NAME')
         this.arguments_ = [];
         this.argumentVarModels_ = [];
@@ -19,6 +20,11 @@ Blockly.Blocks['ast_Call'] = {
         this.showParameterNames_ = false;
         // acbart: Whether this block returns
         this.returns_ = true;
+        // acbart: added simpleName to handle complex function calls (e.g., chained)
+        this.isMethod_ = false;
+        this.name_ = null;
+        this.message_ = "function";
+        this.premessage_ = "";
         this.updateShape_();
     },
 
@@ -28,24 +34,21 @@ Blockly.Blocks['ast_Call'] = {
      * @this Blockly.Block
      */
     getProcedureCall: function () {
-        if (this.simpleName_) {
-            return /** @type {string} */ (this.getFieldValue('FUNC_NAME_VALUE'));
-        } else {
-            return null;
-        }
+        return this.name_;
     },
     /**
      * Notification that a procedure is renaming.
      * If the name matches this block's procedure, rename it.
+     * Also rename if it was previously null.
      * @param {string} oldName Previous name of procedure.
      * @param {string} newName Renamed procedure.
      * @this Blockly.Block
      */
     renameProcedure: function (oldName, newName) {
-        if (this.getProcedureCall() === null ||
-            Blockly.Names.equals(oldName, this.getProcedureCall())) {
-            this.setFieldValue(newName, 'FUNC_NAME_VALUE');
-            this.simpleName_ = newName;
+        if (this.name_ === null ||
+            Blockly.Names.equals(oldName, this.name_)) {
+            this.name_ = newName;
+            this.updateShape_();
         }
     },
     /**
@@ -77,14 +80,14 @@ Blockly.Blocks['ast_Call'] = {
         }
         if (!paramIds) {
             // Reset the quarks (a mutator is about to open).
-            return;
+            return false;
         }
         // Test arguments (arrays of strings) for changes. '\n' is not a valid
         // argument name character, so it is a valid delimiter here.
         if (paramNames.join('\n') == this.arguments_.join('\n')) {
             // No change.
             this.quarkIds_ = paramIds;
-            return;
+            return false;
         }
         if (paramIds.length !== paramNames.length) {
             throw RangeError('paramNames and paramIds must be the same length.');
@@ -132,7 +135,7 @@ Blockly.Blocks['ast_Call'] = {
         this.quarkIds_ = paramIds;
         // Reconnect any child blocks.
         if (this.quarkIds_) {
-            for (var i = 0; i < this.arguments_.length; i++) {
+            for (let i = 0; i < this.arguments_.length; i++) {
                 var quarkId = this.quarkIds_[i];
                 if (quarkId in this.quarkConnections_) {
                     let connection = this.quarkConnections_[quarkId];
@@ -148,6 +151,7 @@ Blockly.Blocks['ast_Call'] = {
         if (this.rendered) {
             this.render();
         }
+        return true;
     },
     /**
      * Modify this block to have the correct number of arguments.
@@ -155,37 +159,40 @@ Blockly.Blocks['ast_Call'] = {
      * @this Blockly.Block
      */
     updateShape_: function () {
-        // Open Parentheses
-        if (!this.getInput('OPEN_PAREN')) {
-            this.appendDummyInput('OPEN_PAREN')
-                .setAlign(Blockly.ALIGN_RIGHT)
-                .appendField(new Blockly.FieldLabel("("));
+        // If it's a method, add in the caller
+        if (this.isMethod_ && !this.getInput('FUNC')) {
+            let func = this.appendValueInput('FUNC');
+            // If there's a premessage, add it in
+            if (this.premessage_ !== "") {
+                func.appendField(this.premessage_);
+            }
+        } else if (!this.isMethod_ && this.getInput('FUNC')) {
+            this.removeInput('FUNC');
         }
 
-        // Update function call name
-        if (this.simpleName_) {
-            if (this.getInput('FUNC')) {
-                this.removeInput('FUNC');
+        let drawnArgumentCount = this.getDrawnArgumentCount_();
+        let message = this.getInput('MESSAGE_AREA')
+        // Zero arguments, just do {message()}
+        if (drawnArgumentCount === 0) {
+            if (message) {
+                message.removeField('MESSAGE');
+            } else {
+                message = this.appendDummyInput('MESSAGE_AREA')
+                    .setAlign(Blockly.ALIGN_RIGHT);
             }
-            if (!this.getInput('FUNC_NAME')) {
-                this.appendDummyInput('FUNC_NAME')
-                    .appendField(new Blockly.FieldTextInput("function"), "FUNC_NAME_VALUE");
-            }
-            this.moveInputBefore('FUNC_NAME', 'OPEN_PAREN');
-        } else {
-            if (!this.getInput('FUNC')) {
-                this.appendValueInput('FUNC');
-            }
-            if (this.getInput('FUNC_NAME')) {
-                this.removeInput('FUNC_NAME');
-            }
-            this.moveInputBefore('FUNC', 'OPEN_PAREN');
+            message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE');
+            // One argument, no MESSAGE_AREA
+        } else if (message) {
+            this.removeInput('MESSAGE_AREA');
         }
-
         // Process arguments
-        for (var i = 0; i < Math.min(this.argumentCount_, this.arguments_.length); i++) {
+        let i;
+        for (i = 0; i < drawnArgumentCount; i++) {
             let argument = this.arguments_[i];
             let argumentName = this.parseArgument_(argument);
+            if (i === 0) {
+                argumentName = this.message_ + "\ (" + argumentName;
+            }
             let field = this.getField('ARGNAME' + i);
             if (field) {
                 // Ensure argument name is up to date.
@@ -219,6 +226,17 @@ Blockly.Blocks['ast_Call'] = {
                 .appendField(new Blockly.FieldLabel(")"));
         }
 
+        // Move everything into place
+        if (drawnArgumentCount === 0) {
+            if (this.isMethod_) {
+                this.moveInputBefore('FUNC', 'MESSAGE_AREA');
+            }
+            this.moveInputBefore('MESSAGE_AREA', 'CLOSE_PAREN');
+        } else {
+            if (this.isMethod_) {
+                this.moveInputBefore('FUNC', 'CLOSE_PAREN');
+            }
+        }
         for (let j = 0; j < i; j++) {
             this.moveInputBefore('ARG' + j, 'CLOSE_PAREN')
         }
@@ -230,6 +248,8 @@ Blockly.Blocks['ast_Call'] = {
             this.removeInput('ARG' + i);
             i++;
         }
+
+        this.setColour(this.givenColour_);
     }
     ,
     /**
@@ -243,7 +263,11 @@ Blockly.Blocks['ast_Call'] = {
         container.setAttribute('name', name === null ? '*' : name);
         container.setAttribute('arguments', this.argumentCount_);
         container.setAttribute('returns', this.returns_);
-        container.setAttribute('names', this.showParameterNames_);
+        container.setAttribute('parameters', this.showParameterNames_);
+        container.setAttribute('method', this.isMethod_);
+        container.setAttribute('message', this.message_);
+        container.setAttribute('premessage', this.premessage_);
+        container.setAttribute('colour', this.givenColour_);
         for (var i = 0; i < this.arguments_.length; i++) {
             var parameter = document.createElement('arg');
             parameter.setAttribute('name', this.arguments_[i]);
@@ -257,11 +281,16 @@ Blockly.Blocks['ast_Call'] = {
      * @this Blockly.Block
      */
     domToMutation: function (xmlElement) {
-        this.simpleName_ = xmlElement.getAttribute('name');
-        this.simpleName_ = this.simpleName_ === '*' ? null : this.simpleName_;
+        this.name_ = xmlElement.getAttribute('name');
+        this.name_ = this.name_ === '*' ? null : this.name_;
         this.argumentCount_ = parseInt(xmlElement.getAttribute('arguments'), 10);
-        this.showParameterNames_ = "true" === xmlElement.getAttribute('names');
+        this.showParameterNames_ = "true" === xmlElement.getAttribute('parameters');
         this.returns_ = "true" === xmlElement.getAttribute('returns');
+        this.isMethod_ = "true" === xmlElement.getAttribute('method');
+        this.message_ = xmlElement.getAttribute('message');
+        this.premessage_ = xmlElement.getAttribute('premessage');
+        this.givenColour_ = parseInt(xmlElement.getAttribute('colour'), 10);
+
         var args = [];
         var paramIds = [];
         for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
@@ -270,9 +299,12 @@ Blockly.Blocks['ast_Call'] = {
                 paramIds.push(childNode.getAttribute('paramId'));
             }
         }
-        this.setProcedureParameters_(args, paramIds);
-        if (this.simpleName_ !== null) {
-            this.renameProcedure(this.getProcedureCall(), this.simpleName_);
+        let result = this.setProcedureParameters_(args, paramIds);
+        if (!result) {
+            this.updateShape_();
+        }
+        if (this.name_ !== null) {
+            this.renameProcedure(this.getProcedureCall(), this.name_);
         }
     },
     /**
@@ -321,7 +353,7 @@ Blockly.Blocks['ast_Call'] = {
                 block.updateShape_();
                 block.render();
             }
-        })
+        });
 
         // Change Return Type
         options.push({
@@ -371,19 +403,21 @@ Blockly.Blocks['ast_Call'] = {
             }
         }
         return "";
+    },
+    getDrawnArgumentCount_: function () {
+        return Math.min(this.argumentCount_, this.arguments_.length);
     }
 };
 
 Blockly.Python['ast_Call'] = function (block) {
-    // Call a procedure with a return value.
-    let funcName;
-    if (block.simpleName_ === null) {
+    // Get the caller
+    let funcName = "";
+    if (block.isMethod_) {
         funcName = Blockly.Python.valueToCode(block, 'FUNC', Blockly.Python.ORDER_FUNCTION_CALL) ||
             Blockly.Python.blank;
-    } else {
-        funcName = Blockly.Python.variableDB_.getName(block.getFieldValue('FUNC_NAME_VALUE'),
-            Blockly.Variables.NAME_TYPE);
     }
+    funcName += this.name_;
+    // Build the arguments
     var args = [];
     for (var i = 0; i < block.arguments_.length; i++) {
         let value = Blockly.Python.valueToCode(block, 'ARG' + i,
@@ -397,7 +431,8 @@ Blockly.Python['ast_Call'] = function (block) {
             args[i] = value;
         }
     }
-    var code = funcName + '(' + args.join(', ') + ')';
+    // Return the result
+    let code = funcName + '(' + args.join(', ') + ')';
     if (block.returns_) {
         return [code, Blockly.Python.ORDER_FUNCTION_CALL];
     } else {
@@ -405,23 +440,103 @@ Blockly.Python['ast_Call'] = function (block) {
     }
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, is_top_level) {
+BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
+    if (node._astname === 'Name') {
+        return Sk.ffi.remapToJs(node.id);
+    } else if (node._astname === 'Attribute') {
+        let origin = this.getAsModule(node.value);
+        if (origin !== null) {
+            return origin + '.' + Sk.ffi.remapToJs(node.attr);
+        }
+    } else {
+        return null;
+    }
+}
+
+//                              messageBefore, message, name
+// function call: print() -> "print" ([message]) ; print
+// Module function: plt.show() -> "show plot" ([plot]) ; plt.show
+// Method call: "test".title() -> "make" [str] "title case" () ; .title ; isMethod = true
+
+BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     let func = node.func;
     let args = node.args;
     let keywords = node.keywords;
+
+    // Can we make any guesses about this based on its name?
+    let signature = null;
+    let isMethod = false;
+    let premessage = "";
+    let message = "";
+    let name = "";
+    let caller = null;
+    let colour = BlockMirrorTextToBlocks.COLOR.FUNCTIONS;
+
+    if (func._astname === 'Name') {
+        message = name = Sk.ffi.remapToJs(func.id);
+        if (name in this.FUNCTION_SIGNATURES) {
+            signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
+        }
+    } else if (func._astname === 'Attribute') {
+        isMethod = true;
+        caller = func.value;
+        let potentialModule = this.getAsModule(caller);
+        let attributeName = Sk.ffi.remapToJs(func.attr);
+        message = "." + attributeName;
+        if (potentialModule in this.MODULE_FUNCTION_SIGNATURES) {
+            signature = this.MODULE_FUNCTION_SIGNATURES[potentialModule][attributeName];
+            message = name = potentialModule + message;
+            isMethod = false;
+        } else if (attributeName in this.METHOD_SIGNATURES) {
+            signature = this.METHOD_SIGNATURES[attributeName];
+            name = message;
+        } else {
+            name = message;
+        }
+    } else {
+        isMethod = true;
+        message = "";
+        name = "";
+        caller = func;
+        // (lambda x: x)()
+    }
+    let returns = true;
+
+    if (signature !== null) {
+        if ('returns' in signature) {
+            returns = signature.returns;
+        }
+        if ('message' in signature) {
+            message = signature.message;
+        }
+        if ('premessage' in signature) {
+            premessage = signature.premessage;
+        }
+        if ('colour' in signature) {
+            colour = signature.colour;
+        }
+    }
+
+    returns = returns || (parent._astname !== 'Expr');
 
     let argumentsNormal = {};
     // TODO: do I need to be limiting only the *args* length, not keywords?
     let argumentsMutation = {
         "@arguments": (args !== null ? args.length : 0) +
             (keywords !== null ? keywords.length : 0),
-        "@returns": !is_top_level,
-        "@names": true
+        "@returns": returns,
+        "@parameters": true,
+        "@method": isMethod,
+        "@name": name,
+        "@message": message,
+        "@premessage": premessage,
+        "@colour": colour
     };
+    // Handle arguments
     let overallI = 0;
     if (args !== null) {
         for (let i = 0; i < args.length; i += 1, overallI += 1) {
-            argumentsNormal["ARG" + overallI] = this.convert(args[i]);
+            argumentsNormal["ARG" + overallI] = this.convert(args[i], node);
             argumentsMutation["UNKNOWN_ARG:" + overallI] = null;
         }
     }
@@ -431,25 +546,28 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, is_top_level) {
             let arg = keyword.arg;
             let value = keyword.value;
             if (arg === null) {
-                argumentsNormal["ARG" + overallI] = this.convert(value);
+                argumentsNormal["ARG" + overallI] = this.convert(value, node);
                 argumentsMutation["KWARGS:" + overallI] = null;
             } else {
-                argumentsNormal["ARG" + overallI] = this.convert(value);
+                argumentsNormal["ARG" + overallI] = this.convert(value, node);
                 argumentsMutation["KEYWORD:" + Sk.ffi.remapToJs(arg)] = null;
             }
         }
     }
-
-    if (func._astname === "Name") {
-        let name = Sk.ffi.remapToJs(func.id);
-        argumentsMutation['@name'] = name;
-        return BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {
-            "FUNC_NAME_VALUE": name,
-        }, argumentsNormal, {inline: true}, argumentsMutation);
+    // Build actual block
+    let newBlock;
+    if (isMethod) {
+        argumentsNormal['FUNC'] = this.convert(caller, node);
+        newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno,
+            {}, argumentsNormal, {inline: true}, argumentsMutation);
     } else {
-        argumentsMutation['@name'] = '*';
-        argumentsNormal['FUNC'] = this.convert(func);
-        return BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {},
+        newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {},
             argumentsNormal, {inline: true}, argumentsMutation);
+    }
+    // Return as either statement or expression
+    if (returns) {
+        return newBlock;
+    } else {
+        return [newBlock];
     }
 };

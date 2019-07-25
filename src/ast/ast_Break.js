@@ -4,15 +4,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "inputsInline": false,
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 60,
-    "tooltip": "",
-    "helpUrl": ""
+    "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 });
 
 Blockly.Python['ast_Break'] = function (block) {
     return "break\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Break'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Break'] = function (node, parent) {
     return BlockMirrorTextToBlocks.create_block("ast_Break", node.lineno);
 };

@@ -1,8 +1,3 @@
-[X] If
-[X] Import
-[X] ImportFrom
-[X] While
-[X] With
 [-] AsyncFor
 [-] AsyncFunctionDef
 [-] AsyncWith
@@ -46,7 +41,10 @@
 [X] Global
 [X] Gt
 [X] GtE
+[X] If
 [X] IfExp
+[X] Import
+[X] ImportFrom
 [X] In
 [X] Index
 [X] Interactive
@@ -90,5 +88,7 @@
 [X] UAdd
 [X] USub
 [X] UnaryOp
+[X] While
+[X] With
 [X] Yield
 [X] YieldFrom

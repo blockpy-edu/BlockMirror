@@ -3,9 +3,7 @@ Blockly.Blocks['ast_Nonlocal'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(60);
-        this.setTooltip("");
-        this.setHelpUrl("");
+        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.nameCount_ = 1;
         this.appendDummyInput('NONLOCAL')
             .appendField("make nonlocal", "START_NONLOCALS");
@@ -67,7 +65,7 @@ Blockly.Python['ast_Nonlocal'] = function (block) {
     return 'nonlocal ' + elements.join(', ') + "\n";
 };
 
-BlockMirrorTextToBlocks.prototype['ast_Nonlocal'] = function (node) {
+BlockMirrorTextToBlocks.prototype['ast_Nonlocal'] = function (node, parent) {
     let names = node.names;
 
     let fields = {};

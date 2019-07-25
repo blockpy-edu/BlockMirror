@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Simple BlockMirror Example</title>
 
+    <script>module = {}</script>
+
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
             integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
             crossorigin="anonymous"></script>
@@ -30,6 +32,7 @@
     <script src="../src/text_editor.js" type="text/javascript"></script>
     <script src="../src/block_editor.js" type="text/javascript"></script>
     <script src="../src/text_to_blocks.js" type="text/javascript"></script>
+    <script src="../src/ast/ast_functions.js" type="text/javascript"></script>
 
     <script src="../src/ast/ast_For.js" type="text/javascript"></script>
     <script src="../src/ast/ast_If.js" type="text/javascript"></script>
@@ -72,6 +75,8 @@
     <script src="../src/ast/ast_ClassDef.js" type="text/javascript"></script>
     <script src="../src/ast/ast_Import.js" type="text/javascript"></script>
     <script src="../src/ast/ast_With.js" type="text/javascript"></script>
+    <script src="../src/ast/ast_Comment.js" type="text/javascript"></script>
+    <script src="../src/ast/ast_Raw.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -99,11 +104,12 @@
 <script type="text/javascript">
     var editor = new BlockMirror({
         'container': document.getElementById('blockmirror-editor'),
+        //'height': '2000px'
     });
-    editor.setCode('__main__', 'a = 0\nb=0\nprint(b)');
     editor.addChangeListener(function (event) {
         console.log('Change! Better save:', event)
     });
+    editor.setCode('a = 0');
 
     Sk.configure({
         __future__: Sk.python3,
@@ -117,13 +123,14 @@
     });
 
     $('#go').click(function () {
-        alert('Starting!')
+        /*alert('Starting!')
         var filename = 'main';
         var code = `import pedal`;
         //console.time('Run');
         Sk.importMainWithBody(filename, false, code, true).$d;
         //console.timeEnd('Run');
-        alert('Done!')
+        alert('Done!')*/
+        runTests();
     });
 
     var TESTS = [
@@ -178,7 +185,7 @@
         "{x: y for a in b if c}\n{x: y for a in b for c in d if e if g}",
         "a = 0\na = b = c = 0",
         "(a, b) = (1, 2)\n[x, (y, z)] = something",
-        "i: int = 0\ns: str = 'Hello'\nf: float = 4.3\nb: bool = True\nx: X = 4",
+        "i: int = 0\ns: str = 'Hello'\nf: float = 4.3\nb: bool = True\nx: Z = 4",
         "i: 'int' = 0\ns: 'str' = 'Hello'\nf: 'float' = 4.3\nb: 'bool' = True",
         "n: None = None\na[0]: List[int] = 0\nb: Dict[str, str]",
         'a += 1\nb *= 4\nc **= 4\nd ^= 10',
@@ -188,6 +195,7 @@
         `@route\n@open('test')\ndef alpha(beta: str, gamma=True, delta: int=0, *args, k=4, num: int=3, **kwargs):\n    a = 0\n    b = 7`,
         "def do_something(a: int) -> str:\n    assert (4 == 3)",
         'lambda x, y=0: x + y',
+        '(lambda : None)()',
         "def simple(a, b, c) -> int:\n    return 'Hello world!'\n    return",
         "def simple(a, b, c) -> int:\n    (yield 'Hello world!')\n    (yield)\n    dog = yield b + 4",
         "def simple(a, b, c) -> int:\n    (yield from 'Hello world!')\n    dog = yield from b + 4",
@@ -208,30 +216,70 @@
         "import matplotlib.pyplot as plt",
         "with open('filename') as outfile:\n    pass",
         "with open('filename') as outfile, open('file2') as infile, other_context:\n    pass",
+        "#hello world!\n# Another comment\n#: int\n\na",
+        "#TODO: We need to work harder on this!",
+        "a = 0\nprint(a)\nfor x in y:\n    print(b)\n    (max(a, b))",
+        "with x():\n    pass",
+        "(lambda x: x)()",
+        "class Alpha:\n    def beta():\n        '''\n        Hello World!\n        Testing.\n        '''",
+        "'test'.replace(1, 2, 3)"
     ];
 
-    for (var i = 0; i < TESTS.length; i += 1) {
-        var test = TESTS[i];
-        editor.textEditor.setCode('__main__.py', test);
-        editor.blockEditor.setText(editor.textEditor.getCode())
-        editor.blockEditor.changed();
-        editor.blockEditor.workspace.cleanUp();
-        console.assert(test.trim() === editor.textEditor.getCode().trim(),
-            "\nExpected:\n" + test.trim() + "\n",
-            "\nActual:\n" + editor.textEditor.getCode().trim() + "\n");
-        if (test.trim() !== editor.textEditor.getCode().trim()) {
-            break;
-        }
-        editor.blockEditor.setText(editor.textEditor.getCode())
-        editor.blockEditor.changed();
-        editor.blockEditor.workspace.cleanUp();
-        console.assert(test.trim() === editor.textEditor.getCode().trim(),
-            "\nExpected:\n" + test.trim() + "\n",
-            "\nActual:\n" + editor.textEditor.getCode().trim() + "\n(second trip)");
-        if (test.trim() !== editor.textEditor.getCode().trim()) {
-            break;
+    function runTests() {
+        for (let i = 0; i < TESTS.length; i += 1) {
+            let test = TESTS[i];
+            editor.textEditor.setCode(test, true);
+            editor.blockEditor.setCode(editor.textEditor.getCode(), true);
+            console.assert(test.trim() === editor.textEditor.getCode().trim(),
+                "\nExpected:\n" + test.trim() + "\n",
+                "\nActual:\n" + editor.textEditor.getCode().trim() + "\n");
+            if (test.trim() !== editor.textEditor.getCode().trim()) {
+                break;
+            }
+            editor.blockEditor.changed();
+            editor.blockEditor.setCode(editor.textEditor.getCode(), true);
+            console.assert(test.trim() === editor.textEditor.getCode().trim(),
+                "\nExpected:\n" + test.trim() + "\n",
+                "\nActual:\n" + editor.textEditor.getCode().trim() + "\n(second trip)");
+            if (test.trim() !== editor.textEditor.getCode().trim()) {
+                break;
+            }
         }
     }
+
+    //runTests();
+
+    function tryGrindleHook() {
+        editor.textEditor.setCode('grindlehook.py', `def calculate_rating(name):
+    '''
+    Returns the customer's credit rating, according to the bank's current
+    status, the customer, and the alignment of the stars. This function
+    is delicate, and will break after being called once.
+
+    Notes:
+        (ghook@1/15/2018): DO NOT TOUCH THIS, I FINALLY GOT IT WORKING.
+
+    Args:
+        name (str): A string representing the user's full name.
+    Returns:
+        int: An integer (0-9) representing the customer's credit rating.
+    '''
+    c=calculate_rating;setattr(c,'r',lambda:setattr(c,'o',True))
+    j={};y=j['CELESTIAL_NAVIGATION_CONSTANT']=10
+    j[True]='CELESTIAL_NAVIGATION_CONSTANT'
+    x=str(''[:].swapcase);y=y+11,y+9,y+-2,y+-2,y+4,y+-5,y+-1,y+11,y+9,\\
+    y+-6,y+-6,y+-1,y+-5,y+3,y+-7,y+7,y+-1,y+-5,y+8,y+-7,y+11,y+1
+    z=lambda x,t,o=0:''.join(map(lambda j:x.__getitem__(j+o), t))
+    if hasattr(c,'o')and not getattr(c, 'o'): return z(x,y)
+    c.o=False;j['CELESTIAL_NAVIGATION_CONSTANT'].bit_length
+    d=(lambda:(lambda:None))()();g=globals()
+    while d:g['X567S-lumos-17-KLAUS']=((d)if(lambda:None)else(j))
+    p=lambda p:sum(map(int, list(str(p))))
+    MGC=p(sum(map(lambda v: v[0]*8+ord(v[1]), enumerate(name))))
+    while MGC>10:MGC=p(MGC)
+    if c:return MGC`);
+    };
+
 </script>
 </body>
 </html>
