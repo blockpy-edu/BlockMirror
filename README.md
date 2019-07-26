@@ -73,7 +73,7 @@ Important API functions:
 * `editor.getCode() -> str`: Gets the current code from the model (which is kept consistent between the blocks and text).
 * `editor.addChangeListener(event -> null)`: Attach a function to be called when the code changes.
 * `editor.setMode(str)`: One of `'split'`, `'block'`, `'text'`. Sets the current view of the environment.
-* `editor.getMode()`: Gets the current view of the environment.
+* `editor.getMode() -> str`: Gets the current view of the environment.
 
 # Hacking
 
