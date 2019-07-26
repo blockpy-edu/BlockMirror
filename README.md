@@ -67,6 +67,14 @@ Some interesting configuration options:
 * `skipSkulpt` (bool): Whether to initialize skulpt or skip that step.
 * `blockDelay` (int or null): The number of microseconds to delay/consolidate block updates (important for very long files that take a second to parse). If null, then no delay.
 
+Important API functions:
+
+* `editor.setCode(str)`: Updates the current code in both the blocks and the text.
+* `editor.getCode() -> str`: Gets the current code from the model (which is kept consistent between the blocks and text).
+* `editor.addChangeListener(event -> null)`: Attach a function to be called when the code changes.
+* `editor.setMode(str)`: One of `'split'`, `'block'`, `'text'`. Sets the current view of the environment.
+* `editor.getMode()`: Gets the current view of the environment.
+
 # Hacking
 
 Right now, this library supports most of the features I need. However, feel free to raise new Issues and Pull Requests! Here are some common scenarios you might be interested in:
