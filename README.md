@@ -65,7 +65,7 @@ Some interesting configuration options:
 * `height` (str): The height of the editor. Defaults to `'500px'`.
 * `viewMode` (str): One of `'split'`, `'block'`, `'text'`. Sets the starting view of the environment.
 * `skipSkulpt` (bool): Whether to initialize skulpt or skip that step.
-* `blockDelay` (int or null): The number of microsends to delay block updates (important for very long files that take a second to parse). If null, then no delay.
+* `blockDelay` (int or null): The number of microseconds to delay/consolidate block updates (important for very long files that take a second to parse). If null, then no delay.
 
 # Hacking
 
