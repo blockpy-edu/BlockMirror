@@ -1,5 +1,6 @@
 // TODO: Support stuff like "append" where the message is after the value input
 // TODO: Handle updating function/method definition -> update call
+// TODO: Do a pretraversal to determine if a given function returns
 
 Blockly.Blocks['ast_Call'] = {
     /**

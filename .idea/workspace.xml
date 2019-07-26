@@ -2,66 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/color_categories.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/block_mirror.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/images/awful.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ast/ast_Comment.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ast/ast_Raw.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/acbart.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/acbart.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_AnnAssign.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_AnnAssign.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Assert.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Assert.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Assign.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Assign.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Attribute.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Attribute.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_AugAssign.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_AugAssign.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_BinOp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_BinOp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_BoolOp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_BoolOp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Break.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Break.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/block_mirror.css" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_Call.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Call.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_ClassDef.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_ClassDef.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_Comp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Comp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Compare.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Continue.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Continue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Delete.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Delete.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Dict.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Dict.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Expr.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Expr.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_For.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_For.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_FunctionDef.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_FunctionDef.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Global.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Global.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_If.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_If.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_IfExp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_IfExp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Import.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Import.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Lambda.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Lambda.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_List.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_List.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Name.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Name.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_NameConstant.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_NameConstant.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Nonlocal.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Nonlocal.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Num.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Num.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Raise.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Raise.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Return.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Return.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Set.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Set.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Starred.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Starred.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Subscript.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Subscript.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Try.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Try.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Tuple.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Tuple.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_While.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_While.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_With.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_With.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Yield.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Yield.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_YieldFrom.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_YieldFrom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/todo.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/todo.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockly_shims.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockly_shims.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/simple.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
@@ -106,6 +54,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
+    <property name="jsx.switch.disabled" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/ast" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -174,8 +123,17 @@
       <workItem from="1563207719048" duration="156052000" />
       <workItem from="1563924743919" duration="259000" />
       <workItem from="1563925130756" duration="17000" />
-      <workItem from="1563926206114" duration="36391000" />
+      <workItem from="1563926206114" duration="40569000" />
+      <workItem from="1564112387987" duration="1691000" />
     </task>
+    <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
+      <created>1564063805490</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1564063805490</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -186,11 +144,17 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Basics of packaging, bug fixes, better updating" />
+    <option name="LAST_COMMIT_MESSAGE" value="Basics of packaging, bug fixes, better updating" />
   </component>
   <component name="masterDetails">
     <states>

@@ -395,7 +395,7 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
 
     let parsedArgs = 0;
     if (args !== null) {
-        parsedArgs = this.parseArgs(args, values, node.lineno);
+        parsedArgs = this.parseArgs(args, values, node.lineno, node);
     }
 
     let hasReturn = (returns !== null &&

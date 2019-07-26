@@ -338,13 +338,15 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
                 },
                 DEFAULT_SETTINGS);
             g += 1;
-            for (let j = 0; j < ifs.length; j++) {
-                elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionIf", node.lineno, {},
-                    {
-                        "TEST": this.convert(ifs[j], node)
-                    },
-                    DEFAULT_SETTINGS);
-                g += 1;
+            if (ifs) {
+                for (let j = 0; j < ifs.length; j++) {
+                    elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionIf", node.lineno, {},
+                        {
+                            "TEST": this.convert(ifs[j], node)
+                        },
+                        DEFAULT_SETTINGS);
+                    g += 1;
+                }
             }
         }
 

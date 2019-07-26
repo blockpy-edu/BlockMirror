@@ -80,6 +80,9 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
 
     // Need to load skulpt?
     this.configuration.skipSkulpt = configuration.skipSkulpt || false;
+
+    // Delay?
+    this.configuration.blockDelay = configuration.blockDelay || false;
 }
 
 BlockMirror.prototype.initializeVariables = function () {
@@ -185,4 +188,4 @@ BlockMirror.prototype.VISIBLE_MODES = {
     'text': ['text', 'split']
 };
 
-
+exports = BlockMirror;

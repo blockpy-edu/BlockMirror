@@ -9,7 +9,10 @@ function BlockMirrorTextEditor(blockMirror) {
 
     // Do we need to force an update?
     this.outOfDate_ = null;
-    
+
+    // Use a timer to swallow updates
+    this.updateTimer_ = null;
+
     let codeMirrorOptions = {
         mode: {
             name: 'python',
@@ -25,16 +28,30 @@ function BlockMirrorTextEditor(blockMirror) {
         indentWithTabs: false,
         matchBrackets: true,
         extraKeys: {
-            'Tab': 'indentMore', 
+            'Tab': 'indentMore',
             'Shift-Tab': 'indentLess',
             'Ctrl-Enter': blockMirror.run,
-            'Esc': this.defocus.bind(this)
-        }
+            'Esc': function(cm) {
+                if (cm.getOption("fullScreen")) {
+                    cm.setOption("fullScreen", false);
+                } else {
+                    cm.display.input.blur();
+                }
+            },
+            "F11": function(cm) {
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            "Esc": function(cm) {
+
+            }
+        },
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
     };
     this.codeMirror = CodeMirror.fromTextArea(this.textArea, codeMirrorOptions);
     this.codeMirror.on('change', this.changed.bind(this));
     this.codeMirror.setSize(null, '100%');
-    this.textContainer.style.border= '1px solid lightgray';
+    this.textContainer.style.border = '1px solid lightgray';
     this.textContainer.style.float = 'left';
     this.updateWidth();
     this.textContainer.style.height = blockMirror.configuration.height;
@@ -43,13 +60,22 @@ function BlockMirrorTextEditor(blockMirror) {
     this.textSidebar.style.float = 'left';
     this.textSidebar.style.backgroundColor = '#ddd';
 
+    // TODO: Finish implementing code completion
+    /*this.codeMirror.on('inputRead', function onChange(editor, input) {
+        if (input.text[0] === ';' || input.text[0] === ' ' || input.text[0] === ":") {
+            return;
+        }
+        editor.showHint({
+            hint: CodeMirror.pythonHint
+        });
+    });*/
 }
 
-BlockMirrorTextEditor.prototype.defocus = function() {
+BlockMirrorTextEditor.prototype.defocus = function () {
     this.codeMirror.display.input.blur();
 }
 
-BlockMirrorTextEditor.prototype.updateWidth = function() {
+BlockMirrorTextEditor.prototype.updateWidth = function () {
     var newWidth = '0%';
     /*if (this.blockMirror.views.includes('text')) {
         newWidth = (100 / this.blockMirror.views.length)+'%';
@@ -57,7 +83,7 @@ BlockMirrorTextEditor.prototype.updateWidth = function() {
     this.textContainer.style.width = newWidth;*/
 }
 
-BlockMirrorTextEditor.prototype.setReadOnly = function(isReadOnly) {
+BlockMirrorTextEditor.prototype.setReadOnly = function (isReadOnly) {
     this.codeMirror.setOption('readOnly', isReadOnly);
 };
 
@@ -79,7 +105,7 @@ BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
     }
 };
 
-BlockMirrorTextEditor.prototype.setMode = function(mode) {
+BlockMirrorTextEditor.prototype.setMode = function (mode) {
     mode = mode.toLowerCase();
     let configuration = this.VIEW_CONFIGURATIONS[mode];
     // If there is an update waiting and we're visible, then update
@@ -112,11 +138,11 @@ BlockMirrorTextEditor.prototype.setMode = function(mode) {
     }
 }
 
-BlockMirrorTextEditor.prototype.setCode = function(code, quietly) {
+BlockMirrorTextEditor.prototype.setCode = function (code, quietly) {
     this.silentEvents_ = quietly;
 
     // Defaults to a single blank line
-    code = (code === undefined || code.trim() === "") ? "\n": code;
+    code = (code === undefined || code.trim() === "") ? "\n" : code;
 
     if (this.isVisible()) {
         this.codeMirror.setValue(code);
@@ -126,20 +152,29 @@ BlockMirrorTextEditor.prototype.setCode = function(code, quietly) {
     }
 };
 
-BlockMirrorTextEditor.prototype.getCode = function() {
+BlockMirrorTextEditor.prototype.getCode = function () {
     return this.codeMirror.getValue();
 };
 
-BlockMirrorTextEditor.prototype.changed = function(codeMirror, event) {
+BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
     if (!this.silentEvents_) {
-        let newCode = this.getCode();
-        this.blockMirror.blockEditor.setCode(newCode, true);
-        this.blockMirror.code_ = newCode;
+        let handleChange = () => {
+            let newCode = this.getCode();
+            this.blockMirror.blockEditor.setCode(newCode, true);
+            this.blockMirror.code_ = newCode;
+        };
+        if (this.blockMirror.configuration.blockDelay === false) {
+            handleChange();
+        } else {
+            if (this.updateTimer_ !== null) {
+                clearTimeout(this.updateTimer_);
+            }
+            this.updateTimer_ = setTimeout(handleChange, this.blockMirror.configuration.blockDelay);
+        }
     }
     this.silentEvents_ = false;
-    //console.log("Changed text");
 };
 
-BlockMirrorTextEditor.prototype.isVisible = function() {
+BlockMirrorTextEditor.prototype.isVisible = function () {
     return this.blockMirror.VISIBLE_MODES.text.indexOf(this.blockMirror.mode_) !== -1;
 };
