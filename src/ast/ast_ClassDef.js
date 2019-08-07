@@ -100,9 +100,9 @@ Blockly.Python['ast_ClassDef'] = function (block) {
     // Body:
     let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
     // Put it together
-    let arguments = (bases.concat(keywords));
-    arguments = (arguments.length === 0) ? "" : "(" + arguments.join(', ') + ")";
-    return decorators.join('') + "class " + name + arguments + ":\n" + body;
+    let args = (bases.concat(keywords));
+    args = (args.length === 0) ? "" : "(" + args.join(', ') + ")";
+    return decorators.join('') + "class " + name + args + ":\n" + body;
 }
 ;
 

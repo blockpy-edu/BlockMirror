@@ -1,6 +1,7 @@
 const path = require('path');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 const Uglify = require("uglify-js");
+const babel = require("@babel/core");
 
 // Blockly
 const JS_BLOCKLY_FILES = [
@@ -32,8 +33,9 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/text_editor.js'),
     path.resolve(__dirname, 'src/block_editor.js'),
     path.resolve(__dirname, 'src/text_to_blocks.js'),
-    // AST Handlers
     path.resolve(__dirname, 'src/ast/ast_functions.js'),
+    path.resolve(__dirname, 'src/toolbars.js'),
+    // AST Handlers
     path.resolve(__dirname, 'src/ast/ast_For.js'),
     path.resolve(__dirname, 'src/ast/ast_If.js'),
     path.resolve(__dirname, 'src/ast/ast_While.js'),
@@ -42,6 +44,7 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/ast/ast_Name.js'),
     path.resolve(__dirname, 'src/ast/ast_Assign.js'),
     path.resolve(__dirname, 'src/ast/ast_AnnAssign.js'),
+    path.resolve(__dirname, 'src/ast/ast_AugAssign.js'),
     path.resolve(__dirname, 'src/ast/ast_Str.js'),
     path.resolve(__dirname, 'src/ast/ast_Expr.js'),
     path.resolve(__dirname, 'src/ast/ast_UnaryOp.js'),
@@ -92,14 +95,11 @@ const config = {
     },
     module: {
         rules: [
-            /*{
-                loader: 'babel-loader',
-                test: /\.js$/,
-                exclude: /node_modules/,
-                query: {
-                    presets: ['es2015']
-                }
-            }*/
+            {
+                test: /(\.jsx|\.js)$/,
+                loader: "babel-loader",
+                exclude: /(node_modules|bower_components)/
+            },
         ]
     },
     resolve: {
@@ -110,11 +110,17 @@ const config = {
             files: {
                 "block_mirror.js": JS_BLOCKMIRROR_FILES,
                 "block_mirror.css": [
-                    path.resolve(__dirname, 'lib/codemirror/codemirror.css'),
+                    /*path.resolve(__dirname, 'lib/codemirror/codemirror.css'),
                     path.resolve(__dirname, 'lib/codemirror/fullscreen.css'),
-                    path.resolve(__dirname, 'lib/codemirror/show-hint.css'),
+                    path.resolve(__dirname, 'lib/codemirror/show-hint.css'),*/
                     path.resolve(__dirname, 'src/block_mirror.css'),
                 ]
+            },
+            transform: {
+                "block_mirror.js": code =>
+                    babel.transform(code, {
+                        presets: ["@babel/preset-env"]
+                    }).code
             }
         })
     ]

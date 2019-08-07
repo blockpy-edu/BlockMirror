@@ -73,7 +73,7 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     this.configuration['readOnly'] = configuration['readOnly'] || false;
 
     // height
-    this.configuration.height = configuration.height || '500px';
+    this.configuration.height = configuration.height || 500;
 
     // viewMode
     this.configuration.viewMode = configuration.viewMode || 'split';
@@ -83,7 +83,10 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
 
     // Delay?
     this.configuration.blockDelay = configuration.blockDelay || false;
-}
+
+    // Toolbox
+    this.configuration.toolbox = configuration.toolbox || "normal";
+};
 
 BlockMirror.prototype.initializeVariables = function () {
     this.tags = {
@@ -144,6 +147,17 @@ BlockMirror.prototype.loadSkulpt = function () {
     });
 };
 
+BlockMirror.prototype.removeAllChangeListeners = function () {
+    this.listeners_.length = 0;
+};
+
+BlockMirror.prototype.removeChangeListener = function (callback) {
+    let index = this.listeners_.indexOf(callback);
+    if (index !== -1) {
+        this.listeners_.splice(index, 1);
+    }
+};
+
 BlockMirror.prototype.addChangeListener = function (callback) {
     this.listeners_.push(callback);
 };
@@ -183,9 +197,18 @@ BlockMirror.prototype.setReadOnly = function (isReadOnly) {
     this.configuration.container.toggleClass("block-mirror-read-only", isReadOnly);
 };
 
+BlockMirror.prototype.refresh = function() {
+    this.blockEditor.resized();
+    this.textEditor.codeMirror.refresh();
+};
+
+BlockMirror.prototype.forceBlockRefresh = function() {
+    this.blockEditor.setCode(this.code_, true);
+};
+
 BlockMirror.prototype.VISIBLE_MODES = {
     'block': ['block', 'split'],
     'text': ['text', 'split']
 };
 
-exports = BlockMirror;
+BlockMirror.prototype.BREAK_WIDTH = 675;

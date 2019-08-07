@@ -60,6 +60,8 @@ function BlockMirrorTextEditor(blockMirror) {
     this.textSidebar.style.float = 'left';
     this.textSidebar.style.backgroundColor = '#ddd';
 
+    window.addEventListener('resize', this.resizeResponsively.bind(this), false);
+
     // TODO: Finish implementing code completion
     /*this.codeMirror.on('inputRead', function onChange(editor, input) {
         if (input.text[0] === ';' || input.text[0] === ' ' || input.text[0] === ":") {
@@ -105,6 +107,25 @@ BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
     }
 };
 
+BlockMirrorTextEditor.prototype.resizeResponsively = function () {
+    let mode = this.blockMirror.mode_;
+    let configuration = this.VIEW_CONFIGURATIONS[mode];
+    let width = configuration.width;
+    let height = this.blockMirror.configuration.height;
+    if (mode === 'split') {
+        if (window.innerWidth >= this.blockMirror.BREAK_WIDTH) {
+            this.textContainer.style.width = width;
+            this.textContainer.style.height = height+"px";
+        } else {
+            this.textContainer.style.width = '100%';
+            this.textContainer.style.height = (height/2)+"px";
+        }
+    } else {
+        this.textContainer.style.width = width;
+        this.textContainer.style.height = height+"px";
+    }
+};
+
 BlockMirrorTextEditor.prototype.setMode = function (mode) {
     mode = mode.toLowerCase();
     let configuration = this.VIEW_CONFIGURATIONS[mode];
@@ -113,9 +134,8 @@ BlockMirrorTextEditor.prototype.setMode = function (mode) {
         this.setCode(this.outOfDate_, true);
     }
     // Show/hide editor
-    this.textContainer.style.width = configuration.width;
+    this.resizeResponsively();
     if (configuration.visible) {
-        this.textContainer.style.height = this.blockMirror.configuration.height;
         this.textContainer.style.display = 'block';
         this.codeMirror.getWrapperElement().style.display = 'block';
         this.codeMirror.refresh();
@@ -136,7 +156,7 @@ BlockMirrorTextEditor.prototype.setMode = function (mode) {
         this.textSidebar.style.display = 'none';
         this.textSidebar.style.width = '0px';
     }
-}
+};
 
 BlockMirrorTextEditor.prototype.setCode = function (code, quietly) {
     this.silentEvents_ = quietly;
@@ -161,7 +181,7 @@ BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
         let handleChange = () => {
             let newCode = this.getCode();
             this.blockMirror.blockEditor.setCode(newCode, true);
-            this.blockMirror.code_ = newCode;
+            this.blockMirror.setCode(newCode, true);
         };
         if (this.blockMirror.configuration.blockDelay === false) {
             handleChange();

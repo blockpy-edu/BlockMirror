@@ -7,7 +7,8 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'any': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.LOGIC},
     'ascii': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'bin': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
-    'bool': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.LOGIC},
+    'bool': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.LOGIC,
+    simple: ['x']},
     'breakpoint': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
     'bytearray': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'bytes': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
@@ -24,7 +25,8 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'eval': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
     'exec': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
     'filter': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
-    'float': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
+    'float': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH,
+    simple: ['x']},
     'format': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'frozenset': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
     'getattr': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
@@ -34,8 +36,10 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'help': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
     'hex': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
     'id': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
-    'input': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
-    'int': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
+    'input': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT,
+    simple: ['prompt']},
+    'int': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH,
+    simple: ['x']},
     'isinstance': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.LOGIC},
     'issubclass': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.LOGIC},
     'iter': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
@@ -52,12 +56,16 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'open': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.FILE},
     'ord': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'pow': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
-    'print': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
+    'print': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.TEXT,
+    simple: ['message'], full: ['*messages', 'sep', 'end', 'file', 'flush']},
     'property': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
-    'range': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
+    'range': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES,
+    simple: ['stop'], full: ['start', 'stop', 'step']},
     'repr': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'reversed': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
-    'round': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
+    'round': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH,
+    full: ['x', 'ndigits'],
+    simple: ['x']},
     'set': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SET},
     'setattr': {
         'returns': false,
@@ -71,7 +79,8 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
         colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
     },
     'staticmethod': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
-    'str': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
+    'str': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT,
+    simple: ['x']},
     'sum': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
     'super': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
     'tuple': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TUPLE},
@@ -194,36 +203,43 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
     'plt': {
         'show': {
             returns: false,
+            simple: [],
             message: 'show plot canvas',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'hist': {
             returns: false,
+            simple: ['values'],
             message: 'plot histogram',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'plot': {
             returns: false,
+            simple: ['values'],
             message: 'plot line',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'scatter': {
             returns: false,
+            simple: ['xs', 'ys'],
             message: 'plot scatter',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'title': {
             returns: false,
+            simple: ['label'],
             message: "make plot's title",
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'xlabel': {
             returns: false,
+            simple: ['label'],
             message: "make plot's x-axis label",
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'ylabel': {
             returns: false,
+            simple: ['label'],
             message: "make plot's y-axis label",
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         }
@@ -232,3 +248,39 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
 
 BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['matplotlib.pyplot'] =
     BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['plt'];
+
+BlockMirrorTextToBlocks.getFunctionBlock = function(name, values, module) {
+    if (values === undefined) {
+        values = {};
+    }
+    // TODO: hack, we shouldn't be accessing the prototype like this
+    let signature;
+    let method = false;
+    if (module !== undefined) {
+        signature = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module][name];
+    } else if (name.startsWith('.')) {
+        signature = BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES[name.substr(1)];
+        method = true;
+    } else {
+        signature = BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES[name];
+    }
+    let args = (signature.simple !== undefined ? signature.simple :
+               signature.full !== undefined ? signature.full : []);
+    let argumentsMutation = {
+        "@arguments": args.length,
+        "@returns": (signature.returns || false),
+        "@parameters": true,
+        "@method": method,
+        "@name": name,
+        "@message": signature.message ? signature.message : name,
+        "@premessage": signature.premessage ? signature.premessage : "",
+        "@colour": signature.colour ? signature.colour : 0
+    };
+    for (let i = 0; i < args.length; i += 1) {
+        argumentsMutation["UNKNOWN_ARG:" + i] = null;
+    }
+    let newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", null, {},
+        values, {inline: true}, argumentsMutation);
+    // Return as either statement or expression
+    return BlockMirrorTextToBlocks.xmlToString(newBlock);
+};

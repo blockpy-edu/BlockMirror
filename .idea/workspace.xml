@@ -2,15 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.babelrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.css" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_Call.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Call.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Comp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Comp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_FunctionDef.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_FunctionDef.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_ClassDef.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_ClassDef.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/simple.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
     </list>
@@ -85,7 +90,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="npm.build">
+  <component name="RunManager" selected="npm.devbuild">
     <configuration name="webpack.config.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="webpack.config.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
@@ -99,12 +104,24 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="devbuild" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="devbuild" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Node.js.webpack.config.js" />
       <item itemvalue="npm.build" />
+      <item itemvalue="npm.devbuild" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.devbuild" />
         <item itemvalue="npm.build" />
         <item itemvalue="Node.js.webpack.config.js" />
       </list>
@@ -125,6 +142,19 @@
       <workItem from="1563925130756" duration="17000" />
       <workItem from="1563926206114" duration="40569000" />
       <workItem from="1564112387987" duration="1691000" />
+      <workItem from="1564150717925" duration="4000" />
+      <workItem from="1564194355295" duration="6795000" />
+      <workItem from="1564373913220" duration="4347000" />
+      <workItem from="1564405679276" duration="275000" />
+      <workItem from="1564408427527" duration="88000" />
+      <workItem from="1564414212624" duration="4470000" />
+      <workItem from="1564662808985" duration="1025000" />
+      <workItem from="1564895575540" duration="1685000" />
+      <workItem from="1564949914358" duration="2354000" />
+      <workItem from="1565065547361" duration="2791000" />
+      <workItem from="1565112500562" duration="657000" />
+      <workItem from="1565131777631" duration="606000" />
+      <workItem from="1565155525428" duration="727000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>

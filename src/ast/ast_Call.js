@@ -411,6 +411,8 @@ Blockly.Blocks['ast_Call'] = {
 };
 
 Blockly.Python['ast_Call'] = function (block) {
+    // TODO: Handle import
+    // Blockly.Python.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
     // Get the caller
     let funcName = "";
     if (block.isMethod_) {
@@ -503,7 +505,14 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     }
     let returns = true;
 
-    if (signature !== null) {
+    if (signature !== null && signature !== undefined) {
+        if (signature.custom) {
+            try {
+                return signature.custom(node, parent)
+            } catch (e) {
+                // We tried to be fancy and failed, better fall back to default behavior!
+            }
+        }
         if ('returns' in signature) {
             returns = signature.returns;
         }

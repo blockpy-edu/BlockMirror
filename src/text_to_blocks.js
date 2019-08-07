@@ -48,6 +48,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
                 this.source = this.source.slice(0, previousLine);
                 python_source = this.source.join("\n");
             } else {
+                console.error(e);
                 xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
                 return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": error};
             }
@@ -184,8 +185,9 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
         skipped_line,
         commentCount,
         previousHeight = null,
-        previousWasStatement = false;
-    visitedFirstLine = false;
+        previousWasStatement = false,
+        visitedFirstLine = false,
+        wasFirstLine = false;
 
     // Iterate through each node
     for (var i = 0; i < node.length; i++) {
@@ -203,11 +205,11 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
         commentCount = 0;
         for (var commentLineInProgram in this.comments) {
             if (commentLineInProgram < lineNumberInProgram) {
-                commentChild = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
+                let commentChild = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
                 if (previousLineInProgram == null) {
                     nestChild(commentChild);
                 } else {
-                    skipped_previous_line = Math.abs(previousLineInProgram - commentLineInProgram) > 1;
+                    let skipped_previous_line = Math.abs(previousLineInProgram - commentLineInProgram) > 1;
                     if (is_top_level && skipped_previous_line) {
                         addPeer(commentChild);
                     } else {
@@ -240,7 +242,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
         previousHeight = height;
 
         // Handle top-level expression blocks
-        if (is_top_level && newChild.constructor == Array) {
+        if (is_top_level && newChild.constructor === Array) {
             addPeer(newChild[0]);
             // Handle skipped line
         } else if (is_top_level && skipped_line && visitedFirstLine) {
@@ -261,7 +263,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     // Handle comments that are on the very last line
     var lastLineNumber = lineNumberInProgram + 1;
     if (lastLineNumber in this.comments) {
-        commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
+        let commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
         nestChild(commentChild);
         delete this.comments[lastLineNumber];
     }
@@ -269,7 +271,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     // Handle any extra comments that stuck around
     if (is_top_level) {
         for (var commentLineInProgram in this.comments) {
-            commentChild = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
+            let commentChild = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
             distance = commentLineInProgram - previousLineInProgram;
             if (previousLineInProgram == null) {
                 addPeer(commentChild);
@@ -323,15 +325,15 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source
     try {
         return this.convert(node, parent);
     } catch (e) {
-        heights = this.getChunkHeights(node);
-        extractedSource = this.getSourceCode(arrayMin(heights), arrayMax(heights));
+        let heights = this.getChunkHeights(node);
+        let extractedSource = this.getSourceCode(arrayMin(heights), arrayMax(heights));
         console.error(e);
         return BlockMirrorTextToBlocks.raw_block(extractedSource);
     }
 }
 
 BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
-    var lineNumbers = [];
+    let lineNumbers = [];
     if (node.hasOwnProperty("lineno")) {
         lineNumbers.push(node.lineno);
     }
