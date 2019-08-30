@@ -10,3 +10,12 @@
 .block-mirror-read-only .CodeMirror-scroll {
     background-color: #E5E5E5;
 }
+
+
+.blockly-readonly-layer {
+    color: white;
+    background-color: white;
+    opacity: .25;
+    position: absolute;
+    z-index: 100;
+}

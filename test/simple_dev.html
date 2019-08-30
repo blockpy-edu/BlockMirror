@@ -87,6 +87,8 @@
 </head>
 <body>
 <button id='go'>GO</button>
+<button id='make-image'>Make Image</button>
+<div id="image-spot"></div>
 <div style="width:900px; margin:0 auto;"
      id='example-frame'>
 
@@ -126,6 +128,10 @@
             }
             return Sk.builtinFiles["files"][filename];
         }
+    });
+
+    $("#make-image").click(function() {
+       editor.blockEditor.getPngFromBlocks((u, i)=> $("#image-spot").html(i));
     });
 
     $('#go').click(function () {

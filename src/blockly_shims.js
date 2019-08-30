@@ -12,6 +12,8 @@ Blockly.Python.init = function (workspace) {
     // Create a dictionary mapping desired function names in definitions_
     // to actual function names (to avoid collisions with user functions).
     Blockly.Python.functionNames_ = Object.create(null);
+    // Keep track of datasets that are already imported
+    Blockly.Python.imported_ = Object.create(null);
 
     if (!Blockly.Python.variableDB_) {
         Blockly.Python.variableDB_ =
@@ -51,8 +53,11 @@ Blockly.Python.finish = function (code) {
     // Convert the definitions dictionary into a list.
     var imports = [];
     var definitions = [];
-    for (var name in Blockly.Python.definitions_) {
-        var def = Blockly.Python.definitions_[name];
+    for (let name in Blockly.Python.definitions_) {
+        let def = Blockly.Python.definitions_[name];
+        if (name in Blockly.Python.imported_) {
+            continue;
+        }
         if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
             imports.push(def);
         } else {
@@ -64,7 +69,11 @@ Blockly.Python.finish = function (code) {
     delete Blockly.Python.functionNames_;
     Blockly.Python.variableDB_.reset();
     // acbart: Don't actually inject initializations - we don't need 'em.
-    return code;
+    if (imports.length) {
+        return imports.join('\n') +"\n\n"+ code;
+    } else {
+        return code;
+    }
 };
 
 Blockly.Python.INDENT = '    ';

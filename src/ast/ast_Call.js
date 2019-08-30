@@ -26,6 +26,7 @@ Blockly.Blocks['ast_Call'] = {
         this.name_ = null;
         this.message_ = "function";
         this.premessage_ = "";
+        this.module_ = "";
         this.updateShape_();
     },
 
@@ -268,6 +269,7 @@ Blockly.Blocks['ast_Call'] = {
         container.setAttribute('method', this.isMethod_);
         container.setAttribute('message', this.message_);
         container.setAttribute('premessage', this.premessage_);
+        container.setAttribute('module', this.module_);
         container.setAttribute('colour', this.givenColour_);
         for (var i = 0; i < this.arguments_.length; i++) {
             var parameter = document.createElement('arg');
@@ -290,6 +292,7 @@ Blockly.Blocks['ast_Call'] = {
         this.isMethod_ = "true" === xmlElement.getAttribute('method');
         this.message_ = xmlElement.getAttribute('message');
         this.premessage_ = xmlElement.getAttribute('premessage');
+        this.module_ = xmlElement.getAttribute('module');
         this.givenColour_ = parseInt(xmlElement.getAttribute('colour'), 10);
 
         var args = [];
@@ -412,6 +415,9 @@ Blockly.Blocks['ast_Call'] = {
 
 Blockly.Python['ast_Call'] = function (block) {
     // TODO: Handle import
+    if (block.module_) {
+        Blockly.Python.definitions_["import_"+block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
+    }
     // Blockly.Python.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
     // Get the caller
     let funcName = "";
@@ -469,6 +475,7 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     // Can we make any guesses about this based on its name?
     let signature = null;
     let isMethod = false;
+    let module = null;
     let premessage = "";
     let message = "";
     let name = "";
@@ -488,6 +495,7 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         message = "." + attributeName;
         if (potentialModule in this.MODULE_FUNCTION_SIGNATURES) {
             signature = this.MODULE_FUNCTION_SIGNATURES[potentialModule][attributeName];
+            module = potentialModule;
             message = name = potentialModule + message;
             isMethod = false;
         } else if (attributeName in this.METHOD_SIGNATURES) {
@@ -540,7 +548,8 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         "@name": name,
         "@message": message,
         "@premessage": premessage,
-        "@colour": colour
+        "@colour": colour,
+        "@module": module || ""
     };
     // Handle arguments
     let overallI = 0;

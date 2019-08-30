@@ -41,10 +41,8 @@ function BlockMirrorTextEditor(blockMirror) {
             "F11": function(cm) {
                 cm.setOption("fullScreen", !cm.getOption("fullScreen"));
             },
-            "Esc": function(cm) {
-
-            }
         },
+        // TODO: Hide gutters when short on space
         foldGutter: true,
         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
     };
@@ -145,7 +143,16 @@ BlockMirrorTextEditor.prototype.setMode = function (mode) {
         this.codeMirror.getWrapperElement().style.display = 'none';
     }
     // Should we indent the toolbox
-    if (configuration.indentSidebar) {
+    this.updateGutter(configuration);
+};
+
+BlockMirrorTextEditor.prototype.updateGutter = function (configuration) {
+    if (configuration === undefined) {
+        let mode = this.blockMirror.mode_.toLowerCase();
+        configuration = this.VIEW_CONFIGURATIONS[mode];
+    }
+    let isBigWindow = window.innerWidth >= this.blockMirror.BREAK_WIDTH;
+    if (configuration.indentSidebar && isBigWindow) {
         let gutters = this.textContainer.querySelector('.CodeMirror-gutters');
         let gutterWidth = gutters.offsetWidth;
         let toolbarWidth = this.blockMirror.blockEditor.getToolbarWidth();

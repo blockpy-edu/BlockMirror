@@ -14,6 +14,9 @@ function BlockMirrorBlockEditor(blockMirror) {
     // Null, or the source of the last update
     this.outOfDate_ = null;
 
+    // Have to call BEFORE we inject, or Blockly will delete the css string!
+    this.loadBlocklyCSS();
+
     // Inject Blockly
     let blocklyOptions = {
         media: blockMirror.configuration.blocklyMediaPath,
@@ -38,9 +41,49 @@ function BlockMirrorBlockEditor(blockMirror) {
     this.blockEditor.style.width = '100%';
     this.blockArea.style.height = blockMirror.configuration.height + "px";
 
+    this.readOnlyDiv_ = null;
+
     window.addEventListener('resize', this.resized.bind(this), false);
     this.resized();
 }
+
+BlockMirrorBlockEditor.prototype.resizeReadOnlyDiv = function () {
+    if (this.readOnlyDiv_ !== null) {
+        if (!this.isVisible()) {
+            this.readOnlyDiv_.css("left", '0px');
+            this.readOnlyDiv_.css("top", '0px');
+            this.readOnlyDiv_.css("width", '0px');
+            this.readOnlyDiv_.css("height", '0px');
+        }
+        let blockArea = this.blockMirror.tags.blockArea;
+        let current = blockArea;
+        let x = 0;
+        let y = 0;
+        do {
+            x += current.offsetLeft;
+            y += current.offsetTop;
+            current = current.offsetParent;
+        } while (current);
+        // Position blocklyDiv over blockArea.
+        this.readOnlyDiv_.css("left", x+'px');
+        this.readOnlyDiv_.css("top", y+'px');
+        this.readOnlyDiv_.css("width", blockArea.offsetWidth + 'px');
+        this.readOnlyDiv_.css("height", blockArea.offsetHeight + 'px');
+    }
+};
+
+BlockMirrorBlockEditor.prototype.setReadOnly = function (isReadOnly) {
+    if (isReadOnly) {
+        if (this.readOnlyDiv_ === null) {
+            this.readOnlyDiv_ = $("<div class='blockly-readonly-layer'></div>");
+            $("body").append(this.readOnlyDiv_);
+        }
+        this.resizeReadOnlyDiv();
+    } else if (this.readOnlyDiv_ !== null) {
+        this.readOnlyDiv_.remove();
+        this.readOnlyDiv_ = null;
+    }
+};
 
 BlockMirrorBlockEditor.prototype.updateWidth = function () {
     var newWidth = '0%';
@@ -50,7 +93,7 @@ BlockMirrorBlockEditor.prototype.updateWidth = function () {
 BlockMirrorBlockEditor.prototype.resized = function (e) {
     this.resizeResponsively();
     // Compute the absolute coordinates and dimensions of blocklyArea.
-    var blockArea = this.blockMirror.tags.blockArea;
+    let blockArea = this.blockMirror.tags.blockArea;
     /*var current = blockArea;
     var x = 0;
     var y = 0;
@@ -60,12 +103,13 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
         current = current.offsetParent;
     } while (current);*/
     // Position blocklyDiv over blockArea.
-    var blockEditor = this.blockMirror.tags.blockEditor;
+    let blockEditor = this.blockMirror.tags.blockEditor;
     /*blockEditor.style.left = x + 'px';
     blockEditor.style.top = y + 'px';*/
     blockEditor.style.width = blockArea.offsetWidth + 'px';
     blockEditor.style.height = blockArea.offsetHeight + 'px';
     Blockly.svgResize(this.workspace);
+    this.resizeReadOnlyDiv();
 };
 
 BlockMirrorBlockEditor.prototype.makeToolbox = function () {
@@ -144,6 +188,7 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
     } else {
         this.blockContainer.style.height = '0%';
         this.blockArea.style.height = '0%';
+        this.resizeReadOnlyDiv();
     }
 
     // If there is an update waiting and we're visible, then update
@@ -176,7 +221,11 @@ BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
             let xml_code = Blockly.Xml.textToDom(result.xml);
             this.workspace.clear();
             Blockly.Xml.domToWorkspace(xml_code, this.workspace);
-            this.workspace.cleanUp();
+            if (this.blockMirror.isParsons()) {
+                this.workspace.shuffle();
+            } else {
+                this.workspace.cleanUp();
+            }
         } catch (error) {
             console.error(error);
         }

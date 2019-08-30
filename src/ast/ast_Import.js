@@ -100,10 +100,13 @@ Blockly.Python['ast_Import'] = function (block) {
     // Create a list with any number of elements of any type.
     let elements = new Array(block.nameCount_);
     for (let i = 0; i < block.nameCount_; i++) {
-        elements[i] = block.getFieldValue('NAME' + i);
+        let name = block.getFieldValue('NAME' + i);
+        elements[i] = name;
         if (!this.regulars_[i]) {
-            elements[i] += " as " + Blockly.Python.variableDB_.getName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
+            name = Blockly.Python.variableDB_.getName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
+            elements[i] += " as " + name;
         }
+        Blockly.Python.imported_["import_"+name] = name;
     }
     return from + 'import ' + elements.join(', ') + "\n";
 };
@@ -115,15 +118,23 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
     let mutations = {'@names': names.length};
 
     let regulars = [];
+    let simpleName = "";
     for (let i = 0; i < names.length; i++) {
         fields["NAME" + i] = Sk.ffi.remapToJs(names[i].name);
         let isRegular = (names[i].asname === null);
         if (!isRegular) {
             fields["ASNAME" + i] = Sk.ffi.remapToJs(names[i].asname);
+            simpleName = fields["ASNAME"+i];
+        } else {
+            simpleName = fields["NAME"+i];
         }
         regulars.push(isRegular);
     }
     mutations['regular'] = regulars;
+
+    if (this.hiddenImports.indexOf(simpleName) !== -1) {
+        return null;
+    }
 
     if (node._astname === 'ImportFrom') {
         // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt

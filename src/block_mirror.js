@@ -86,6 +86,9 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
 
     // Toolbox
     this.configuration.toolbox = configuration.toolbox || "normal";
+
+    // IsParsons?
+    this.isParsons = function() { return false; };
 };
 
 BlockMirror.prototype.initializeVariables = function () {
@@ -109,7 +112,7 @@ BlockMirror.prototype.initializeVariables = function () {
     this.tags.textContainer.appendChild(this.tags.textSidebar);
     this.tags.textContainer.appendChild(this.tags.textArea);
 
-    for (var name in this.tags) {
+    for (let name in this.tags) {
         this.tags[name].style['box-sizing'] = 'border-box';
     }
 
@@ -132,7 +135,7 @@ BlockMirror.prototype.initializeVariables = function () {
 
     // Listeners
     this.listeners_ = [];
-}
+};
 
 BlockMirror.prototype.loadSkulpt = function () {
     Sk.configure({
@@ -194,7 +197,7 @@ BlockMirror.prototype.setMode = function (mode) {
 BlockMirror.prototype.setReadOnly = function (isReadOnly) {
     this.textEditor.setReadOnly(isReadOnly);
     this.blockEditor.setReadOnly(isReadOnly);
-    this.configuration.container.toggleClass("block-mirror-read-only", isReadOnly);
+    $(this.configuration.container).toggleClass("block-mirror-read-only", isReadOnly);
 };
 
 BlockMirror.prototype.refresh = function() {

@@ -36,7 +36,7 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'help': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
     'hex': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
     'id': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.PYTHON},
-    'input': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT,
+    'input': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.FILE,
     simple: ['prompt']},
     'int': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH,
     simple: ['x']},
@@ -56,7 +56,7 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'open': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.FILE},
     'ord': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.TEXT},
     'pow': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.MATH},
-    'print': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.TEXT,
+    'print': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.FILE,
     simple: ['message'], full: ['*messages', 'sep', 'end', 'file', 'flush']},
     'property': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
     'range': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES,
@@ -88,6 +88,8 @@ BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
     'vars': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.VARIABLES},
     'zip': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES},
     '__import__': {returns: false, colour: BlockMirrorTextToBlocks.COLOR.PYTHON}
+
+
 };
 
 BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES = {
@@ -199,7 +201,22 @@ BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES = {
     '__subclasses__': {returns: true, colour: BlockMirrorTextToBlocks.COLOR.OO},
 };
 
+
+BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS = {
+    "plt": "import matplotlib.pyplot as plt",
+    "turtle": "import turtle"
+};
+
 BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
+    "cisc108": {
+        'assert_equal': {
+            returns: false,
+            simple: ["left", "right"],
+            message: "assert_equal",
+            colour: BlockMirrorTextToBlocks.COLOR.PYTHON
+        }
+    },
+    "turtle": {},
     'plt': {
         'show': {
             returns: false,
@@ -246,6 +263,66 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
     }
 };
 
+BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES['assert_equal'] =
+    BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['cisc108']['assert_equal'];
+
+function makeTurtleBlock(name, returns, values, message, aliases) {
+    BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name] = {
+        "returns": returns,
+        "simple": values,
+        "message": message,
+        colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    };
+    if (aliases) {
+        aliases.forEach(function(alias) {
+            BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][alias] =
+                BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name];
+        });
+    }
+}
+
+makeTurtleBlock("forward", false, ["amount"], "move turtle forward by", ["fd"]);
+makeTurtleBlock("backward", false, ["amount"], "move turtle backward by", ["bd"]);
+makeTurtleBlock("right", false, ["angle"], "turn turtle right by", ["rt"]);
+makeTurtleBlock("left", false, ["angle"], "turn turtle left by", ["lt"]);
+makeTurtleBlock("goto", false, ["x", "y"], "move turtle to position", ["setpos", "setposition"]);
+makeTurtleBlock("setx", false, ["x"], "set turtle's x position to ", []);
+makeTurtleBlock("sety", false, ["y"], "set turtle's y position to ", []);
+makeTurtleBlock("setheading", false, ["angle"], "set turtle's heading to ", ["seth"]);
+makeTurtleBlock("home", false, [], "move turtle to origin ", []);
+makeTurtleBlock("circle", false, ["radius"], "move the turtle in a circle ", []);
+makeTurtleBlock("dot", false, ["size", "color"], "turtle draws a dot ", []);
+makeTurtleBlock("stamp", true, [], "stamp a copy of the turtle shape ", []);
+makeTurtleBlock("clearstamp", false, ["stampid"], "delete stamp with id ", []);
+makeTurtleBlock("clearstamps", false, [], "delete all stamps ", []);
+makeTurtleBlock("undo", false, [], "undo last turtle action ", []);
+makeTurtleBlock("speed", true, ["x"], "set or get turtle speed", []);
+makeTurtleBlock("position", true, [], "get turtle's position ", ["pos"]);
+makeTurtleBlock("towards", true, ["x", "y"], "get the angle from the turtle to the point ", []);
+makeTurtleBlock("xcor", true, [], "get turtle's x position ", []);
+makeTurtleBlock("ycor", true, [], "get turtle's y position ", []);
+makeTurtleBlock("heading", true, [], "get turtle's heading ", []);
+makeTurtleBlock("distance", true, ["x", "y"], "get the distance from turtle's position to ", []);
+makeTurtleBlock("degrees", false, [], "set turtle mode to degrees", []);
+makeTurtleBlock("radians", false, [], "set turtle mode to radians", []);
+makeTurtleBlock("pendown", false, [], "pull turtle pen down ", ["pd", "down"]);
+makeTurtleBlock("penup", false, [], "pull turtle pen up ", ["pu", "up"]);
+// Skipped some
+makeTurtleBlock("pensize", false, [], "set or get the pen size ", ["width"]);
+// Skipped some
+makeTurtleBlock("pencolor", false, [], "set or get the pen color ", []);
+makeTurtleBlock("fillcolor", false, [], "set or get the fill color ", []);
+makeTurtleBlock("reset", false, [], "reset drawing", []);
+makeTurtleBlock("clear", false, [], "clear drawing", []);
+makeTurtleBlock("write", false, ["message"], "write text ", []);
+// Skipped some
+makeTurtleBlock("bgpic", false, ["url"], "set background to ", []);
+makeTurtleBlock("done", false, [], "start the turtle loop ", ["mainloop"]);
+makeTurtleBlock("setup", false, ["width", "height"], "set drawing area size ", []);
+makeTurtleBlock("title", false, ["message"], "set title of drawing area ", []);
+makeTurtleBlock("bye", false, [], "say goodbye to turtles ", []);
+
+
 BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['matplotlib.pyplot'] =
     BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['plt'];
 
@@ -271,10 +348,11 @@ BlockMirrorTextToBlocks.getFunctionBlock = function(name, values, module) {
         "@returns": (signature.returns || false),
         "@parameters": true,
         "@method": method,
-        "@name": name,
+        "@name": module ? module+"."+name : name,
         "@message": signature.message ? signature.message : name,
         "@premessage": signature.premessage ? signature.premessage : "",
-        "@colour": signature.colour ? signature.colour : 0
+        "@colour": signature.colour ? signature.colour : 0,
+        "@module": module || ""
     };
     for (let i = 0; i < args.length; i += 1) {
         argumentsMutation["UNKNOWN_ARG:" + i] = null;

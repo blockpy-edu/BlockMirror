@@ -1,5 +1,6 @@
 function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
+    this.hiddenImports = ["plt"];
     this.strictAnnotations = ['int', 'float', 'str', 'bool'];
     Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
 }
@@ -48,7 +49,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
                 this.source = this.source.slice(0, previousLine);
                 python_source = this.source.join("\n");
             } else {
-                console.error(e);
+                //console.error(e);
                 xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
                 return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": error};
             }
@@ -473,10 +474,10 @@ BlockMirrorTextToBlocks.COLOR = {
     FUNCTIONS: 210,
     OO: 240,
     CONTROL: 270,
-    MATH: 150,
+    MATH: 190,
     TEXT: 120,
-    FILE: 125,
-    PLOTTING: 135,
+    FILE: 170,
+    PLOTTING: 140,
     LOGIC: 345,
     PYTHON: 60,
     EXCEPTIONS: 300,

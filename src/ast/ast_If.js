@@ -60,6 +60,7 @@ Blockly.Blocks['ast_If'] = {
         let container = document.createElement('mutation');
         container.setAttribute('orelse', this.orelse_);
         container.setAttribute('elifs', this.elifs_);
+        return container;
     },
     /**
      * Parse XML to restore the (non-editable) name and parameters.
@@ -68,7 +69,7 @@ Blockly.Blocks['ast_If'] = {
      */
     domToMutation: function (xmlElement) {
         this.orelse_ = "true" === xmlElement.getAttribute('orelse');
-        this.elifs_ = parseInt(xmlElement.getAttribute('elifs'), 10);
+        this.elifs_ = parseInt(xmlElement.getAttribute('elifs'), 10) || 0;
         this.updateShape_();
     },
 };
@@ -80,7 +81,6 @@ Blockly.Python['ast_If'] = function (block) {
     // Body:
     let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
     // Elifs
-
     let elifs = new Array(block.elifs_);
     for (let i = 0; i < block.elifs_; i++) {
         let elif = block.elifs_[i];

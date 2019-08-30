@@ -53,7 +53,7 @@ Blockly.Python['ast_StrDocstring'] = function (block) {
     if (code.charAt(code.length-1) !== '\n') {
         code = code + '\n';
     }
-    return Blockly.Python.multiline_quote_(code);
+    return Blockly.Python.multiline_quote_(code)+"\n";
 };
 
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
