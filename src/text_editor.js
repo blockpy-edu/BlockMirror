@@ -4,6 +4,8 @@ function BlockMirrorTextEditor(blockMirror) {
     this.textArea = blockMirror.tags.textArea;
     this.textSidebar = blockMirror.tags.textSidebar;
 
+    this.highlightedHandles = [];
+
     // notification
     this.silentEvents_ = false;
 
@@ -204,4 +206,19 @@ BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
 
 BlockMirrorTextEditor.prototype.isVisible = function () {
     return this.blockMirror.VISIBLE_MODES.text.indexOf(this.blockMirror.mode_) !== -1;
+};
+
+BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
+    let handles = lines.map((l) => { return {
+        "handle": this.codeMirror.doc.addLineClass(l-1, "background", style),
+        "style": style
+    }});
+    this.highlightedHandles = this.highlightedHandles.concat(handles);
+};
+
+BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
+    return this.highlightedHandles.map((h) => {
+        this.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+        return this.codeMirror.doc.lineInfo(h.handle).line+1;
+    });
 };

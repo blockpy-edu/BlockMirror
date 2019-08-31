@@ -355,11 +355,21 @@ BlockMirror.prototype.VISIBLE_MODES = {
 };
 BlockMirror.prototype.BREAK_WIDTH = 675;
 
+BlockMirror.prototype.setHighlightedLines = function (lines, style) {
+  this.textEditor.clearHighlightedLines();
+  this.textEditor.setHighlightedLines(lines, style); //this.blockEditor.highlightLines(lines, style);
+};
+
+BlockMirror.prototype.clearHighlightedLines = function () {
+  this.textEditor.clearHighlightedLines(); //this.blockEditor.unhighlightLines(lines, style);
+};
+
 function BlockMirrorTextEditor(blockMirror) {
   this.blockMirror = blockMirror;
   this.textContainer = blockMirror.tags.textContainer;
   this.textArea = blockMirror.tags.textArea;
-  this.textSidebar = blockMirror.tags.textSidebar; // notification
+  this.textSidebar = blockMirror.tags.textSidebar;
+  this.highlightedHandles = []; // notification
 
   this.silentEvents_ = false; // Do we need to force an update?
 
@@ -567,6 +577,28 @@ BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
 
 BlockMirrorTextEditor.prototype.isVisible = function () {
   return this.blockMirror.VISIBLE_MODES.text.indexOf(this.blockMirror.mode_) !== -1;
+};
+
+BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
+  var _this2 = this;
+
+  var handles = lines.map(function (l) {
+    return {
+      "handle": _this2.codeMirror.doc.addLineClass(l - 1, "background", style),
+      "style": style
+    };
+  });
+  this.highlightedHandles = this.highlightedHandles.concat(handles);
+};
+
+BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
+  var _this3 = this;
+
+  return this.highlightedHandles.map(function (h) {
+    _this3.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+
+    return _this3.codeMirror.doc.lineInfo(h.handle).line + 1;
+  });
 };
 /**
  * Worth noting - Blockly uses a setTimeOut of 0 steps to make events
@@ -931,6 +963,13 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
     callback("", document.createElement("img"));
     console.error("PNG image creation not supported!", e);
   }
+};
+
+BlockMirrorBlockEditor.prototype.highlightLines = function (lines, style) {// Make some kind of block map?
+
+  /*this.workspace.getAllBlocks().map((block) => {
+      block
+  });*/
 };
 
 function BlockMirrorTextToBlocks(blockMirror) {

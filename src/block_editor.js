@@ -340,4 +340,11 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function(callback) {
         callback("", document.createElement("img"));
         console.error("PNG image creation not supported!", e);
     }
-}
+};
+
+BlockMirrorBlockEditor.prototype.highlightLines = function(lines, style) {
+    // Make some kind of block map?
+    /*this.workspace.getAllBlocks().map((block) => {
+        block
+    });*/
+};

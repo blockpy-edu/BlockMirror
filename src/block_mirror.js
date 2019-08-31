@@ -215,3 +215,14 @@ BlockMirror.prototype.VISIBLE_MODES = {
 };
 
 BlockMirror.prototype.BREAK_WIDTH = 675;
+
+BlockMirror.prototype.setHighlightedLines = function(lines, style) {
+    this.textEditor.clearHighlightedLines();
+    this.textEditor.setHighlightedLines(lines, style);
+    //this.blockEditor.highlightLines(lines, style);
+};
+
+BlockMirror.prototype.clearHighlightedLines = function() {
+    this.textEditor.clearHighlightedLines();
+    //this.blockEditor.unhighlightLines(lines, style);
+};
