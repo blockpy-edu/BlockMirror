@@ -217,8 +217,17 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
 };
 
 BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
-    return this.highlightedHandles.map((h) => {
-        this.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
-        return this.codeMirror.doc.lineInfo(h.handle).line+1;
-    });
+    if (this.highlightedHandles) {
+        let removed = this.highlightedHandles.map((h) => {
+            this.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+            var info = this.codeMirror.doc.lineInfo(h.handle);
+            if (info) {
+                return info.line + 1;
+            } else {
+                return info;
+            }
+        });
+        this.highlightedHandles = [];
+        return removed;
+    }
 };

@@ -4,9 +4,9 @@
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Basics of packaging, bug fixes, better updating">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -160,7 +160,16 @@
       <workItem from="1566563017463" duration="16000" />
       <workItem from="1567085840789" duration="2056000" />
       <workItem from="1567195590761" duration="1369000" />
-      <workItem from="1567227774065" duration="2465000" />
+      <workItem from="1567227774065" duration="6316000" />
+      <workItem from="1567366852789" duration="167000" />
+      <workItem from="1567517743281" duration="33000" />
+      <workItem from="1567777551526" duration="502000" />
+      <workItem from="1567883315726" duration="694000" />
+      <workItem from="1567964675434" duration="2672000" />
+      <workItem from="1568146240500" duration="2288000" />
+      <workItem from="1568400256383" duration="603000" />
+      <workItem from="1568432956949" duration="2302000" />
+      <workItem from="1568665354474" duration="1573000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>

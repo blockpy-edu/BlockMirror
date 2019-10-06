@@ -356,7 +356,6 @@ BlockMirror.prototype.VISIBLE_MODES = {
 BlockMirror.prototype.BREAK_WIDTH = 675;
 
 BlockMirror.prototype.setHighlightedLines = function (lines, style) {
-  this.textEditor.clearHighlightedLines();
   this.textEditor.setHighlightedLines(lines, style); //this.blockEditor.highlightLines(lines, style);
 };
 
@@ -594,11 +593,21 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
 BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
   var _this3 = this;
 
-  return this.highlightedHandles.map(function (h) {
-    _this3.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+  if (this.highlightedHandles) {
+    var removed = this.highlightedHandles.map(function (h) {
+      _this3.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
 
-    return _this3.codeMirror.doc.lineInfo(h.handle).line + 1;
-  });
+      var info = _this3.codeMirror.doc.lineInfo(h.handle);
+
+      if (info) {
+        return info.line + 1;
+      } else {
+        return info;
+      }
+    });
+    this.highlightedHandles = [];
+    return removed;
+  }
 };
 /**
  * Worth noting - Blockly uses a setTimeOut of 0 steps to make events
@@ -1272,7 +1281,12 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   if (lastLineNumber in this.comments) {
     var _commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
 
-    nestChild(_commentChild);
+    if (is_top_level && !previousWasStatement) {
+      addPeer(_commentChild);
+    } else {
+      nestChild(_commentChild);
+    }
+
     delete this.comments[lastLineNumber];
   } // Handle any extra comments that stuck around
 

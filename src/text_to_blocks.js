@@ -7,13 +7,13 @@ function BlockMirrorTextToBlocks(blockMirror) {
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
     return new XMLSerializer().serializeToString(xml);
-}
+};
 
 BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function (python_source) {
     var xml = document.createElement("xml");
     xml.appendChild(BlockMirrorTextToBlocks.raw_block(python_source));
     return BlockMirrorTextToBlocks.xmlToString(xml);
-}
+};
 
 /**
  * The main function for converting a string representation of Python
@@ -245,13 +245,13 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
         // Handle top-level expression blocks
         if (is_top_level && newChild.constructor === Array) {
             addPeer(newChild[0]);
-            // Handle skipped line
+        // Handle skipped line
         } else if (is_top_level && skipped_line && visitedFirstLine) {
             addPeer(newChild);
-            // The previous line was not a Peer
+        // The previous line was not a Peer
         } else if (is_top_level && !previousWasStatement) {
             addPeer(newChild);
-            // Otherwise, always embed it in there.
+        // Otherwise, always embed it in there.
         } else {
             nestChild(newChild);
         }
@@ -265,7 +265,11 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     var lastLineNumber = lineNumberInProgram + 1;
     if (lastLineNumber in this.comments) {
         let commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
-        nestChild(commentChild);
+        if (is_top_level && !previousWasStatement) {
+            addPeer(commentChild);
+        } else {
+            nestChild(commentChild);
+        }
         delete this.comments[lastLineNumber];
     }
 
