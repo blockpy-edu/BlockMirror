@@ -32,13 +32,14 @@
 function BlockMirror(configuration) {
     this.validateConfiguration(configuration);
     this.initializeVariables();
-    this.textEditor = new BlockMirrorTextEditor(this);
-    this.blockEditor = new BlockMirrorBlockEditor(this);
-    this.textToBlocks = new BlockMirrorTextToBlocks(this);
 
     if (!this.configuration.skipSkulpt) {
         this.loadSkulpt();
     }
+
+    this.textToBlocks = new BlockMirrorTextToBlocks(this);
+    this.textEditor = new BlockMirrorTextEditor(this);
+    this.blockEditor = new BlockMirrorBlockEditor(this);
 
     this.setMode(this.configuration.viewMode);
 };

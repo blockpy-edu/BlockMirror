@@ -112,11 +112,38 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
     this.resizeReadOnlyDiv();
 };
 
+BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
+    return toolboxPython.map((category) => {
+        if (typeof category === "string") {
+            return category;
+        }
+        let colour = BlockMirrorTextToBlocks.COLOR[category.colour];
+        let header = `<category name="${category.name}" colour="${colour}"`;
+        if (category.custom) {
+            header += ` custom="${category.custom}">`;
+        } else {
+            header += ">";
+        }
+        let body = (category.blocks || []).map((code) => {
+            let result = this.blockMirror.textToBlocks.convertSource('toolbox.py', code);
+            return result.rawXml.innerHTML.toString();
+        }).join("\n");
+        let footer = "</category>";
+        return [header, body, footer].join("\n");
+    }).join("\n");
+};
+
 BlockMirrorBlockEditor.prototype.makeToolbox = function () {
     let toolbox = this.blockMirror.configuration.toolbox;
+    // Use palette if it exists, otherwise assume its a custom one.
     if (toolbox in this.TOOLBOXES) {
         toolbox = this.TOOLBOXES[toolbox];
     }
+    // Convert if necessary
+    if (typeof toolbox  !== "string") {
+        toolbox = this.toolboxPythonToBlocks(toolbox);
+    }
+    // TODO: Fix Hack, this should be configurable by instance rather than by class
     for (let name in BlockMirrorBlockEditor.EXTRA_TOOLS) {
         toolbox += BlockMirrorBlockEditor.EXTRA_TOOLS[name];
     }

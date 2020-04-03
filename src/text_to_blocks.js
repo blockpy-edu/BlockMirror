@@ -35,7 +35,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     let previousLine = 1+this.source.length;
     while (ast === null) {
         if (python_source.trim() === "") {
-            return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null};
+            return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null, rawXml: xml};
         }
         try {
             parse = Sk.parse(filename, python_source);
@@ -51,7 +51,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
             } else {
                 //console.error(e);
                 xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
-                return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": error};
+                return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": error, "rawXml": xml};
             }
         }
     }
@@ -75,10 +75,13 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
     }
     return {
-        "xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null,
-        "lineMap": this.lineMap, 'comments': this.comments
+        "xml": BlockMirrorTextToBlocks.xmlToString(xml),
+        "error": null,
+        "lineMap": this.lineMap,
+        'comments': this.comments,
+        "rawXml": xml
     };
-}
+};
 
 BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLine) {
     if (node === undefined) {
@@ -86,7 +89,7 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
     }
     var myNext = nextBlockLine;
     if ("orelse" in node && node.orelse.length > 0) {
-        if (node.orelse.length == 1 && node.orelse[0]._astname == "If") {
+        if (node.orelse.length === 1 && node.orelse[0]._astname === "If") {
             myNext = node.orelse[0].lineno - 1;
         } else {
             myNext = node.orelse[0].lineno - 1 - 1;

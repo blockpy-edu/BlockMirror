@@ -4,11 +4,11 @@
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Basics of packaging, bug fixes, better updating">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,13 +43,18 @@
   </component>
   <component name="ProjectId" id="1OR0VFaxkOvFIyHle2nZjV999OR" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
     <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/ast" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -67,19 +72,13 @@
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\src\ast" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="RunManager" selected="npm.devbuild">
+    <configuration name="simple_dev.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/BlockMirror/test/simple_dev.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="simple.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/BlockMirror/test/simple.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
     <configuration name="webpack.config.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="webpack.config.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
@@ -104,6 +103,8 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="JavaScript Debug.simple.html" />
+      <item itemvalue="JavaScript Debug.simple_dev.html" />
       <item itemvalue="Node.js.webpack.config.js" />
       <item itemvalue="npm.build" />
       <item itemvalue="npm.devbuild" />
@@ -111,8 +112,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="npm.devbuild" />
+        <item itemvalue="JavaScript Debug.simple_dev.html" />
+        <item itemvalue="JavaScript Debug.simple.html" />
         <item itemvalue="npm.build" />
-        <item itemvalue="Node.js.webpack.config.js" />
       </list>
     </recent_temporary>
   </component>
@@ -170,6 +172,18 @@
       <workItem from="1568400256383" duration="603000" />
       <workItem from="1568432956949" duration="2302000" />
       <workItem from="1568665354474" duration="1573000" />
+      <workItem from="1572464200305" duration="751000" />
+      <workItem from="1572827583856" duration="5884000" />
+      <workItem from="1573425794486" duration="2367000" />
+      <workItem from="1575315779702" duration="608000" />
+      <workItem from="1575553290520" duration="2962000" />
+      <workItem from="1575728911099" duration="573000" />
+      <workItem from="1575775946485" duration="246000" />
+      <workItem from="1581299520410" duration="907000" />
+      <workItem from="1581747741338" duration="1226000" />
+      <workItem from="1581787835886" duration="30000" />
+      <workItem from="1581787894709" duration="8205000" />
+      <workItem from="1582172961284" duration="310000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -200,6 +214,32 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Basics of packaging, bug fixes, better updating" />
     <option name="LAST_COMMIT_MESSAGE" value="Basics of packaging, bug fixes, better updating" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state width="1238" height="95" key="GridCell.Tab.0.bottom" timestamp="1582173273392">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1582173273392" />
+    <state width="1238" height="95" key="GridCell.Tab.0.center" timestamp="1582173273391">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
+    <state width="1238" height="95" key="GridCell.Tab.0.left" timestamp="1582173273391">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
+    <state width="1238" height="95" key="GridCell.Tab.0.right" timestamp="1582173273391">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
+    <state x="348" y="169" key="com.intellij.ide.util.TipDialog" timestamp="1581787914659">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="348" y="169" key="com.intellij.ide.util.TipDialog/0.0.1280.680@0.0.1280.680" timestamp="1581787914659" />
+    <state x="303" y="2" width="672" height="678" key="search.everywhere.popup" timestamp="1581790768009">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="303" y="2" width="672" height="678" key="search.everywhere.popup/0.0.1280.680@0.0.1280.680" timestamp="1581790768009" />
   </component>
   <component name="masterDetails">
     <states>
