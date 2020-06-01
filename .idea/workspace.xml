@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Basics of packaging, bug fixes, better updating">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Image URL support in editor">
+      <change afterPath="$PROJECT_DIR$/src/skulpt/skulpt_shim.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/minimal_skulpt.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webpack.config.skulpt.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/acbart.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/acbart.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/skulpt/ast.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/ast.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,10 +69,12 @@
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror" />
+      <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\test" />
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\src\ast" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\src\ast" />
     </key>
   </component>
@@ -77,19 +83,6 @@
       <method v="2" />
     </configuration>
     <configuration name="simple.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/BlockMirror/test/simple.html" useBuiltInWebServerPort="true">
-      <method v="2" />
-    </configuration>
-    <configuration name="webpack.config.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="webpack.config.js" working-dir="$PROJECT_DIR$">
-      <method v="2" />
-    </configuration>
-    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="build" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
       <method v="2" />
     </configuration>
     <configuration name="devbuild" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
@@ -102,21 +95,54 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="skulpt" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="skulpt" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="watch" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="watch" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="JavaScript Debug.simple.html" />
       <item itemvalue="JavaScript Debug.simple_dev.html" />
-      <item itemvalue="Node.js.webpack.config.js" />
-      <item itemvalue="npm.build" />
       <item itemvalue="npm.devbuild" />
+      <item itemvalue="npm.watch" />
+      <item itemvalue="npm.skulpt" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="npm.devbuild" />
+        <item itemvalue="npm.skulpt" />
+        <item itemvalue="npm.watch" />
         <item itemvalue="JavaScript Debug.simple_dev.html" />
         <item itemvalue="JavaScript Debug.simple.html" />
-        <item itemvalue="npm.build" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -184,6 +210,7 @@
       <workItem from="1581787835886" duration="30000" />
       <workItem from="1581787894709" duration="8205000" />
       <workItem from="1582172961284" duration="310000" />
+      <workItem from="1590976436519" duration="11301000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -192,7 +219,21 @@
       <option name="project" value="LOCAL" />
       <updated>1564063805490</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Image URL support in editor">
+      <created>1591022795496</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1591022795496</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Skulpt Barebones Parser files">
+      <created>1591022903548</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1591022903548</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,33 +254,39 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Basics of packaging, bug fixes, better updating" />
-    <option name="LAST_COMMIT_MESSAGE" value="Basics of packaging, bug fixes, better updating" />
+    <MESSAGE value="Image URL support in editor" />
+    <MESSAGE value="Skulpt Barebones Parser files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Skulpt Barebones Parser files" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1238" height="95" key="GridCell.Tab.0.bottom" timestamp="1582173273392">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state x="552" y="0" key="CommitChangelistDialog2" timestamp="1591022902731">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1582173273392" />
-    <state width="1238" height="95" key="GridCell.Tab.0.center" timestamp="1582173273391">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state x="552" y="0" key="CommitChangelistDialog2/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591022902731" />
+    <state width="2516" height="421" key="GridCell.Tab.0.bottom" timestamp="1591026040148">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
-    <state width="1238" height="95" key="GridCell.Tab.0.left" timestamp="1582173273391">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="2516" height="421" key="GridCell.Tab.0.bottom/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591026040148" />
+    <state width="2516" height="206" key="GridCell.Tab.0.bottom/0.0.2560.1360@0.0.2560.1360" timestamp="1590978494602" />
+    <state width="2516" height="421" key="GridCell.Tab.0.center" timestamp="1591026040148">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
-    <state width="1238" height="95" key="GridCell.Tab.0.right" timestamp="1582173273391">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="2516" height="421" key="GridCell.Tab.0.center/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591026040148" />
+    <state width="2516" height="206" key="GridCell.Tab.0.center/0.0.2560.1360@0.0.2560.1360" timestamp="1590978494602" />
+    <state width="2516" height="421" key="GridCell.Tab.0.left" timestamp="1591026040148">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1582173273391" />
-    <state x="348" y="169" key="com.intellij.ide.util.TipDialog" timestamp="1581787914659">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="2516" height="421" key="GridCell.Tab.0.left/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591026040148" />
+    <state width="2516" height="206" key="GridCell.Tab.0.left/0.0.2560.1360@0.0.2560.1360" timestamp="1590978494602" />
+    <state width="2516" height="421" key="GridCell.Tab.0.right" timestamp="1591026040148">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state x="348" y="169" key="com.intellij.ide.util.TipDialog/0.0.1280.680@0.0.1280.680" timestamp="1581787914659" />
-    <state x="303" y="2" width="672" height="678" key="search.everywhere.popup" timestamp="1581790768009">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state width="2516" height="421" key="GridCell.Tab.0.right/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591026040148" />
+    <state width="2516" height="206" key="GridCell.Tab.0.right/0.0.2560.1360@0.0.2560.1360" timestamp="1590978494602" />
+    <state x="595" y="291" key="run.anything.popup" timestamp="1590980185775">
+      <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state x="303" y="2" width="672" height="678" key="search.everywhere.popup/0.0.1280.680@0.0.1280.680" timestamp="1581790768009" />
+    <state x="595" y="291" key="run.anything.popup/0.0.2560.1360@0.0.2560.1360" timestamp="1590980185775" />
   </component>
   <component name="masterDetails">
     <states>

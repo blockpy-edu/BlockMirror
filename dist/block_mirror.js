@@ -431,14 +431,50 @@ function BlockMirrorTextEditor(blockMirror) {
           hint: CodeMirror.pythonHint
       });
   });*/
+  //https://i.imgur.com/ITZKRiq.png
+
+  this.codeMirror.on("beforeChange", function (cm, change) {
+    if (change.origin === "paste") {
+      var newText = change.text[0];
+
+      if (newText.startsWith("http") && newText.endsWith("png")) {
+        change.update(null, null, ["\"".concat(newText, "\"")]);
+      }
+    }
+  });
+  this.codeMirror.on("change", function (cm, change) {
+    if (change.origin === "paste") {
+      console.log(change);
+      var newText = change.text[0];
+
+      if (newText.startsWith('"http') && newText.endsWith('.png"')) {
+        //change.update(null, null, [`"${newText}"`]);
+        var x = document.createElement("IMG");
+        x.setAttribute("src", newText.slice(1, -1));
+        x.setAttribute("height", "40");
+        x.setAttribute("width", "40");
+        x.setAttribute("alt", newText);
+        var to = {
+          line: change.from.line,
+          ch: change.from.ch + newText.length
+        };
+        cm.markText(change.from, to, {
+          className: "cm-embedded-image",
+          atomic: true,
+          replacedWith: x
+        });
+        console.log(change.from, to);
+      }
+    }
+  });
 }
 
 BlockMirrorTextEditor.prototype.defocus = function () {
   this.codeMirror.display.input.blur();
 };
 
-BlockMirrorTextEditor.prototype.updateWidth = function () {
-  var newWidth = '0%';
+BlockMirrorTextEditor.prototype.updateWidth = function () {//var newWidth = '0%';
+
   /*if (this.blockMirror.views.includes('text')) {
       newWidth = (100 / this.blockMirror.views.length)+'%';
   }
@@ -1091,6 +1127,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
       parse = Sk.parse(filename, python_source);
       ast = Sk.astFromParse(parse.cst, filename, parse.flags);
     } catch (e) {
+      console.error(e);
       error = e;
 
       if (e.traceback && e.traceback.length && e.traceback[0].lineno && e.traceback[0].lineno < previousLine) {
@@ -3563,10 +3600,31 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
+BlockMirrorTextToBlocks.BLOCKS.push({
+  "type": "ast_StrImage",
+  "message0": "%1",
+  "args0": [{
+    "type": "field_image",
+    "name": "SRC",
+    "src": "",
+    "width": 20,
+    "height": 20,
+    "alt": ""
+  }],
+  "output": "String",
+  "colour": BlockMirrorTextToBlocks.COLOR.TEXT //"extensions": ["text_quotes"]
+
+});
 
 Blockly.Python['ast_Str'] = function (block) {
   // Text value.
   var code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+  return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python['ast_StrImage'] = function (block) {
+  // Text value.
+  var code = Blockly.Python.quote_(block.getFieldValue('SRC'));
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -3627,7 +3685,11 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
   var s = node.s;
   var text = Sk.ffi.remapToJs(s);
 
-  if (this.isDocString(node, parent)) {
+  if (text.startsWith("http") && text.endsWith(".png")) {
+    return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {
+      "SRC": text
+    });
+  } else if (this.isDocString(node, parent)) {
     var dedented = this.dedent(text, this.levelIndex - 1);
     return [BlockMirrorTextToBlocks.create_block("ast_StrDocstring", node.lineno, {
       "TEXT": dedented

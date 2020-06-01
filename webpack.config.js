@@ -26,6 +26,17 @@ const JS_SKULPT_FILES = [
     path.resolve(__dirname, '../skulpt/dist/skulpt-stdlib.js'),
 ];
 
+// Skulpt Parser
+const JS_SKULPT_PARSER_FILES = [
+    path.resolve(__dirname, 'src/skulpt/skulpt_shim.js'),
+    path.resolve(__dirname, 'src/skulpt/astnodes.js'),
+    path.resolve(__dirname, 'src/skulpt/token.js'),
+    path.resolve(__dirname, 'src/skulpt/parse_tables.js'),
+    path.resolve(__dirname, 'src/skulpt/tokenize.js'),
+    path.resolve(__dirname, 'src/skulpt/parser.js'),
+    path.resolve(__dirname, 'src/skulpt/ast.js'),
+];
+
 // BlockMirror
 const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/blockly_shims.js'),
@@ -84,6 +95,11 @@ const JS_BLOCKMIRROR_FILES = [
 const JS_FILES = [].concat(JS_BLOCKLY_FILES, JS_CODEMIRROR_FILES, JS_SKULPT_FILES,
     JS_BLOCKMIRROR_FILES)
 
+const babelify = code =>
+    babel.transform(code, {
+        presets: ["@babel/preset-env"]
+    }).code;
+
 const config = {
     entry: [
         path.resolve(__dirname, 'src/main.js'),
@@ -108,19 +124,18 @@ const config = {
     plugins: [
         new MergeIntoSingleFilePlugin({
             files: {
+                "skulpt_parser.js": JS_SKULPT_PARSER_FILES,
                 "block_mirror.js": JS_BLOCKMIRROR_FILES,
                 "block_mirror.css": [
                     /*path.resolve(__dirname, 'lib/codemirror/codemirror.css'),
                     path.resolve(__dirname, 'lib/codemirror/fullscreen.css'),
                     path.resolve(__dirname, 'lib/codemirror/show-hint.css'),*/
                     path.resolve(__dirname, 'src/block_mirror.css'),
-                ]
+                ],
             },
             transform: {
-                "block_mirror.js": code =>
-                    babel.transform(code, {
-                        presets: ["@babel/preset-env"]
-                    }).code
+                "skulpt_parser.js":babelify,
+                "block_mirror.js":babelify
             }
         })
     ]

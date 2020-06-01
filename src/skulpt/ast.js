@@ -2383,6 +2383,7 @@ function parsestrplus (c, n) {
         try {
             ret = ret.sq$concat(parsestr(c, CHILD(n, i).value));
         } catch (x) {
+            console.error(x);
             throw new Sk.builtin.SyntaxError("invalid string (possibly contains a unicode character)", c.c_filename, CHILD(n, i).lineno);
         }
     }

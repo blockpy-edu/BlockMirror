@@ -26,9 +26,9 @@ BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function (python_so
  *      source code or an error message and the code as a code-block.
  */
 BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_source) {
-    var xml = document.createElement("xml");
+    let xml = document.createElement("xml");
     // Attempt parsing - might fail!
-    var parse, ast = null, symbol_table, error;
+    let parse, ast = null, symbol_table, error;
     let badChunks = [];
     let originalSource = python_source;
     this.source = python_source.split("\n");
@@ -41,6 +41,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
             parse = Sk.parse(filename, python_source);
             ast = Sk.astFromParse(parse.cst, filename, parse.flags);
         } catch (e) {
+            console.error(e);
             error = e;
             if (e.traceback && e.traceback.length && e.traceback[0].lineno &&
                 e.traceback[0].lineno < previousLine) {
@@ -56,9 +57,9 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         }
     }
     this.comments = {};
-    for (var commentLocation in parse.comments) {
-        var lineColumn = commentLocation.split(",");
-        var yLocation = parseInt(lineColumn[0], 10);
+    for (let commentLocation in parse.comments) {
+        let lineColumn = commentLocation.split(",");
+        let yLocation = parseInt(lineColumn[0], 10);
         this.comments[yLocation] = parse.comments[commentLocation];
     }
     this.highestLineSeen = 0;
@@ -97,8 +98,8 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
     }
     this.heights.push(nextBlockLine);
     if ("body" in node) {
-        for (var i = 0; i < node.body.length; i++) {
-            var next;
+        for (let i = 0; i < node.body.length; i++) {
+            let next;
             if (i + 1 == node.body.length) {
                 next = myNext;
             } else {
@@ -108,8 +109,8 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
         }
     }
     if ("orelse" in node) {
-        for (var i = 0; i < node.orelse.length; i++) {
-            var next;
+        for (let i = 0; i < node.orelse.length; i++) {
+            let next;
             if (i == node.orelse.length) {
                 next = nextBlockLine;
             } else {
@@ -346,19 +347,19 @@ BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
         lineNumbers.push(node.lineno);
     }
     if (node.hasOwnProperty("body")) {
-        for (var i = 0; i < node.body.length; i += 1) {
-            var subnode = node.body[i];
+        for (let i = 0; i < node.body.length; i += 1) {
+            let subnode = node.body[i];
             lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
         }
     }
     if (node.hasOwnProperty("orelse")) {
-        for (var i = 0; i < node.orelse.length; i += 1) {
-            var subnode = node.orelse[i];
+        for (let i = 0; i < node.orelse.length; i += 1) {
+            let subnode = node.orelse[i];
             lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
         }
     }
     return lineNumbers;
-}
+};
 
 BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, values, settings, mutations, statements) {
     var newBlock = document.createElement("block");

@@ -42,7 +42,7 @@ function BlockMirror(configuration) {
     this.blockEditor = new BlockMirrorBlockEditor(this);
 
     this.setMode(this.configuration.viewMode);
-};
+}
 
 BlockMirror.prototype.validateConfiguration = function (configuration) {
     this.configuration = {};
