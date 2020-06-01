@@ -71,19 +71,50 @@ function BlockMirrorTextEditor(blockMirror) {
             hint: CodeMirror.pythonHint
         });
     });*/
+    //https://i.imgur.com/ITZKRiq.png
+    this.codeMirror.on("beforeChange", (cm, change) => {
+        if (change.origin === "paste") {
+            let newText = change.text[0];
+            if (newText.startsWith("http") && newText.endsWith("png")) {
+                change.update(null, null, [`"${newText}"`]);
+            }
+        }
+    });
+    this.codeMirror.on("change", (cm, change) => {
+        if(change.origin === "paste") {
+            console.log(change);
+            let newText = change.text[0];
+            if (newText.startsWith('"http') && newText.endsWith('.png"')) {
+                //change.update(null, null, [`"${newText}"`]);
+                let x = document.createElement("IMG");
+                x.setAttribute("src", newText.slice(1, -1));
+                x.setAttribute("height", "40");
+                x.setAttribute("width", "40");
+                x.setAttribute("alt", newText);
+                let to = {line: change.from.line, ch: change.from.ch+newText.length};
+                cm.markText(change.from, to, {
+                    className: "cm-embedded-image",
+                    atomic: true,
+                    replacedWith: x
+                });
+                console.log(change.from, to);
+            }
+        }
+    });
+
 }
 
 BlockMirrorTextEditor.prototype.defocus = function () {
     this.codeMirror.display.input.blur();
-}
+};
 
 BlockMirrorTextEditor.prototype.updateWidth = function () {
-    var newWidth = '0%';
+    //var newWidth = '0%';
     /*if (this.blockMirror.views.includes('text')) {
         newWidth = (100 / this.blockMirror.views.length)+'%';
     }
     this.textContainer.style.width = newWidth;*/
-}
+};
 
 BlockMirrorTextEditor.prototype.setReadOnly = function (isReadOnly) {
     this.codeMirror.setOption('readOnly', isReadOnly);
@@ -229,5 +260,23 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
         });
         this.highlightedHandles = [];
         return removed;
+    }
+};
+
+
+document.onpaste = function(event){
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    console.log(JSON.stringify(items)); // will give you the mime types
+    for (index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var blob = item.getAsFile();
+            var reader = new FileReader();
+            reader.onload = function(event){
+                console.log(typeof event.target.result); // data url!
+                $(".cm-embedded-image").css("background-image", "url("+event.target.result+")").css("background-size", "contain").css("background-repeat-x", "no-repeat").css("background-repeat-y", "no-repeat").css("padding-left", "30px").css("padding-bottom", "5px");
+            };
+            reader.readAsDataURL(blob);
+        }
     }
 };

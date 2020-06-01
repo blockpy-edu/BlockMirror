@@ -1,5 +1,7 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 /**
  * Initialise the database of variable names.
  * @param {!Blockly.Workspace} workspace Workspace to generate code from.
@@ -607,6 +609,28 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
     });
     this.highlightedHandles = [];
     return removed;
+  }
+};
+
+document.onpaste = function (event) {
+  var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+  console.log(JSON.stringify(items)); // will give you the mime types
+
+  for (index in items) {
+    var item = items[index];
+
+    if (item.kind === 'file') {
+      var blob = item.getAsFile();
+      var reader = new FileReader();
+
+      reader.onload = function (event) {
+        console.log(_typeof(event.target.result)); // data url!
+
+        $(".cm-embedded-image").css("background-image", "url(" + event.target.result + ")").css("background-size", "contain").css("background-repeat-x", "no-repeat").css("background-repeat-y", "no-repeat").css("padding-left", "30px").css("padding-bottom", "5px");
+      };
+
+      reader.readAsDataURL(blob);
+    }
   }
 };
 /**
@@ -2552,13 +2576,13 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
     name: "Comments",
     colour: "PYTHON",
     blocks: ["# ", '"""\n"""']
-    /*,
-    {name: "Weird Stuff", colour: "PYTHON", blocks: [
-      "delete ___",
-      "global ___"
-    ]}*/
-
-  }]
+  }
+  /*,
+  {name: "Weird Stuff", colour: "PYTHON", blocks: [
+    "delete ___",
+    "global ___"
+  ]}*/
+  ]
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_For",

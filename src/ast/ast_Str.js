@@ -32,9 +32,26 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
 
+BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_StrImage",
+    "message0": "%1",
+    "args0": [
+        {"type": "field_image", "name": "SRC", "src": "", "width": 20, "height": 20, "alt": ""}
+    ],
+    "output": "String",
+    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+    //"extensions": ["text_quotes"]
+});
+
 Blockly.Python['ast_Str'] = function (block) {
     // Text value.
     let code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+    return [code, Blockly.Python.ORDER_ATOMIC];
+};
+
+Blockly.Python['ast_StrImage'] = function (block) {
+    // Text value.
+    let code = Blockly.Python.quote_(block.getFieldValue('SRC'));
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -91,7 +108,9 @@ BlockMirrorTextToBlocks.prototype.dedent = function (text, levels) {
 BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     let s = node.s;
     let text = Sk.ffi.remapToJs(s);
-    if (this.isDocString(node, parent)) {
+    if (text.startsWith("http") && text.endsWith(".png")) {
+        return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {"SRC": text});
+    } else if (this.isDocString(node, parent)) {
         let dedented = this.dedent(text, this.levelIndex - 1);
         return [BlockMirrorTextToBlocks.create_block("ast_StrDocstring", node.lineno, {"TEXT": dedented})];
     } else if (text.indexOf('\n') === -1) {
