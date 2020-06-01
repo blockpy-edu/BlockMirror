@@ -19,3 +19,8 @@
     position: absolute;
     z-index: 100;
 }
+
+.blockmirror-toolbox-variable>.blocklyFlyoutLabelText {
+    font-style: normal;
+    fill: black;
+}

@@ -10,6 +10,19 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_StrChar",
+    "message0": "%1",
+    "args0": [
+        {"type": "field_dropdown", "name": "TEXT", "options": [
+            ["\\n", "\n"], ["\\t", "\t"]
+            ]}
+    ],
+    "output": "String",
+    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+    "extensions": ["text_quotes"]
+});
+
+BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_StrMultiline",
     "message0": "%1",
     "args0": [
@@ -44,19 +57,29 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 Blockly.Python['ast_Str'] = function (block) {
-    // Text value.
+    // Text value
     let code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+    code = code.replace("\n", "n");
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+Blockly.Python['ast_StrChar'] = function (block) {
+    // Text value
+    let value = block.getFieldValue('TEXT');
+    switch (value) {
+        case "\n": return ["'\\n'", Blockly.Python.ORDER_ATOMIC];
+        case "\t": return ["'\\t'", Blockly.Python.ORDER_ATOMIC];
+    }
+};
+
 Blockly.Python['ast_StrImage'] = function (block) {
-    // Text value.
+    // Text value
     let code = Blockly.Python.quote_(block.getFieldValue('SRC'));
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
 Blockly.Python['ast_StrMultiline'] = function (block) {
-    // Text value.
+    // Text value
     let code = Blockly.Python.multiline_quote_(block.getFieldValue('TEXT'));
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
@@ -73,6 +96,10 @@ Blockly.Python['ast_StrDocstring'] = function (block) {
     return Blockly.Python.multiline_quote_(code)+"\n";
 };
 
+BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
+    return text === "\n" || text === "\t";
+};
+
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
     return (parent._astname === 'Expr' &&
         parent._parent &&
@@ -80,23 +107,34 @@ BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
         parent._parent.body[0] === parent);
 };
 
-BlockMirrorTextToBlocks.prototype.dedent = function (text, levels) {
+BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
+    return text.split("\n").length <= 2 && text.length <= 40;
+};
+
+BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
+    if (!isDocString && text.charAt(0) === "\n") {
+        return text;
+    }
     let split = text.split("\n");
     let indentation = "    ".repeat(levels);
     let recombined = [];
+    // Are all lines indented?
     for (let i = 0; i < split.length; i++) {
-        // Are all lines indented?
+        // This was a blank line, add it unchanged unless its the first line
         if (split[i] === '') {
             if (i !== 0) {
                 recombined.push("");
             }
+        // If it has our ideal indentation, add it without indentation
         } else if (split[i].startsWith(indentation)) {
             let unindentedLine = split[i].substr(indentation.length);
             if (unindentedLine !== '' || i !== split.length - 1) {
                 recombined.push(unindentedLine);
             }
+        // If it's the first line, then add it unmodified
         } else if (i === 0) {
             recombined.push(split[i]);
+        // This whole structure cannot be uniformly dedented, better give up.
         } else {
             return text;
         }
@@ -110,13 +148,15 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     let text = Sk.ffi.remapToJs(s);
     if (text.startsWith("http") && text.endsWith(".png")) {
         return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {"SRC": text});
+    } else if (this.isSingleChar(text)) {
+        return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {"TEXT": text});
     } else if (this.isDocString(node, parent)) {
-        let dedented = this.dedent(text, this.levelIndex - 1);
+        let dedented = this.dedent(text, this.levelIndex - 1, true);
         return [BlockMirrorTextToBlocks.create_block("ast_StrDocstring", node.lineno, {"TEXT": dedented})];
     } else if (text.indexOf('\n') === -1) {
         return BlockMirrorTextToBlocks.create_block("ast_Str", node.lineno, {"TEXT": text});
     } else {
-        let dedented = this.dedent(text, this.levelIndex - 1);
+        let dedented = this.dedent(text, this.levelIndex - 1, false);
         return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {"TEXT": dedented});
     }
 };

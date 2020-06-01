@@ -19,3 +19,9 @@
     position: absolute;
     z-index: 100;
 }
+
+.blockmirror-toolbox-variable>.blocklyFlyoutLabelText {
+    border: 1px solid lightgray;
+    color: black;
+    background-color: white;
+}

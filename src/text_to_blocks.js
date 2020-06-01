@@ -100,7 +100,7 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
     if ("body" in node) {
         for (let i = 0; i < node.body.length; i++) {
             let next;
-            if (i + 1 == node.body.length) {
+            if (i + 1 === node.body.length) {
                 next = myNext;
             } else {
                 next = node.body[i + 1].lineno - 1;
@@ -111,7 +111,7 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
     if ("orelse" in node) {
         for (let i = 0; i < node.orelse.length; i++) {
             let next;
-            if (i == node.orelse.length) {
+            if (i === node.orelse.length) {
                 next = nextBlockLine;
             } else {
                 next = 1 + (node.orelse[i].lineno - 1);
@@ -119,13 +119,13 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
             this.recursiveMeasure(node.orelse[i], next);
         }
     }
-}
+};
 
 BlockMirrorTextToBlocks.prototype.measureNode = function (node) {
     this.heights = [];
     this.recursiveMeasure(node, this.source.length - 1);
     this.heights.shift();
-}
+};
 
 BlockMirrorTextToBlocks.prototype.getSourceCode = function (frm, to) {
     var lines = this.source.slice(frm - 1, to);
@@ -137,7 +137,7 @@ BlockMirrorTextToBlocks.prototype.getSourceCode = function (frm, to) {
         }
     }
     return lines.join("\n");
-}
+};
 
 BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     this.levelIndex += 1;
@@ -199,7 +199,8 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
         lineNumberInBody += 1;
 
         lineNumberInProgram = node[i].lineno;
-        distance = 0, wasFirstLine = true;
+        distance = 0;
+        wasFirstLine = true;
         if (previousLineInProgram != null) {
             distance = lineNumberInProgram - previousLineInProgram - 1;
             wasFirstLine = false;
@@ -208,7 +209,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
 
         // Handle earlier comments
         commentCount = 0;
-        for (var commentLineInProgram in this.comments) {
+        for (let commentLineInProgram in this.comments) {
             if (commentLineInProgram < lineNumberInProgram) {
                 let commentChild = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
                 if (previousLineInProgram == null) {
@@ -339,7 +340,7 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source
         console.error(e);
         return BlockMirrorTextToBlocks.raw_block(extractedSource);
     }
-}
+};
 
 BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
     let lineNumbers = [];
@@ -366,19 +367,19 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     // Settings
     newBlock.setAttribute("type", type);
     newBlock.setAttribute("line_number", lineNumber);
-    for (var setting in settings) {
-        var settingValue = settings[setting];
+    for (let setting in settings) {
+        let settingValue = settings[setting];
         newBlock.setAttribute(setting, settingValue);
     }
     // Mutations
     if (mutations !== undefined && Object.keys(mutations).length > 0) {
-        var newMutation = document.createElement("mutation");
+        let newMutation = document.createElement("mutation");
         for (let mutation in mutations) {
-            var mutationValue = mutations[mutation];
+            let mutationValue = mutations[mutation];
             if (mutation.charAt(0) === '@') {
                 newMutation.setAttribute(mutation.substr(1), mutationValue);
             } else if (mutationValue != null && mutationValue.constructor === Array) {
-                for (var i = 0; i < mutationValue.length; i++) {
+                for (let i = 0; i < mutationValue.length; i++) {
                     let mutationNode = document.createElement(mutation);
                     mutationNode.setAttribute("name", mutationValue[i]);
                     newMutation.appendChild(mutationNode);
@@ -399,17 +400,17 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
         newBlock.appendChild(newMutation);
     }
     // Fields
-    for (var field in fields) {
-        var fieldValue = fields[field];
-        var newField = document.createElement("field");
+    for (let field in fields) {
+        let fieldValue = fields[field];
+        let newField = document.createElement("field");
         newField.setAttribute("name", field);
         newField.appendChild(document.createTextNode(fieldValue));
         newBlock.appendChild(newField);
     }
     // Values
-    for (var value in values) {
-        var valueValue = values[value];
-        var newValue = document.createElement("value");
+    for (let value in values) {
+        let valueValue = values[value];
+        let newValue = document.createElement("value");
         if (valueValue !== null) {
             newValue.setAttribute("name", value);
             newValue.appendChild(valueValue);
@@ -418,16 +419,16 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     }
     // Statements
     if (statements !== undefined && Object.keys(statements).length > 0) {
-        for (var statement in statements) {
-            var statementValue = statements[statement];
+        for (let statement in statements) {
+            let statementValue = statements[statement];
             if (statementValue == null) {
                 continue;
             } else {
-                for (var i = 0; i < statementValue.length; i += 1) {
+                for (let i = 0; i < statementValue.length; i += 1) {
                     // In most cases, you really shouldn't ever have more than
                     //  one statement in this list. I'm not sure Blockly likes
                     //  that.
-                    var newStatement = document.createElement("statement");
+                    let newStatement = document.createElement("statement");
                     newStatement.setAttribute("name", statement);
                     newStatement.appendChild(statementValue[i]);
                     newBlock.appendChild(newStatement);
@@ -436,7 +437,7 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
         }
     }
     return newBlock;
-}
+};
 
 BlockMirrorTextToBlocks.raw_block = function (txt) {
     // TODO: lineno as second parameter!
@@ -494,4 +495,4 @@ BlockMirrorTextToBlocks.COLOR = {
     DICTIONARY: 0,
     SET: 10,
     TUPLE: 20
-}
+};

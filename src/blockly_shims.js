@@ -139,12 +139,19 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
 
         if (Blockly.Blocks['ast_Name']) {
             variableModelList.sort(Blockly.VariableModel.compareByName);
-            for (var i = 0, variable; variable = variableModelList[i]; i++) {
-                var block = Blockly.utils.xml.createElement('block');
+            for (let i = 0, variable; variable = variableModelList[i]; i++) {
+                let block = Blockly.utils.xml.createElement('block');
                 block.setAttribute('type', 'ast_Name');
                 block.setAttribute('gap', 8);
                 block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
                 xmlList.push(block);
+
+                /*block = Blockly.utils.xml.createElement('label');
+                console.log(variable);
+                block.setAttribute('text', variable.name);
+                block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+                //block.setAttribute('gap', 8);
+                xmlList.push(block);*/
             }
         }
     }
