@@ -59,12 +59,13 @@
 <script type="text/javascript">
     var editor = new BlockMirror({
         'container': document.getElementById('blockmirror-editor'),
+        blocklyMediaPath: '../lib/blockly/media/'
         //'height': '2000px'
     });
     editor.addChangeListener(function (event) {
         console.log('Change! Better save:', event)
     });
-    editor.setCode('class X:\n    """Hello world"""\ndef add(self, a, b):\n        a = 0\n        return a\n\nx = X()\nx.add(5,3)');
+    editor.setCode('class X:\n    """Hello world"""\n    def add(self, a, b):\n        a = 0\n        return a\n\nx = X()\nx.add(5,3)');
 
     Sk.configure({
         __future__: Sk.python3,
