@@ -127,17 +127,21 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
       variableModelList.sort(Blockly.VariableModel.compareByName);
 
       for (var i = 0, variable; variable = variableModelList[i]; i++) {
-        /*let block = Blockly.utils.xml.createElement('block');
-        block.setAttribute('type', 'ast_Name');
-        block.setAttribute('gap', 8);
-        block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
-        xmlList.push(block);*/
-        block = Blockly.utils.xml.createElement('label');
+        var _block = Blockly.utils.xml.createElement('block');
+
+        _block.setAttribute('type', 'ast_Name');
+
+        _block.setAttribute('gap', 8);
+
+        _block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
+
+        xmlList.push(_block);
+        /*block = Blockly.utils.xml.createElement('label');
         console.log(variable);
         block.setAttribute('text', variable.name);
-        block.setAttribute('web-class', 'blockmirror-toolbox-variable'); //block.setAttribute('gap', 8);
-
-        xmlList.push(block);
+        block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+        //block.setAttribute('gap', 8);
+        xmlList.push(block);*/
       }
     }
   }
@@ -370,6 +374,8 @@ BlockMirror.prototype.clearHighlightedLines = function () {
 };
 
 function BlockMirrorTextEditor(blockMirror) {
+  var _this = this;
+
   this.blockMirror = blockMirror;
   this.textContainer = blockMirror.tags.textContainer;
   this.textArea = blockMirror.tags.textArea;
@@ -441,37 +447,74 @@ function BlockMirrorTextEditor(blockMirror) {
     if (change.origin === "paste") {
       var newText = change.text[0];
 
-      if (newText.startsWith("http") && newText.endsWith("png")) {
+      if (_this.isImageUrl(newText)) {
         change.update(null, null, ["\"".concat(newText, "\"")]);
       }
     }
   });
   this.codeMirror.on("change", function (cm, change) {
-    if (change.origin === "paste") {
-      console.log(change);
-      var newText = change.text[0];
+    console.log(change);
+    var lastLine;
 
-      if (newText.startsWith('"http') && newText.endsWith('.png"')) {
-        //change.update(null, null, [`"${newText}"`]);
-        var x = document.createElement("IMG");
-        x.setAttribute("src", newText.slice(1, -1));
-        x.setAttribute("height", "40");
-        x.setAttribute("width", "40");
-        x.setAttribute("alt", newText);
-        var to = {
-          line: change.from.line,
-          ch: change.from.ch + newText.length
-        };
-        cm.markText(change.from, to, {
-          className: "cm-embedded-image",
-          atomic: true,
-          replacedWith: x
-        });
-        console.log(change.from, to);
-      }
+    if (change.origin === "paste" || change.origin === "setValue") {
+      //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
+      lastLine = change.from.line + change.text.length;
+    } else {
+      lastLine = Math.max(1 + change.to.line, change.text.length);
     }
+
+    cm.doc.eachLine(change.from.line, lastLine, function (line) {
+      var match;
+
+      var _loop = function _loop() {
+        var imageWidget = _this.makeImageWidget(match[2]);
+
+        var imageMarker = cm.markText({
+          line: cm.doc.getLineNumber(line),
+          ch: match.index
+        }, {
+          line: cm.doc.getLineNumber(line),
+          ch: match.index + match[0].length
+        }, {
+          atomic: true,
+          replacedWith: imageWidget
+        });
+
+        imageWidget.onclick = function (x) {
+          return imageMarker.clear();
+        };
+      };
+
+      while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
+        _loop();
+      }
+    });
   });
-}
+} //BlockMirrorTextEditor.prototype.enableImages = function (url) {
+//BlockMirrorTextEditor.prototype.disableImage = function (url) {
+
+
+BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
+  var x = document.createElement("IMG");
+  x.setAttribute("src", url);
+  x.setAttribute("height", "40");
+  x.setAttribute("width", "40");
+  x.setAttribute("alt", url);
+
+  x.onmouseover = function (x) {
+    return console.log("Turn it off");
+  };
+
+  return x;
+}; //'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
+
+
+var FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+$/;
+var HAS_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
+
+BlockMirrorTextEditor.prototype.isImageUrl = function (url) {
+  return url.match(FULL_IMAGE_URL);
+};
 
 BlockMirrorTextEditor.prototype.defocus = function () {
   this.codeMirror.display.input.blur();
@@ -591,15 +634,15 @@ BlockMirrorTextEditor.prototype.getCode = function () {
 };
 
 BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
-  var _this = this;
+  var _this2 = this;
 
   if (!this.silentEvents_) {
     var handleChange = function handleChange() {
-      var newCode = _this.getCode();
+      var newCode = _this2.getCode();
 
-      _this.blockMirror.blockEditor.setCode(newCode, true);
+      _this2.blockMirror.blockEditor.setCode(newCode, true);
 
-      _this.blockMirror.setCode(newCode, true);
+      _this2.blockMirror.setCode(newCode, true);
     };
 
     if (this.blockMirror.configuration.blockDelay === false) {
@@ -621,11 +664,11 @@ BlockMirrorTextEditor.prototype.isVisible = function () {
 };
 
 BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
-  var _this2 = this;
+  var _this3 = this;
 
   var handles = lines.map(function (l) {
     return {
-      "handle": _this2.codeMirror.doc.addLineClass(l - 1, "background", style),
+      "handle": _this3.codeMirror.doc.addLineClass(l - 1, "background", style),
       "style": style
     };
   });
@@ -633,13 +676,13 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
 };
 
 BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
-  var _this3 = this;
+  var _this4 = this;
 
   if (this.highlightedHandles) {
     var removed = this.highlightedHandles.map(function (h) {
-      _this3.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+      _this4.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
 
-      var info = _this3.codeMirror.doc.lineInfo(h.handle);
+      var info = _this4.codeMirror.doc.lineInfo(h.handle);
 
       if (info) {
         return info.line + 1;
@@ -790,7 +833,7 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
 };
 
 BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
-  var _this4 = this;
+  var _this5 = this;
 
   return toolboxPython.map(function (category) {
     if (typeof category === "string") {
@@ -807,7 +850,7 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
     }
 
     var body = (category.blocks || []).map(function (code) {
-      var result = _this4.blockMirror.textToBlocks.convertSource('toolbox.py', code);
+      var result = _this5.blockMirror.textToBlocks.convertSource('toolbox.py', code);
 
       return result.rawXml.innerHTML.toString();
     }).join("\n");
@@ -3580,6 +3623,18 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "extensions": ["text_quotes"]
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
+  "type": "ast_StrChar",
+  "message0": "%1",
+  "args0": [{
+    "type": "field_dropdown",
+    "name": "TEXT",
+    "options": [["\\n", "\n"], ["\\t", "\t"]]
+  }],
+  "output": "String",
+  "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+  "extensions": ["text_quotes"]
+});
+BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_StrMultiline",
   "message0": "%1",
   "args0": [{
@@ -3605,36 +3660,79 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_StrImage",
-  "message0": "%1",
-  "args0": [{
-    "type": "field_image",
-    "name": "SRC",
-    "src": "",
-    "width": 20,
-    "height": 20,
-    "alt": ""
-  }],
-  "output": "String",
-  "colour": BlockMirrorTextToBlocks.COLOR.TEXT //"extensions": ["text_quotes"]
+Blockly.Blocks['ast_StrImage'] = {
+  init: function init() {
+    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.src_ = "loading.png";
+    this.updateShape_();
+    this.setOutput(true);
+  },
+  mutationToDom: function mutationToDom() {
+    var container = document.createElement('mutation');
+    container.setAttribute('src', this.src_);
+    return container;
+  },
+  domToMutation: function domToMutation(xmlElement) {
+    this.src_ = xmlElement.getAttribute('src');
+    this.updateShape_();
+  },
+  updateShape_: function updateShape_() {
+    var image = this.getInput('IMAGE');
 
-});
+    if (!image) {
+      image = this.appendDummyInput("IMAGE");
+      image.appendField(new Blockly.FieldImage(this.src_, 20, 20, {
+        alt: this.src_,
+        flipRtl: "FALSE"
+      }));
+    }
+
+    var imageField = image.fieldRow[0];
+    imageField.setValue(this.src_);
+  }
+};
+/*
+"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
+BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_StrImage",
+    "message0": "%1%2",
+    "args0": [
+        {"type": "field_image", "src": "https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png", "width": 20, "height": 20, "alt": ""},
+        //{"type": "field_label_serializable", "name": "SRC", "value": '', "visible": "false"}
+    ],
+    "output": "String",
+    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+    //"extensions": ["text_quotes"]
+});*/
 
 Blockly.Python['ast_Str'] = function (block) {
-  // Text value.
+  // Text value
   var code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+  code = code.replace("\n", "n");
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
+Blockly.Python['ast_StrChar'] = function (block) {
+  // Text value
+  var value = block.getFieldValue('TEXT');
+
+  switch (value) {
+    case "\n":
+      return ["'\\n'", Blockly.Python.ORDER_ATOMIC];
+
+    case "\t":
+      return ["'\\t'", Blockly.Python.ORDER_ATOMIC];
+  }
+};
+
 Blockly.Python['ast_StrImage'] = function (block) {
-  // Text value.
-  var code = Blockly.Python.quote_(block.getFieldValue('SRC'));
+  // Text value
+  var code = Blockly.Python.quote_(block.src_);
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
 Blockly.Python['ast_StrMultiline'] = function (block) {
-  // Text value.
+  // Text value
   var code = Blockly.Python.multiline_quote_(block.getFieldValue('TEXT'));
   return [code, Blockly.Python.ORDER_ATOMIC];
 };
@@ -3654,29 +3752,43 @@ Blockly.Python['ast_StrDocstring'] = function (block) {
   return Blockly.Python.multiline_quote_(code) + "\n";
 };
 
+BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
+  return text === "\n" || text === "\t";
+};
+
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
   return parent._astname === 'Expr' && parent._parent && ['FunctionDef', 'ClassDef'].indexOf(parent._parent._astname) !== -1 && parent._parent.body[0] === parent;
 };
 
-BlockMirrorTextToBlocks.prototype.dedent = function (text, levels) {
+BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
+  return text.split("\n").length <= 2 && text.length <= 40;
+};
+
+BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
+  if (!isDocString && text.charAt(0) === "\n") {
+    return text;
+  }
+
   var split = text.split("\n");
   var indentation = "    ".repeat(levels);
-  var recombined = [];
+  var recombined = []; // Are all lines indented?
 
   for (var i = 0; i < split.length; i++) {
-    // Are all lines indented?
+    // This was a blank line, add it unchanged unless its the first line
     if (split[i] === '') {
       if (i !== 0) {
         recombined.push("");
-      }
+      } // If it has our ideal indentation, add it without indentation
+
     } else if (split[i].startsWith(indentation)) {
       var unindentedLine = split[i].substr(indentation.length);
 
       if (unindentedLine !== '' || i !== split.length - 1) {
         recombined.push(unindentedLine);
-      }
+      } // If it's the first line, then add it unmodified
+
     } else if (i === 0) {
-      recombined.push(split[i]);
+      recombined.push(split[i]); // This whole structure cannot be uniformly dedented, better give up.
     } else {
       return text;
     }
@@ -3691,11 +3803,15 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
   var text = Sk.ffi.remapToJs(s);
 
   if (text.startsWith("http") && text.endsWith(".png")) {
-    return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {
-      "SRC": text
+    return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {}, {}, {}, {
+      "@src": text
+    });
+  } else if (this.isSingleChar(text)) {
+    return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {
+      "TEXT": text
     });
   } else if (this.isDocString(node, parent)) {
-    var dedented = this.dedent(text, this.levelIndex - 1);
+    var dedented = this.dedent(text, this.levelIndex - 1, true);
     return [BlockMirrorTextToBlocks.create_block("ast_StrDocstring", node.lineno, {
       "TEXT": dedented
     })];
@@ -3704,7 +3820,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
       "TEXT": text
     });
   } else {
-    var _dedented = this.dedent(text, this.levelIndex - 1);
+    var _dedented = this.dedent(text, this.levelIndex - 1, false);
 
     return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {
       "TEXT": _dedented

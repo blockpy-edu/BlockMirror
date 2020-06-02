@@ -16,7 +16,9 @@ Sk.exportSymbol = function (name, module) {
   var i;
 
   for (i = 1; i < parts.length - 1; i++) {
-    submodule = parts[i];
+    if (!(parts[i] in submodule)) {
+      submodule[parts[i]] = {};
+    }
   }
 
   submodule[parts[i]] = module;

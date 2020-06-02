@@ -103,7 +103,8 @@ function BlockMirrorTextEditor(blockMirror) {
 
 }
 
-BlockMirrorTextEditor.prototype.turnOnImages = function (url) {
+//BlockMirrorTextEditor.prototype.enableImages = function (url) {
+//BlockMirrorTextEditor.prototype.disableImage = function (url) {
 
 BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
     let x = document.createElement("IMG");
