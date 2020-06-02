@@ -91,7 +91,7 @@
 
 </head>
 <body>
-<button id='go'>GO</button>
+<button id='go'>Run Unit Tests</button>
 <button id='make-image'>Make Image</button>
 <div id="image-spot"></div>
 <div style="width:900px; margin:0 auto;"
@@ -231,7 +231,7 @@
         "while x == 0:\n    pass\nwhile y < z:\n    a = 0\nelse:\n    b = a",
         "import x as y, b as c, d\nimport os",
         "from . import x\nfrom .os import y\nfrom ..path import z\nfrom dog.house import a\nfrom cat import b, c as d, e",
-        "import matplotlib.pyplot as plt",
+        //"import matplotlib.pyplot as plt",
         "with open('filename') as outfile:\n    pass",
         "with open('filename') as outfile, open('file2') as infile, other_context:\n    pass",
         "#hello world!\n# Another comment\n#: int\n\na",
@@ -241,8 +241,8 @@
         "(lambda x: x)()",
         "class Alpha:\n    def beta():\n        '''\n        Hello World!\n        Testing.\n        '''",
         "'test'.replace(1, 2, 3)",
-        "'\n'",
-        '"""\ntest"""'
+        "'\\n'",
+        "'''\ntest'''"
     ];
 
     function runTests() {

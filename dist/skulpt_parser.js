@@ -47,6 +47,9 @@ Sk.builtin = {
   int_: function int_(n) {
     this.v = n;
   },
+  float_: function float_(n) {
+    this.v = n;
+  },
   bool: {
     "true$": {
       v: true

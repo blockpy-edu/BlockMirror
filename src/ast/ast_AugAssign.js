@@ -56,6 +56,7 @@ Blockly.Blocks['ast_AugAssign'] = {
     },
     updateShape_: function (block) {
         // Add new inputs.
+        this.getField("OP_NAME").getOptions(false);
         if (this.simpleTarget_) {
             if (!this.getInput('VAR_ANCHOR')) {
                 this.appendDummyInput('VAR_ANCHOR')

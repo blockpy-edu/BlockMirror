@@ -170,7 +170,7 @@ BlockMirrorBlockEditor.prototype.getToolbarWidth = function () {
     } else {
         return this.workspace.toolbox_.width;
     }
-}
+};
 
 BlockMirrorBlockEditor.prototype.VIEW_CONFIGURATIONS = {
     'split': {
