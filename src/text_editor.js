@@ -75,34 +75,52 @@ function BlockMirrorTextEditor(blockMirror) {
     this.codeMirror.on("beforeChange", (cm, change) => {
         if (change.origin === "paste") {
             let newText = change.text[0];
-            if (newText.startsWith("http") && newText.endsWith("png")) {
+            if (this.isImageUrl(newText)) {
                 change.update(null, null, [`"${newText}"`]);
             }
         }
     });
     this.codeMirror.on("change", (cm, change) => {
-        if(change.origin === "paste") {
-            console.log(change);
-            let newText = change.text[0];
-            if (newText.startsWith('"http') && newText.endsWith('.png"')) {
-                //change.update(null, null, [`"${newText}"`]);
-                let x = document.createElement("IMG");
-                x.setAttribute("src", newText.slice(1, -1));
-                x.setAttribute("height", "40");
-                x.setAttribute("width", "40");
-                x.setAttribute("alt", newText);
-                let to = {line: change.from.line, ch: change.from.ch+newText.length};
-                cm.markText(change.from, to, {
-                    className: "cm-embedded-image",
-                    atomic: true,
-                    replacedWith: x
-                });
-                console.log(change.from, to);
-            }
+        console.log(change);
+        let lastLine;
+        if(change.origin === "paste" || change.origin === "setValue") {
+            //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
+            lastLine = change.from.line+change.text.length;
+        } else {
+            lastLine = Math.max(1+change.to.line, change.text.length);
         }
+        cm.doc.eachLine(change.from.line, lastLine, (line) => {
+            let match;
+            while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
+                let imageWidget = this.makeImageWidget(match[2]);
+                let imageMarker = cm.markText({line: cm.doc.getLineNumber(line), ch: match.index},
+                    {line: cm.doc.getLineNumber(line), ch: match.index+match[0].length},
+                    {atomic: true, replacedWith: imageWidget});
+                imageWidget.onclick = (x) => imageMarker.clear();
+            }
+        });
     });
 
 }
+
+BlockMirrorTextEditor.prototype.turnOnImages = function (url) {
+
+BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
+    let x = document.createElement("IMG");
+    x.setAttribute("src", url);
+    x.setAttribute("height", "40");
+    x.setAttribute("width", "40");
+    x.setAttribute("alt", url);
+    x.onmouseover = (x) => console.log("Turn it off");
+    return x;
+};
+
+//'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
+const FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+$/;
+const HAS_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
+BlockMirrorTextEditor.prototype.isImageUrl = function (url) {
+    return url.match(FULL_IMAGE_URL);
+};
 
 BlockMirrorTextEditor.prototype.defocus = function () {
     this.codeMirror.display.input.blur();

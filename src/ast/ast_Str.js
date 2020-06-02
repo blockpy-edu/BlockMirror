@@ -45,16 +45,47 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
 
+
+Blockly.Blocks['ast_StrImage'] = {
+    init: function () {
+        this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+        this.src_ = "loading.png";
+        this.updateShape_();
+        this.setOutput(true);
+    },
+    mutationToDom: function () {
+        var container = document.createElement('mutation');
+        container.setAttribute('src', this.src_);
+        return container;
+    },
+    domToMutation: function (xmlElement) {
+        this.src_ = xmlElement.getAttribute('src');
+        this.updateShape_();
+    },
+    updateShape_: function () {
+        let image = this.getInput('IMAGE');
+        if (!image) {
+            image = this.appendDummyInput("IMAGE");
+            image.appendField(new Blockly.FieldImage(this.src_, 20, 20, { alt: this.src_, flipRtl: "FALSE" }));
+        }
+        let imageField = image.fieldRow[0];
+        imageField.setValue(this.src_);
+    }
+};
+
+/*
+"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
 BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_StrImage",
-    "message0": "%1",
+    "message0": "%1%2",
     "args0": [
-        {"type": "field_image", "name": "SRC", "src": "", "width": 20, "height": 20, "alt": ""}
+        {"type": "field_image", "src": "https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png", "width": 20, "height": 20, "alt": ""},
+        //{"type": "field_label_serializable", "name": "SRC", "value": '', "visible": "false"}
     ],
     "output": "String",
     "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
     //"extensions": ["text_quotes"]
-});
+});*/
 
 Blockly.Python['ast_Str'] = function (block) {
     // Text value
@@ -74,7 +105,7 @@ Blockly.Python['ast_StrChar'] = function (block) {
 
 Blockly.Python['ast_StrImage'] = function (block) {
     // Text value
-    let code = Blockly.Python.quote_(block.getFieldValue('SRC'));
+    let code = Blockly.Python.quote_(block.src_);
     return [code, Blockly.Python.ORDER_ATOMIC];
 };
 
@@ -147,7 +178,8 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     let s = node.s;
     let text = Sk.ffi.remapToJs(s);
     if (text.startsWith("http") && text.endsWith(".png")) {
-        return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {"SRC": text});
+        return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {}, {}, {},
+            {"@src": text});
     } else if (this.isSingleChar(text)) {
         return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {"TEXT": text});
     } else if (this.isDocString(node, parent)) {

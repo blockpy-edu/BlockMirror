@@ -3,13 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/block_mirror.css" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_Call.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Call.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_mirror.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockly_shims.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockly_shims.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/minimal_skulpt.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/minimal_skulpt.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,7 +205,7 @@
       <workItem from="1581787835886" duration="30000" />
       <workItem from="1581787894709" duration="8205000" />
       <workItem from="1582172961284" duration="310000" />
-      <workItem from="1590976436519" duration="14133000" />
+      <workItem from="1590976436519" duration="21631000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -238,7 +235,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591027419530</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list.">
+      <created>1591030287360</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1591030287360</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -262,13 +266,14 @@
     <MESSAGE value="Image URL support in editor" />
     <MESSAGE value="Skulpt Barebones Parser files" />
     <MESSAGE value="Minimal skulpt support now directly provided in a smaller package. Minor cleanup of code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Minimal skulpt support now directly provided in a smaller package. Minor cleanup of code." />
+    <MESSAGE value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="552" y="0" key="CommitChangelistDialog2" timestamp="1591027418521">
+    <state x="552" y="0" key="CommitChangelistDialog2" timestamp="1591030286558">
       <screen x="0" y="0" width="2560" height="1360" />
     </state>
-    <state x="552" y="0" key="CommitChangelistDialog2/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591027418521" />
+    <state x="552" y="0" key="CommitChangelistDialog2/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591030286558" />
     <state width="2516" height="58" key="GridCell.Tab.0.bottom" timestamp="1591028320640">
       <screen x="0" y="0" width="2560" height="1360" />
     </state>
@@ -294,6 +299,10 @@
     </state>
     <state x="595" y="291" key="run.anything.popup/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591027739379" />
     <state x="595" y="291" key="run.anything.popup/0.0.2560.1360@0.0.2560.1360" timestamp="1590980185775" />
+    <state x="606" y="-2" width="1344" height="2556" key="search.everywhere.popup" timestamp="1591033809249">
+      <screen x="0" y="0" width="2560" height="1360" />
+    </state>
+    <state x="606" y="-2" width="1344" height="2556" key="search.everywhere.popup/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591033809249" />
   </component>
   <component name="masterDetails">
     <states>

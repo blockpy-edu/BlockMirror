@@ -460,7 +460,7 @@ BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
     } else {
         return null;
     }
-}
+};
 
 //                              messageBefore, message, name
 // function call: print() -> "print" ([message]) ; print
