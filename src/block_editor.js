@@ -113,6 +113,7 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
 };
 
 BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
+    Blockly.Variables._HIDE_GETTERS_SETTERS = false;
     return toolboxPython.map((category) => {
         if (typeof category === "string") {
             return category;
@@ -129,6 +130,9 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
             return result.rawXml.innerHTML.toString();
         }).join("\n");
         let footer = "</category>";
+        if (category['hideGettersSetters']) {
+            Blockly.Variables._HIDE_GETTERS_SETTERS = true;
+        }
         return [header, body, footer].join("\n");
     }).join("\n");
 };

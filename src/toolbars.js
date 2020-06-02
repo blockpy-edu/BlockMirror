@@ -41,7 +41,7 @@ TOOLBOX_CATEGORY.TURTLES = {name: "Turtles", colour: "PLOTTING", blocks: [
     "turtle.pencolor('blue')"
 ]};
 TOOLBOX_CATEGORY.INPUT = {name: "Input", colour: "TEXT", blocks: [
-    "input(___)",
+    "input('')",
 ]};
 TOOLBOX_CATEGORY.VALUES = {name: "Values", colour: "TEXT", blocks: [
     '""',
@@ -263,5 +263,53 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
             "delete ___",
             "global ___"
         ]}*/
+    ],
+    //******************************************************
+    'ct2': [
+        {name: 'Memory', colour: 'VARIABLES', custom: 'VARIABLE', hideGettersSetters: true},
+        TOOLBOX_CATEGORY.SEP,
+
+        '<category name="Expressions" expanded="true">',
+        {name: "Constants", colour: "TEXT", blocks: [
+                '""',
+                "0",
+                "True",
+                "[0, 0, 0]",
+                "[___, ___, ___]",
+                "[]",
+            ]},
+        {name: "Variables", colour: "VARIABLES", blocks: [
+                "VARIABLE",
+            ]},
+        TOOLBOX_CATEGORY.CALCULATIONS,
+        TOOLBOX_CATEGORY.CONVERSIONS,
+        {name: "Conditions", colour: "LOGIC", blocks: [
+                '___ == ___',
+                '___ < ___',
+                '___ and ___',
+                'not ___'
+            ]},
+        TOOLBOX_CATEGORY.INPUT,
+        '</category>',
+        TOOLBOX_CATEGORY.SEP,
+
+        '<category name="Operations" expanded="true">',
+        {name: "Assignment", colour: "VARIABLES", blocks: [
+                "VARIABLE = ___",
+                "___.append(___)"
+            ]},
+        TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING,
+        '</category>',
+        TOOLBOX_CATEGORY.SEP,
+
+        '<category name="Control" expanded="true">',
+        {name: "Decision", colour: "CONTROL", blocks: [
+                'if ___: pass',
+                'if ___: pass\nelse: pass',
+            ]},
+        {name: "Iteration", colour: "CONTROL", blocks: [
+                'for ___ in ___: pass',
+            ]},
+        '</category>',
     ],
 };

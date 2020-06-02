@@ -109,14 +109,14 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
     // New variables are added to the end of the variableModelList.
     var mostRecentVariableFieldXmlString = variableModelList[variableModelList.length - 1];
 
-    if (Blockly.Blocks['ast_Assign']) {
+    if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_Assign']) {
       var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
       var blockText = '<xml>' + '<block type="ast_Assign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '</block>' + '</xml>';
       var block = Blockly.Xml.textToDom(blockText).firstChild;
       xmlList.push(block);
     }
 
-    if (Blockly.Blocks['ast_AugAssign']) {
+    if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_AugAssign']) {
       var gap = Blockly.Blocks['ast_Name'] ? 20 : 8;
       var blockText = '<xml>' + '<block type="ast_AugAssign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '<value name="VALUE">' + '<shadow type="ast_Num">' + '<field name="NUM">1</field>' + '</shadow>' + '</value>' + '<mutation options="false" simple="true"></mutation>' + '</block>' + '</xml>';
       var block = Blockly.Xml.textToDom(blockText).firstChild;
@@ -127,21 +127,23 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
       variableModelList.sort(Blockly.VariableModel.compareByName);
 
       for (var i = 0, variable; variable = variableModelList[i]; i++) {
-        var _block = Blockly.utils.xml.createElement('block');
+        if (!Blockly.Variables._HIDE_GETTERS_SETTERS) {
+          var _block = Blockly.utils.xml.createElement('block');
 
-        _block.setAttribute('type', 'ast_Name');
+          _block.setAttribute('type', 'ast_Name');
 
-        _block.setAttribute('gap', 8);
+          _block.setAttribute('gap', 8);
 
-        _block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
+          _block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
 
-        xmlList.push(_block);
-        /*block = Blockly.utils.xml.createElement('label');
-        console.log(variable);
-        block.setAttribute('text', variable.name);
-        block.setAttribute('web-class', 'blockmirror-toolbox-variable');
-        //block.setAttribute('gap', 8);
-        xmlList.push(block);*/
+          xmlList.push(_block);
+        } else {
+          block = Blockly.utils.xml.createElement('label');
+          block.setAttribute('text', variable.name);
+          block.setAttribute('web-class', 'blockmirror-toolbox-variable'); //block.setAttribute('gap', 8);
+
+          xmlList.push(block);
+        }
       }
     }
   }
@@ -235,7 +237,10 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
 
   this.isParsons = function () {
     return false;
-  };
+  }; // Convert image URLs?
+
+
+  this.configuration.imageUrls = configuration.imageUrls || true;
 };
 
 BlockMirror.prototype.initializeVariables = function () {
@@ -444,51 +449,55 @@ function BlockMirrorTextEditor(blockMirror) {
   //https://i.imgur.com/ITZKRiq.png
 
   this.codeMirror.on("beforeChange", function (cm, change) {
-    if (change.origin === "paste") {
-      var newText = change.text[0];
+    if (_this.blockMirror.configuration.imageUrls) {
+      if (change.origin === "paste") {
+        var newText = change.text[0];
 
-      if (_this.isImageUrl(newText)) {
-        change.update(null, null, ["\"".concat(newText, "\"")]);
+        if (_this.isImageUrl(newText)) {
+          change.update(null, null, ["\"".concat(newText, "\"")]);
+        }
       }
     }
   });
   this.codeMirror.on("change", function (cm, change) {
-    console.log(change);
-    var lastLine;
+    if (_this.blockMirror.configuration.imageUrls) {
+      console.log(change);
+      var lastLine;
 
-    if (change.origin === "paste" || change.origin === "setValue") {
-      //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
-      lastLine = change.from.line + change.text.length;
-    } else {
-      lastLine = Math.max(1 + change.to.line, change.text.length);
-    }
-
-    cm.doc.eachLine(change.from.line, lastLine, function (line) {
-      var match;
-
-      var _loop = function _loop() {
-        var imageWidget = _this.makeImageWidget(match[2]);
-
-        var imageMarker = cm.markText({
-          line: cm.doc.getLineNumber(line),
-          ch: match.index
-        }, {
-          line: cm.doc.getLineNumber(line),
-          ch: match.index + match[0].length
-        }, {
-          atomic: true,
-          replacedWith: imageWidget
-        });
-
-        imageWidget.onclick = function (x) {
-          return imageMarker.clear();
-        };
-      };
-
-      while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
-        _loop();
+      if (change.origin === "paste" || change.origin === "setValue") {
+        //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
+        lastLine = change.from.line + change.text.length;
+      } else {
+        lastLine = Math.max(1 + change.to.line, change.text.length);
       }
-    });
+
+      cm.doc.eachLine(change.from.line, lastLine, function (line) {
+        var match;
+
+        var _loop = function _loop() {
+          var imageWidget = _this.makeImageWidget(match[2]);
+
+          var imageMarker = cm.markText({
+            line: cm.doc.getLineNumber(line),
+            ch: match.index
+          }, {
+            line: cm.doc.getLineNumber(line),
+            ch: match.index + match[0].length
+          }, {
+            atomic: true,
+            replacedWith: imageWidget
+          });
+
+          imageWidget.onclick = function (x) {
+            return imageMarker.clear();
+          };
+        };
+
+        while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
+          _loop();
+        }
+      });
+    }
   });
 } //BlockMirrorTextEditor.prototype.enableImages = function (url) {
 //BlockMirrorTextEditor.prototype.disableImage = function (url) {
@@ -835,6 +844,7 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
 BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
   var _this5 = this;
 
+  Blockly.Variables._HIDE_GETTERS_SETTERS = false;
   return toolboxPython.map(function (category) {
     if (typeof category === "string") {
       return category;
@@ -855,6 +865,11 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
       return result.rawXml.innerHTML.toString();
     }).join("\n");
     var footer = "</category>";
+
+    if (category['hideGettersSetters']) {
+      Blockly.Variables._HIDE_GETTERS_SETTERS = true;
+    }
+
     return [header, body, footer].join("\n");
   }).join("\n");
 };
@@ -2554,7 +2569,7 @@ TOOLBOX_CATEGORY.TURTLES = {
 TOOLBOX_CATEGORY.INPUT = {
   name: "Input",
   colour: "TEXT",
-  blocks: ["input(___)"]
+  blocks: ["input('')"]
 };
 TOOLBOX_CATEGORY.VALUES = {
   name: "Values",
@@ -2667,7 +2682,38 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
     "delete ___",
     "global ___"
   ]}*/
-  ]
+  ],
+  //******************************************************
+  'ct2': [{
+    name: 'Memory',
+    colour: 'VARIABLES',
+    custom: 'VARIABLE',
+    hideGettersSetters: true
+  }, TOOLBOX_CATEGORY.SEP, '<category name="Expressions" expanded="true">', {
+    name: "Constants",
+    colour: "TEXT",
+    blocks: ['""', "0", "True", "[0, 0, 0]", "[___, ___, ___]", "[]"]
+  }, {
+    name: "Variables",
+    colour: "VARIABLES",
+    blocks: ["VARIABLE"]
+  }, TOOLBOX_CATEGORY.CALCULATIONS, TOOLBOX_CATEGORY.CONVERSIONS, {
+    name: "Conditions",
+    colour: "LOGIC",
+    blocks: ['___ == ___', '___ < ___', '___ and ___', 'not ___']
+  }, TOOLBOX_CATEGORY.INPUT, '</category>', TOOLBOX_CATEGORY.SEP, '<category name="Operations" expanded="true">', {
+    name: "Assignment",
+    colour: "VARIABLES",
+    blocks: ["VARIABLE = ___", "___.append(___)"]
+  }, TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING, '</category>', TOOLBOX_CATEGORY.SEP, '<category name="Control" expanded="true">', {
+    name: "Decision",
+    colour: "CONTROL",
+    blocks: ['if ___: pass', 'if ___: pass\nelse: pass']
+  }, {
+    name: "Iteration",
+    colour: "CONTROL",
+    blocks: ['for ___ in ___: pass']
+  }, '</category>']
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_For",

@@ -110,7 +110,7 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
         // New variables are added to the end of the variableModelList.
         var mostRecentVariableFieldXmlString =
                 variableModelList[variableModelList.length - 1];
-        if (Blockly.Blocks['ast_Assign']) {
+        if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_Assign']) {
             var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
             var blockText = '<xml>' +
                 '<block type="ast_Assign" gap="' + gap + '">' +
@@ -120,7 +120,7 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
             var block = Blockly.Xml.textToDom(blockText).firstChild;
             xmlList.push(block);
         }
-        if (Blockly.Blocks['ast_AugAssign']) {
+        if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_AugAssign']) {
             var gap = Blockly.Blocks['ast_Name'] ? 20 : 8;
             var blockText = '<xml>' +
                 '<block type="ast_AugAssign" gap="' + gap + '">' +
@@ -140,18 +140,19 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
         if (Blockly.Blocks['ast_Name']) {
             variableModelList.sort(Blockly.VariableModel.compareByName);
             for (let i = 0, variable; variable = variableModelList[i]; i++) {
-                let block = Blockly.utils.xml.createElement('block');
-                block.setAttribute('type', 'ast_Name');
-                block.setAttribute('gap', 8);
-                block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
-                xmlList.push(block);
-
-                /*block = Blockly.utils.xml.createElement('label');
-                console.log(variable);
-                block.setAttribute('text', variable.name);
-                block.setAttribute('web-class', 'blockmirror-toolbox-variable');
-                //block.setAttribute('gap', 8);
-                xmlList.push(block);*/
+                if (!Blockly.Variables._HIDE_GETTERS_SETTERS) {
+                    let block = Blockly.utils.xml.createElement('block');
+                    block.setAttribute('type', 'ast_Name');
+                    block.setAttribute('gap', 8);
+                    block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
+                    xmlList.push(block);
+                } else {
+                    block = Blockly.utils.xml.createElement('label');
+                    block.setAttribute('text', variable.name);
+                    block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+                    //block.setAttribute('gap', 8);
+                    xmlList.push(block);
+                }
             }
         }
     }

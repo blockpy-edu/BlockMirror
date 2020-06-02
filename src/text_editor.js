@@ -73,32 +73,36 @@ function BlockMirrorTextEditor(blockMirror) {
     });*/
     //https://i.imgur.com/ITZKRiq.png
     this.codeMirror.on("beforeChange", (cm, change) => {
-        if (change.origin === "paste") {
-            let newText = change.text[0];
-            if (this.isImageUrl(newText)) {
-                change.update(null, null, [`"${newText}"`]);
+        if (this.blockMirror.configuration.imageUrls) {
+            if (change.origin === "paste") {
+                let newText = change.text[0];
+                if (this.isImageUrl(newText)) {
+                    change.update(null, null, [`"${newText}"`]);
+                }
             }
         }
     });
     this.codeMirror.on("change", (cm, change) => {
-        console.log(change);
-        let lastLine;
-        if(change.origin === "paste" || change.origin === "setValue") {
-            //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
-            lastLine = change.from.line+change.text.length;
-        } else {
-            lastLine = Math.max(1+change.to.line, change.text.length);
-        }
-        cm.doc.eachLine(change.from.line, lastLine, (line) => {
-            let match;
-            while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
-                let imageWidget = this.makeImageWidget(match[2]);
-                let imageMarker = cm.markText({line: cm.doc.getLineNumber(line), ch: match.index},
-                    {line: cm.doc.getLineNumber(line), ch: match.index+match[0].length},
-                    {atomic: true, replacedWith: imageWidget});
-                imageWidget.onclick = (x) => imageMarker.clear();
+        if (this.blockMirror.configuration.imageUrls) {
+            console.log(change);
+            let lastLine;
+            if (change.origin === "paste" || change.origin === "setValue") {
+                //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
+                lastLine = change.from.line + change.text.length;
+            } else {
+                lastLine = Math.max(1 + change.to.line, change.text.length);
             }
-        });
+            cm.doc.eachLine(change.from.line, lastLine, (line) => {
+                let match;
+                while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
+                    let imageWidget = this.makeImageWidget(match[2]);
+                    let imageMarker = cm.markText({line: cm.doc.getLineNumber(line), ch: match.index},
+                        {line: cm.doc.getLineNumber(line), ch: match.index + match[0].length},
+                        {atomic: true, replacedWith: imageWidget});
+                    imageWidget.onclick = (x) => imageMarker.clear();
+                }
+            });
+        }
     });
 
 }

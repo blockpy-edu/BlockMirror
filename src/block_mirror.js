@@ -90,6 +90,9 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
 
     // IsParsons?
     this.isParsons = function() { return false; };
+
+    // Convert image URLs?
+    this.configuration.imageUrls = configuration.imageUrls || true;
 };
 
 BlockMirror.prototype.initializeVariables = function () {
