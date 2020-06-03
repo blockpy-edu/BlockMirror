@@ -51,6 +51,7 @@ function BlockMirrorTextEditor(blockMirror) {
     this.codeMirror = CodeMirror.fromTextArea(this.textArea, codeMirrorOptions);
     this.codeMirror.on('change', this.changed.bind(this));
     this.codeMirror.setSize(null, '100%');
+    this.imageMarkers = [];
     this.textContainer.style.border = '1px solid lightgray';
     this.textContainer.style.float = 'left';
     this.updateWidth();
@@ -73,18 +74,19 @@ function BlockMirrorTextEditor(blockMirror) {
     });*/
     //https://i.imgur.com/ITZKRiq.png
     this.codeMirror.on("beforeChange", (cm, change) => {
-        if (this.blockMirror.configuration.imageUrls) {
+        if (this.blockMirror.configuration.imageMode) {
             if (change.origin === "paste") {
-                let newText = change.text[0];
-                if (this.isImageUrl(newText)) {
-                    change.update(null, null, [`"${newText}"`]);
+                let oldText = change.text[0];
+                if (this.isImageUrl(oldText)) {
+                    let newText = imageLiteralHook(oldText);
+                    change.update(null, null, [newText]);
                 }
             }
         }
     });
+
     this.codeMirror.on("change", (cm, change) => {
-        if (this.blockMirror.configuration.imageUrls) {
-            console.log(change);
+        if (this.blockMirror.configuration.imageMode) {
             let lastLine;
             if (change.origin === "paste" || change.origin === "setValue") {
                 //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
@@ -92,37 +94,89 @@ function BlockMirrorTextEditor(blockMirror) {
             } else {
                 lastLine = Math.max(1 + change.to.line, change.text.length);
             }
-            cm.doc.eachLine(change.from.line, lastLine, (line) => {
-                let match;
-                while ((match = HAS_IMAGE_URL.exec(line.text)) !== null) {
-                    let imageWidget = this.makeImageWidget(match[2]);
-                    let imageMarker = cm.markText({line: cm.doc.getLineNumber(line), ch: match.index},
-                        {line: cm.doc.getLineNumber(line), ch: match.index + match[0].length},
-                        {atomic: true, replacedWith: imageWidget});
-                    imageWidget.onclick = (x) => imageMarker.clear();
+            this.updateImages(cm, change.from.line, lastLine);
+        }
+    });
+
+    this.codeMirror.on("paste", (cm, event) => {
+        if (this.blockMirror.configuration.imageMode) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let index = 0; index < items.length; index += 1) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    let blob = item.getAsFile();
+                    let promise = this.blockMirror.configuration.imageUploadHook(blob, item);
+                    promise.then(newUrl => {
+                        let doc = cm.getDoc();
+                        doc.replaceRange(newUrl, doc.getCursor("from"), doc.getCursor("to"));
+                    });
+                    event.preventDefault();
                 }
-            });
+            }
         }
     });
 
 }
 
-//BlockMirrorTextEditor.prototype.enableImages = function (url) {
-//BlockMirrorTextEditor.prototype.disableImage = function (url) {
+BlockMirrorTextEditor.prototype.enableImages = function () {
+    let doc = this.codeMirror.getDoc();
+    this.updateImages(this.codeMirror, doc.firstLine(), 1+doc.lastLine());
+};
+BlockMirrorTextEditor.prototype.disableImages = function () {
+    this.imageMarkers.map(imageMarker => imageMarker.clear());
+    this.imageMarkers = this.imageMarkers.filter(i => i.find());
+};
 
 BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
-    let x = document.createElement("IMG");
-    x.setAttribute("src", url);
-    x.setAttribute("height", "40");
-    x.setAttribute("width", "40");
-    x.setAttribute("alt", url);
-    x.onmouseover = (x) => console.log("Turn it off");
-    return x;
+    let newImage = document.createElement("IMG");
+    newImage.setAttribute("src", url);
+    newImage.setAttribute("height", "40");
+    newImage.style.maxHeight = "100px";
+    newImage.setAttribute("width", "40");
+    newImage.setAttribute("title", url);
+    newImage.onclick = (x) => {
+        if (newImage.hasAttribute('width')) {
+            newImage.removeAttribute("height");
+            newImage.removeAttribute("width");
+        } else {
+            newImage.setAttribute("height", "40");
+            newImage.setAttribute("width", "40");
+        }
+    };
+    return newImage;
+};
+
+BlockMirrorTextEditor.prototype.updateImages = function(cm, from, to) {
+    cm.doc.eachLine(from, to, (line) => {
+        let match;
+        while ((match = CONSTRUCTOR_IMAGE_URL.exec(line.text)) !== null) {
+            let imageWidget = this.makeImageWidget(match[3]);
+            let offset = (match[0].length-match[1].length);
+            console.log(offset);
+            let imageMarker = cm.markText({
+                    line: cm.doc.getLineNumber(line),
+                    ch: match.index+ offset},
+                {line: cm.doc.getLineNumber(line),
+                    ch: match.index + match[1].length + offset},
+                {atomic: true, replacedWith: imageWidget});
+            //imageWidget.onclick = (x) => imageMarker.clear();
+            this.imageMarkers.push(imageMarker);
+        }
+    });
 };
 
 //'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
-const FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+$/;
-const HAS_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
+const FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg|mp4)+$/;
+//const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
+//const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
+const STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2)/g;
+//const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
+const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
+BlockMirrorTextEditor.REGEX_PATTERNS = {
+    "constructor": CONSTRUCTOR_IMAGE_URL,
+    "string": STRING_IMAGE_URL,
+    "none": false
+};
 BlockMirrorTextEditor.prototype.isImageUrl = function (url) {
     return url.match(FULL_IMAGE_URL);
 };
@@ -283,23 +337,5 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
         });
         this.highlightedHandles = [];
         return removed;
-    }
-};
-
-
-document.onpaste = function(event){
-    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    console.log(JSON.stringify(items)); // will give you the mime types
-    for (index in items) {
-        var item = items[index];
-        if (item.kind === 'file') {
-            var blob = item.getAsFile();
-            var reader = new FileReader();
-            reader.onload = function(event){
-                console.log(typeof event.target.result); // data url!
-                $(".cm-embedded-image").css("background-image", "url("+event.target.result+")").css("background-size", "contain").css("background-repeat-x", "no-repeat").css("background-repeat-y", "no-repeat").css("padding-left", "30px").css("padding-bottom", "5px");
-            };
-            reader.readAsDataURL(blob);
-        }
     }
 };

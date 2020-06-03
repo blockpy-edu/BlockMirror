@@ -487,6 +487,7 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         if (name in this.FUNCTION_SIGNATURES) {
             signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
         }
+        console.log(signature);
     } else if (func._astname === 'Attribute') {
         isMethod = true;
         caller = func.value;
@@ -516,8 +517,9 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     if (signature !== null && signature !== undefined) {
         if (signature.custom) {
             try {
-                return signature.custom(node, parent)
+                return signature.custom(node, parent, this)
             } catch (e) {
+                console.error(e);
                 // We tried to be fancy and failed, better fall back to default behavior!
             }
         }
@@ -590,3 +592,4 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         return [newBlock];
     }
 };
+

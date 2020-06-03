@@ -95,7 +95,9 @@ Blockly.Python['ast_Import'] = function (block) {
     // Optional from part
     let from = "";
     if (this.from_) {
-        from = "from "+block.getFieldValue('MODULE') + " ";
+        let moduleName = block.getFieldValue('MODULE');
+        from = "from "+moduleName + " ";
+        Blockly.Python.imported_["import_" + moduleName] = moduleName;
     }
     // Create a list with any number of elements of any type.
     let elements = new Array(block.nameCount_);
@@ -106,7 +108,9 @@ Blockly.Python['ast_Import'] = function (block) {
             name = Blockly.Python.variableDB_.getName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
             elements[i] += " as " + name;
         }
-        Blockly.Python.imported_["import_"+name] = name;
+        if (!from) {
+            Blockly.Python.imported_["import_" + name] = name;
+        }
     }
     return from + 'import ' + elements.join(', ') + "\n";
 };
@@ -145,7 +149,7 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
     }
 
     return BlockMirrorTextToBlocks.create_block("ast_Import", node.lineno, fields,
-        {}, {}, mutations);
+        {}, {"inline": true}, mutations);
 };
 
 // Alias ImportFrom because of big overlap

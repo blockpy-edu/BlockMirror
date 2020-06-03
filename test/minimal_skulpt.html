@@ -97,7 +97,7 @@
 <div style="width:900px; margin:0 auto;"
      id='example-frame'>
 
-    <div class="btn-group" data-toggle="buttons" data-bind="visible: !assignment.upload()">
+    <div class="btn-group" data-toggle="buttons" style="display: inline-block; margin-right: 10em;">
         <label onclick="editor.setMode('block');">
             <input type="radio" name="blockpy-mode-set" autocomplete="off"> Blocks
         </label>
@@ -109,15 +109,49 @@
         </label>
     </div>
 
+    <div class="btn-group" data-toggle="buttons" style="display: inline-block">
+        <label>
+            <input type="checkbox" name="blockpy-mode-set" checked
+                   onclick="editor.setImageMode(!editor.configuration.imageMode);">
+            Image Mode
+        </label>
+    </div>
+
 
     <div id="blockmirror-editor"></div>
 </div>
 
 
 <script type="text/javascript">
+    try {
+        var KEY_VALUE_STORE = localStorage.getItem('code-mirror-kv-length') || 0;
+        //localStorage.setItem('code-mirror-kv-length', KEY_VALUE_STORE+1);
+        function lookupImage(value) {
+
+        }
+    } catch (e) {
+        console.error(e);
+        KEY_VALUE_STORE = {};
+    }
+
     var editor = new BlockMirror({
         'container': document.getElementById('blockmirror-editor'),
-        'toolbox': 'ct2'
+        'toolbox': 'normal',
+        imageMode: "constructor",
+        imageDownloadHOok: (oldUrl) => {
+            return oldUrl;
+        },
+        imageUploadHook: (blob) => {
+            return Promise.resolve("Image("+JSON.stringify(URL.createObjectURL(blob))+")");
+        },
+        imageLiteralHook: (oldUrl) => {
+            return `Image("${oldUrl}")`;
+        },
+        /*var reader = new FileReader();
+        reader.onload = function(event){
+            // Post to a server, get back a URL
+            console.log(event.target.result); // data url!
+        };*/
         //'height': '2000px'
     });
     editor.addChangeListener(function (event) {

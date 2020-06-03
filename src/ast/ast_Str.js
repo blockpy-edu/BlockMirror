@@ -46,7 +46,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 
-Blockly.Blocks['ast_StrImage'] = {
+Blockly.Blocks['ast_Image'] = {
     init: function () {
         this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
         this.src_ = "loading.png";
@@ -66,7 +66,7 @@ Blockly.Blocks['ast_StrImage'] = {
         let image = this.getInput('IMAGE');
         if (!image) {
             image = this.appendDummyInput("IMAGE");
-            image.appendField(new Blockly.FieldImage(this.src_, 20, 20, { alt: this.src_, flipRtl: "FALSE" }));
+            image.appendField(new Blockly.FieldImage(this.src_, 40, 40, { alt: this.src_, flipRtl: "FALSE" }));
         }
         let imageField = image.fieldRow[0];
         imageField.setValue(this.src_);
@@ -103,10 +103,11 @@ Blockly.Python['ast_StrChar'] = function (block) {
     }
 };
 
-Blockly.Python['ast_StrImage'] = function (block) {
+Blockly.Python['ast_Image'] = function (block) {
     // Text value
-    let code = Blockly.Python.quote_(block.src_);
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    Blockly.Python.definitions_["import_image"] = "from image import Image";
+    let code = "Image("+Blockly.Python.quote_(block.src_)+")";
+    return [code, Blockly.Python.ORDER_FUNCTION_CALL];
 };
 
 Blockly.Python['ast_StrMultiline'] = function (block) {
@@ -177,10 +178,10 @@ BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) 
 BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     let s = node.s;
     let text = Sk.ffi.remapToJs(s);
-    if (text.startsWith("http") && text.endsWith(".png")) {
-        return BlockMirrorTextToBlocks.create_block("ast_StrImage", node.lineno, {}, {}, {},
+    /*if (text.startsWith("http") && text.endsWith(".png")) {
+        return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {},
             {"@src": text});
-    } else if (this.isSingleChar(text)) {
+    } else*/ if (this.isSingleChar(text)) {
         return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {"TEXT": text});
     } else if (this.isDocString(node, parent)) {
         let dedented = this.dedent(text, this.levelIndex - 1, true);

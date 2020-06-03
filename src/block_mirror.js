@@ -92,7 +92,10 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     this.isParsons = function() { return false; };
 
     // Convert image URLs?
-    this.configuration.imageUrls = configuration.imageUrls || true;
+    this.configuration.imageUploadHook = configuration.imageUploadHook || (old => Promise.resolve(old));
+    this.configuration.imageDownloadHook = configuration.imageDownloadHook || (old => old);
+    this.configuration.imageLiteralHook = configuration.imageLiteralHook || (old => old);
+    this.configuration.imageMode = configuration.imageMode || false;
 };
 
 BlockMirror.prototype.initializeVariables = function () {
@@ -196,6 +199,16 @@ BlockMirror.prototype.setMode = function (mode) {
     this.mode_ = mode;
     this.blockEditor.setMode(mode);
     this.textEditor.setMode(mode);
+};
+
+BlockMirror.prototype.setImageMode = function (imageMode) {
+    this.configuration.imageMode = imageMode;
+    if (imageMode) {
+        this.textEditor.enableImages();
+    } else {
+        this.textEditor.disableImages();
+    }
+    console.log(imageMode);
 };
 
 BlockMirror.prototype.setReadOnly = function (isReadOnly) {
