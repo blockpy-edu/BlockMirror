@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Call.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Call.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Import.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Import.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/minimal_skulpt.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/minimal_skulpt.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -56,7 +50,7 @@
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
     <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/docs" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -66,6 +60,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
     <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\WebStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -211,7 +206,7 @@
       <workItem from="1581787894709" duration="8205000" />
       <workItem from="1582172961284" duration="310000" />
       <workItem from="1590976436519" duration="23237000" />
-      <workItem from="1591121509240" duration="19058000" />
+      <workItem from="1591121509240" duration="19240000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -280,6 +275,14 @@
       <screen x="0" y="0" width="2560" height="1360" />
     </state>
     <state x="552" y="0" key="CommitChangelistDialog2/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591030286558" />
+    <state x="87" y="87" width="2386" height="1186" key="DiffContextDialog" timestamp="1591150734463">
+      <screen x="0" y="0" width="2560" height="1360" />
+    </state>
+    <state x="87" y="87" width="2386" height="1186" key="DiffContextDialog/0.0.2560.1360@0.0.2560.1360" timestamp="1591150734463" />
+    <state x="843" y="196" key="FileChooserDialogImpl" timestamp="1591150703277">
+      <screen x="0" y="0" width="2560" height="1360" />
+    </state>
+    <state x="843" y="196" key="FileChooserDialogImpl/0.0.2560.1360@0.0.2560.1360" timestamp="1591150703277" />
     <state width="2516" height="202" key="GridCell.Tab.0.bottom" timestamp="1591127762915">
       <screen x="0" y="0" width="2560" height="1360" />
     </state>
