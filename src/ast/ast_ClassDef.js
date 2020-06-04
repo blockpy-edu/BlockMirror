@@ -13,6 +13,8 @@ Blockly.Blocks['ast_ClassDef'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.OO);
         this.updateShape_();
+        this.setTooltip('Class Definition');
+        this.setHelpUrl('https://docs.python.org/3/tutorial/classes.html');
     },
     // TODO: Not mutable currently
     updateShape_: function () {

@@ -8,6 +8,7 @@ Blockly.Blocks['ast_Assign'] = {
         this.simpleTarget_ = true;
         this.updateShape_();
         Blockly.Extensions.apply("contextMenu_variableSetterGetter", this, false);
+        this.setHelpUrl('https://docs.python.org/3/reference/simple_stmts.html#assignment-statements');
     },
     updateShape_: function () {
         if (!this.getInput('VALUE')) {

@@ -12,6 +12,8 @@ Blockly.Blocks['ast_Subscript'] = {
         this.appendDummyInput('CLOSE_BRACKET')
             .appendField("]",);
         this.updateShape_();
+        this.setTooltip('A subscription selects an item of a sequence');
+        this.setHelpUrl('https://docs.python.org/3/reference/expressions.html#subscriptions');
     },
     setExistence: function (label, exist, isDummy) {
         if (exist && !this.getInput(label)) {

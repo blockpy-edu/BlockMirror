@@ -11,6 +11,8 @@ Blockly.Blocks['ast_While'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
         this.updateShape_();
+        this.setTooltip('The while statement is used for repeated execution as long as an expression is true');
+        this.setHelpUrl('https://docs.python.org/3/reference/compound_stmts.html#the-while-statement');
     },
     // TODO: Not mutable currently
     updateShape_: function () {

@@ -18,6 +18,8 @@ Blockly.Blocks['ast_Try'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.EXCEPTIONS);
         this.updateShape_();
+        this.setTooltip('The try statement specifies exception handlers and/or cleanup code for a group of statements');
+        this.setHelpUrl('https://docs.python.org/3/reference/compound_stmts.html#try');
     },
     // TODO: Not mutable currently
     updateShape_: function () {

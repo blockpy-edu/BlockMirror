@@ -14,6 +14,8 @@ Blockly.Blocks['ast_Lambda'] = {
         this.setOutput(true);
         this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
         this.updateShape_();
+        this.setTooltip('Lambdas are small anonymous functions can be created with the lambda keyword');
+        this.setHelpUrl('https://docs.python.org/3/tutorial/controlflow.html#lambda-expressions');
     },
     mutationToDom: Blockly.Blocks['ast_FunctionDef'].mutationToDom,
     domToMutation: Blockly.Blocks['ast_FunctionDef'].domToMutation,

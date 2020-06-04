@@ -43,6 +43,8 @@ Blockly.Blocks['ast_With'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
         this.updateShape_();
+        this.setTooltip('The with statement is used to wrap the execution of a block with methods defined by a context manager');
+        this.setHelpUrl('https://docs.python.org/3/reference/compound_stmts.html#with');
     },
     /**
      * Create XML to represent list inputs.
