@@ -487,7 +487,6 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         if (name in this.FUNCTION_SIGNATURES) {
             signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
         }
-        console.log(signature);
     } else if (func._astname === 'Attribute') {
         isMethod = true;
         caller = func.value;
