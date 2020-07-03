@@ -1,6 +1,8 @@
 # BlockMirror
 An interface for dual block/text representation with Blockly
 
+[Try it out!](https://blockpy-edu.github.io/BlockMirror/docs/index.html)
+
 # Basic Setup
 
 Check out `test/simple.html` for an example of how to use BlockMirror.
