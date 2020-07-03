@@ -147,6 +147,80 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
   }
 
   return xmlList;
+}; //******************************************************************************
+// Hacks to make variable names case sensitive
+
+/**
+ * A custom compare function for the VariableModel objects.
+ * @param {Blockly.VariableModel} var1 First variable to compare.
+ * @param {Blockly.VariableModel} var2 Second variable to compare.
+ * @return {number} -1 if name of var1 is less than name of var2, 0 if equal,
+ *     and 1 if greater.
+ * @package
+ */
+
+
+Blockly.VariableModel.compareByName = function (var1, var2) {
+  var name1 = var1.name;
+  var name2 = var2.name;
+
+  if (name1 < name2) {
+    return -1;
+  } else if (name1 === name2) {
+    return 0;
+  } else {
+    return 1;
+  }
+};
+
+Blockly.Names.prototype.getName = function (name, type) {
+  if (type == Blockly.VARIABLE_CATEGORY_NAME) {
+    var varName = this.getNameForUserVariable_(name);
+
+    if (varName) {
+      name = varName;
+    }
+  }
+
+  var normalized = name + '_' + type;
+  var isVarType = type == Blockly.VARIABLE_CATEGORY_NAME || type == Blockly.Names.DEVELOPER_VARIABLE_TYPE;
+  var prefix = isVarType ? this.variablePrefix_ : '';
+
+  if (normalized in this.db_) {
+    return prefix + this.db_[normalized];
+  }
+
+  var safeName = this.getDistinctName(name, type);
+  this.db_[normalized] = safeName.substr(prefix.length);
+  return safeName;
+};
+
+Blockly.Names.equals = function (name1, name2) {
+  return name1 == name2;
+};
+
+Blockly.Variables.nameUsedWithOtherType_ = function (name, type, workspace) {
+  var allVariables = workspace.getVariableMap().getAllVariables();
+
+  for (var i = 0, variable; variable = allVariables[i]; i++) {
+    if (variable.name == name && variable.type != type) {
+      return variable;
+    }
+  }
+
+  return null;
+};
+
+Blockly.Variables.nameUsedWithAnyType = function (name, workspace) {
+  var allVariables = workspace.getVariableMap().getAllVariables();
+
+  for (var i = 0, variable; variable = allVariables[i]; i++) {
+    if (variable.name == name) {
+      return variable;
+    }
+  }
+
+  return null;
 };
 /**
 
@@ -1241,7 +1315,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
       parse = Sk.parse(filename, python_source);
       ast = Sk.astFromParse(parse.cst, filename, parse.flags);
     } catch (e) {
-      console.error(e);
+      //console.error(e);
       error = e;
 
       if (e.traceback && e.traceback.length && e.traceback[0].lineno && e.traceback[0].lineno < previousLine) {
@@ -5749,8 +5823,6 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     if (name in this.FUNCTION_SIGNATURES) {
       signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
     }
-
-    console.log(signature);
   } else if (func._astname === 'Attribute') {
     isMethod = true;
     caller = func.value;

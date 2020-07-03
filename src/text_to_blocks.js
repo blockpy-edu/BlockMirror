@@ -41,7 +41,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
             parse = Sk.parse(filename, python_source);
             ast = Sk.astFromParse(parse.cst, filename, parse.flags);
         } catch (e) {
-            console.error(e);
+            //console.error(e);
             error = e;
             if (e.traceback && e.traceback.length && e.traceback[0].lineno &&
                 e.traceback[0].lineno < previousLine) {
