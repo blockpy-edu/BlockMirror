@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Call.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Call.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockly_shims.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockly_shims.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +37,7 @@
       </selected-paths>
     </layout>
   </component>
+  <component name="JupyterTrust" id="82bc531b-95d0-4482-98de-a85a078dc6d0" />
   <component name="ProjectId" id="1OR0VFaxkOvFIyHle2nZjV999OR" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -51,6 +49,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
+    <property name="javascript.nodejs.core.library.typings.version" value="10.17.28" />
     <property name="jsx.switch.disabled" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -198,7 +197,8 @@
       <workItem from="1590976436519" duration="23237000" />
       <workItem from="1591121509240" duration="20663000" />
       <workItem from="1592575579157" duration="734000" />
-      <workItem from="1593713031028" duration="1504000" />
+      <workItem from="1593713031028" duration="2321000" />
+      <workItem from="1597004947052" duration="83000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -235,7 +235,21 @@
       <option name="project" value="LOCAL" />
       <updated>1591030287360</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Remove some logging that was unnecessary.">
+      <created>1593787583682</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1593787583682</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Hacks to make variable names case insensitive.">
+      <created>1593787611464</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1593787611464</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -259,12 +273,15 @@
     <MESSAGE value="Skulpt Barebones Parser files" />
     <MESSAGE value="Minimal skulpt support now directly provided in a smaller package. Minor cleanup of code." />
     <MESSAGE value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
+    <MESSAGE value="Remove some logging that was unnecessary." />
+    <MESSAGE value="Hacks to make variable names case insensitive." />
+    <option name="LAST_COMMIT_MESSAGE" value="Hacks to make variable names case insensitive." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="552" y="0" key="CommitChangelistDialog2" timestamp="1591030286558">
-      <screen x="0" y="0" width="2560" height="1360" />
+    <state x="0" y="0" key="CommitChangelistDialog2" timestamp="1593787610480">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="0" y="0" key="CommitChangelistDialog2/0.0.1280.680@0.0.1280.680" timestamp="1593787610480" />
     <state x="552" y="0" key="CommitChangelistDialog2/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591030286558" />
     <state x="87" y="87" width="2386" height="1186" key="DiffContextDialog" timestamp="1591150734463">
       <screen x="0" y="0" width="2560" height="1360" />
@@ -274,28 +291,32 @@
       <screen x="0" y="0" width="2560" height="1360" />
     </state>
     <state x="843" y="196" key="FileChooserDialogImpl/0.0.2560.1360@0.0.2560.1360" timestamp="1591150703277" />
-    <state width="1238" height="95" key="GridCell.Tab.0.bottom" timestamp="1593786993253">
+    <state width="1238" height="95" key="GridCell.Tab.0.bottom" timestamp="1593791262482">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1593786993253" />
+    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262482" />
+    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1593787505898" />
     <state width="2516" height="58" key="GridCell.Tab.0.bottom/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591028320640" />
     <state width="2516" height="202" key="GridCell.Tab.0.bottom/0.0.2560.1360@0.0.2560.1360" timestamp="1591196289333" />
-    <state width="1238" height="95" key="GridCell.Tab.0.center" timestamp="1593786993253">
+    <state width="1238" height="95" key="GridCell.Tab.0.center" timestamp="1593791262481">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1593786993253" />
+    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262481" />
+    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1593787505897" />
     <state width="2516" height="58" key="GridCell.Tab.0.center/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591028320640" />
     <state width="2516" height="202" key="GridCell.Tab.0.center/0.0.2560.1360@0.0.2560.1360" timestamp="1591196289333" />
-    <state width="1238" height="95" key="GridCell.Tab.0.left" timestamp="1593786993253">
+    <state width="1238" height="95" key="GridCell.Tab.0.left" timestamp="1593791262481">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1593786993253" />
+    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262481" />
+    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1593787505897" />
     <state width="2516" height="58" key="GridCell.Tab.0.left/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591028320639" />
     <state width="2516" height="202" key="GridCell.Tab.0.left/0.0.2560.1360@0.0.2560.1360" timestamp="1591196289333" />
-    <state width="1238" height="95" key="GridCell.Tab.0.right" timestamp="1593786993253">
+    <state width="1238" height="95" key="GridCell.Tab.0.right" timestamp="1593791262482">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1593786993253" />
+    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262482" />
+    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1593787505897" />
     <state width="2516" height="58" key="GridCell.Tab.0.right/0.0.2560.1360/-3840.0.3840.2400@0.0.2560.1360" timestamp="1591028320640" />
     <state width="2516" height="202" key="GridCell.Tab.0.right/0.0.2560.1360@0.0.2560.1360" timestamp="1591196289333" />
     <state x="595" y="291" width="1344" height="2554" key="run.anything.popup" timestamp="1591147015659">

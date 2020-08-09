@@ -211,7 +211,7 @@ Blockly.Variables.nameUsedWithOtherType_ = function (name, type, workspace) {
   return null;
 };
 
-Blockly.Variables.nameUsedWithAnyType = function (name, workspace) {
+Blockly.Variables.nameUsedWithAnyType_ = function (name, workspace) {
   var allVariables = workspace.getVariableMap().getAllVariables();
 
   for (var i = 0, variable; variable = allVariables[i]; i++) {
@@ -1146,7 +1146,7 @@ BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
   }
 };
 
-BlockMirrorBlockEditor.prototype.BLOCKLY_CHANGE_EVENTS = [Blockly.Events.CREATE, Blockly.Events.DELETE, Blockly.Events.CHANGE, Blockly.Events.MOVE];
+BlockMirrorBlockEditor.prototype.BLOCKLY_CHANGE_EVENTS = [Blockly.Events.CREATE, Blockly.Events.DELETE, Blockly.Events.CHANGE, Blockly.Events.MOVE, Blockly.Events.VAR_RENAME];
 
 BlockMirrorBlockEditor.prototype.changed = function (event) {
   if ((event === undefined || this.BLOCKLY_CHANGE_EVENTS.indexOf(event.type) !== -1) && !this.workspace.isDragging()) {

@@ -272,7 +272,8 @@ BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
 }
 
 BlockMirrorBlockEditor.prototype.BLOCKLY_CHANGE_EVENTS = [
-    Blockly.Events.CREATE, Blockly.Events.DELETE, Blockly.Events.CHANGE, Blockly.Events.MOVE
+    Blockly.Events.CREATE, Blockly.Events.DELETE, Blockly.Events.CHANGE,
+    Blockly.Events.MOVE, Blockly.Events.VAR_RENAME
 ];
 
 BlockMirrorBlockEditor.prototype.changed = function (event) {
