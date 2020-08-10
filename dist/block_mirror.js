@@ -6908,9 +6908,9 @@ Blockly.Blocks['ast_FunctionDef'] = {
 
     if (this.getInput('RETURNS')) {
       containerBlock.setFieldValue(this.hasReturn_ ? 'TRUE' : 'FALSE', 'RETURNS');
-    } else {} // TODO: set up "canReturns" for lambda mode
-    //containerBlock.getField('RETURNS').setVisible(false);
-    // Set up parameters
+    } else {// TODO: set up "canReturns" for lambda mode
+      //containerBlock.getField('RETURNS').setVisible(false);
+    } // Set up parameters
 
 
     var connection = containerBlock.getInput('STACK').connection;
