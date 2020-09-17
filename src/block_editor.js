@@ -316,8 +316,8 @@ BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function() {
  *  base64-encoded PNG and the IMG tag.
  */
 BlockMirrorBlockEditor.prototype.getPngFromBlocks = function(callback) {
-    this.loadBlocklyCSS();
     try {
+        this.loadBlocklyCSS();
         // Retreive the entire canvas, strip some unnecessary tags
         var blocks = this.workspace.svgBlockCanvas_.cloneNode(true);
         blocks.removeAttribute("width");
@@ -350,6 +350,10 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function(callback) {
                 var canvas = document.createElement("canvas");
                 canvas.width = bbox.width;
                 canvas.height = bbox.height;
+                if (!canvas.width || !canvas.height) {
+                    callback("", img);
+                    return;
+                }
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0);
                 var canvasUrl;
