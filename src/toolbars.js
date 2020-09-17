@@ -285,7 +285,6 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
         TOOLBOX_CATEGORY.CONVERSIONS,
         {name: "Conditions", colour: "LOGIC", blocks: [
                 '___ == ___',
-                '___ < ___',
                 '___ and ___',
                 'not ___'
             ]},
