@@ -1191,10 +1191,9 @@ BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function () {
 
 
 BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
-  this.loadBlocklyCSS();
-
   try {
-    // Retreive the entire canvas, strip some unnecessary tags
+    this.loadBlocklyCSS(); // Retreive the entire canvas, strip some unnecessary tags
+
     var blocks = this.workspace.svgBlockCanvas_.cloneNode(true);
     blocks.removeAttribute("width");
     blocks.removeAttribute("height"); // Ensure that we have some content
@@ -1227,6 +1226,12 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
         var canvas = document.createElement("canvas");
         canvas.width = bbox.width;
         canvas.height = bbox.height;
+
+        if (!canvas.width || !canvas.height) {
+          callback("", img);
+          return;
+        }
+
         var ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
         var canvasUrl;
@@ -1304,6 +1309,10 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
 
   while (ast === null) {
     if (python_source.trim() === "") {
+      if (badChunks.length) {
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+      }
+
       return {
         "xml": BlockMirrorTextToBlocks.xmlToString(xml),
         "error": null,
@@ -2848,7 +2857,7 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
   }, TOOLBOX_CATEGORY.CALCULATIONS, TOOLBOX_CATEGORY.CONVERSIONS, {
     name: "Conditions",
     colour: "LOGIC",
-    blocks: ['___ == ___', '___ < ___', '___ and ___', 'not ___']
+    blocks: ['___ == ___', '___ and ___', 'not ___']
   }, TOOLBOX_CATEGORY.INPUT, '</category>', TOOLBOX_CATEGORY.SEP, '<category name="Operations" expanded="true">', {
     name: "Assignment",
     colour: "VARIABLES",
