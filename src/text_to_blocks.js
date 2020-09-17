@@ -35,7 +35,12 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     let previousLine = 1+this.source.length;
     while (ast === null) {
         if (python_source.trim() === "") {
-            return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": null, rawXml: xml};
+            if (badChunks.length) {
+                xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+            }
+            return {"xml": BlockMirrorTextToBlocks.xmlToString(xml),
+                    "error": null,
+                    rawXml: xml};
         }
         try {
             parse = Sk.parse(filename, python_source);
