@@ -9,6 +9,8 @@ Blockly.Blocks['ast_Tuple'] = {
         this.updateShape_();
         this.setOutput(true, 'Tuple');
         this.setMutator(new Blockly.Mutator(['ast_Tuple_create_with_item']));
+        this.setTooltip('Tuples are immutable sequences, typically used to store collections of heterogeneous data');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#tuple');
     },
     /**
      * Create XML to represent tuple inputs.
@@ -146,6 +148,8 @@ Blockly.Blocks['ast_Tuple_create_with_container'] = {
             .appendField('Add new tuple elements below');
         this.appendStatementInput('STACK');
         this.contextMenu = false;
+        this.setTooltip('Tuples are immutable sequences, typically used to store collections of heterogeneous data');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#tuple');
     }
 };
 
@@ -161,6 +165,8 @@ Blockly.Blocks['ast_Tuple_create_with_item'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('Tuples are immutable sequences, typically used to store collections of heterogeneous data');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#tuple');
     }
 };
 

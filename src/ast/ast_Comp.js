@@ -34,6 +34,8 @@ Blockly.Blocks['ast_Comp_create_with_container'] = {
             .appendField('   For clause');
         this.appendStatementInput('STACK');
         this.contextMenu = false;
+        this.setTooltip('Comparison Operation');
+        this.setHelpUrl('https://docs.python.org/3/reference/expressions.html#comparisons');
     }
 };
 
@@ -49,6 +51,8 @@ Blockly.Blocks['ast_Comp_create_with_for'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('Comparison Operation');
+        this.setHelpUrl('https://docs.python.org/3/reference/expressions.html#comparisons');
     }
 };
 
@@ -64,6 +68,8 @@ Blockly.Blocks['ast_Comp_create_with_if'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('Comparison Operation');
+        this.setHelpUrl('https://docs.python.org/3/reference/expressions.html#comparisons');
     }
 };
 
@@ -94,6 +100,8 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
             this.updateShape_();
             this.setOutput(true);
             this.setMutator(new Blockly.Mutator(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
+            this.setTooltip('Comparison Operation');
+            this.setHelpUrl('https://docs.python.org/3/reference/expressions.html#comparisons');
         },
         /**
          * Create XML to represent dict inputs.

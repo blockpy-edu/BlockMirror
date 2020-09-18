@@ -12,6 +12,8 @@ Blockly.Blocks['ast_If'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.LOGIC);
         this.updateShape_();
+        this.setTooltip('The if statement is used for conditional execution');
+        this.setHelpUrl('https://docs.python.org/3/reference/compound_stmts.html#the-if-statement');
     },
     // TODO: Not mutable currently
     updateShape_: function () {

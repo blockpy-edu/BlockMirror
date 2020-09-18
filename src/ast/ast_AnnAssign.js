@@ -12,6 +12,7 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
         this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.initialized_ = true;
         this.updateShape_();
+        this.setHelpUrl('https://docs.python.org/3/reference/simple_stmts.html#assignment-statements');
     },
     /**
      * Create XML to represent list inputs.
@@ -74,6 +75,7 @@ Blockly.Blocks['ast_AnnAssign'] = {
         this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
         this.strAnnotations_ = false;
         this.initialized_ = true;
+        this.setHelpUrl('https://docs.python.org/3/reference/simple_stmts.html#assignment-statements');
     },
     /**
      * Create XML to represent list inputs.

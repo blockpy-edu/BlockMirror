@@ -9,6 +9,8 @@ Blockly.Blocks['ast_Set'] = {
         this.updateShape_();
         this.setOutput(true, 'Set');
         this.setMutator(new Blockly.Mutator(['ast_Set_create_with_item']));
+        this.setTooltip('Sets are unordered collections of unique elements');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset');
     },
     /**
      * Create XML to represent set inputs.
@@ -141,6 +143,8 @@ Blockly.Blocks['ast_Set_create_with_container'] = {
             .appendField('Add new set elements below');
         this.appendStatementInput('STACK');
         this.contextMenu = false;
+        this.setTooltip('Sets are unordered collections of unique elements');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset');
     }
 };
 
@@ -156,6 +160,8 @@ Blockly.Blocks['ast_Set_create_with_item'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('Sets are unordered collections of unique elements');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset');
     }
 };
 

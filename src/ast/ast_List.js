@@ -4,12 +4,13 @@ Blockly.Blocks['ast_List'] = {
      * @this Blockly.Block
      */
     init: function () {
-        this.setHelpUrl(Blockly.Msg['LISTS_CREATE_WITH_HELPURL']);
         this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'List');
         this.setMutator(new Blockly.Mutator(['ast_List_create_with_item']));
+        this.setTooltip('Lists are mutable sequences, typically used to store collections of homogeneous items');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#list');
     },
     /**
      * Create XML to represent list inputs.
@@ -143,6 +144,8 @@ Blockly.Blocks['ast_List_create_with_container'] = {
             .appendField('Add new list elements below');
         this.appendStatementInput('STACK');
         this.contextMenu = false;
+        this.setTooltip('Lists are mutable sequences, typically used to store collections of homogeneous items');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#list');
     }
 };
 
@@ -158,6 +161,8 @@ Blockly.Blocks['ast_List_create_with_item'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('Lists are mutable sequences, typically used to store collections of homogeneous items');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#list');
     }
 };
 
