@@ -4,8 +4,6 @@
     <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,6 +20,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="JsFlowSettings">
     <service-enabled>true</service-enabled>
@@ -48,13 +54,15 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="full.screen.before.presentation.mode" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
     <property name="javascript.nodejs.core.library.typings.version" value="10.17.28" />
     <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../pedal-edu/pedal" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -208,7 +216,11 @@
       <workItem from="1599407604376" duration="1716000" />
       <workItem from="1600102711337" duration="92000" />
       <workItem from="1600102837112" duration="1218000" />
-      <workItem from="1600321775979" duration="445000" />
+      <workItem from="1600321775979" duration="1787000" />
+      <workItem from="1604885437423" duration="1411000" />
+      <workItem from="1608648143577" duration="1691000" />
+      <workItem from="1608733277773" duration="1611000" />
+      <workItem from="1609428623156" duration="1883000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -273,7 +285,42 @@
       <option name="project" value="LOCAL" />
       <updated>1597069718576</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="More robust error prevention for saving block images.">
+      <created>1600322287329</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1600322287329</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Allow first line syntax errors to be transformed into raw code blocks.">
+      <created>1600322306418</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1600322306418</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Dennis asked to remove one of the relational operators.">
+      <created>1600322325443</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1600322325444</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Ugh, seriously gotta remove the config from the repo.">
+      <created>1600322343022</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1600322343022</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Latest generated block_mirror.js file">
+      <created>1600322354358</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1600322354358</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -301,41 +348,12 @@
     <MESSAGE value="Hacks to make variable names case insensitive." />
     <MESSAGE value="Track variable rename events in blockly." />
     <MESSAGE value="Rebuilt as latest version, no significant changes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Rebuilt as latest version, no significant changes." />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="0" y="0" key="CommitChangelistDialog2" timestamp="1597069715575">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state x="0" y="0" key="CommitChangelistDialog2/0.0.1280.680@0.0.1280.680" timestamp="1597069715575" />
-    <state width="1238" height="111" key="GridCell.Tab.0.bottom" timestamp="1600322190775">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.bottom/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262482" />
-    <state width="1238" height="111" key="GridCell.Tab.0.bottom/0.0.1280.680/2560.0.1920.1200@0.0.1280.680" timestamp="1600322190775" />
-    <state width="1238" height="225" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1600141271011" />
-    <state width="1238" height="111" key="GridCell.Tab.0.center" timestamp="1600322190775">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.center/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262481" />
-    <state width="1238" height="111" key="GridCell.Tab.0.center/0.0.1280.680/2560.0.1920.1200@0.0.1280.680" timestamp="1600322190775" />
-    <state width="1238" height="225" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1600141271011" />
-    <state width="1238" height="111" key="GridCell.Tab.0.left" timestamp="1600322190774">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.left/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262481" />
-    <state width="1238" height="111" key="GridCell.Tab.0.left/0.0.1280.680/2560.0.1920.1200@0.0.1280.680" timestamp="1600322190774" />
-    <state width="1238" height="225" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1600141271011" />
-    <state width="1238" height="111" key="GridCell.Tab.0.right" timestamp="1600322190775">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state width="1238" height="95" key="GridCell.Tab.0.right/0.0.1280.680/-1920.0.1920.1200@0.0.1280.680" timestamp="1593791262482" />
-    <state width="1238" height="111" key="GridCell.Tab.0.right/0.0.1280.680/2560.0.1920.1200@0.0.1280.680" timestamp="1600322190775" />
-    <state width="1238" height="225" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1600141271011" />
-    <state x="349" y="72" width="581" height="534" key="find.popup" timestamp="1597008798124">
-      <screen x="0" y="0" width="1280" height="680" />
-    </state>
-    <state x="349" y="72" width="581" height="534" key="find.popup/0.0.1280.680@0.0.1280.680" timestamp="1597008798124" />
+    <MESSAGE value="More robust error prevention for saving block images." />
+    <MESSAGE value="Allow first line syntax errors to be transformed into raw code blocks." />
+    <MESSAGE value="Dennis asked to remove one of the relational operators." />
+    <MESSAGE value="Ugh, seriously gotta remove the config from the repo." />
+    <MESSAGE value="Latest generated block_mirror.js file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Latest generated block_mirror.js file" />
   </component>
   <component name="masterDetails">
     <states>
