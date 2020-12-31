@@ -2716,7 +2716,7 @@ TOOLBOX_CATEGORY.CALCULATIONS = {
 TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {
   name: "Output",
   colour: "PLOTTING",
-  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)"]
+  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.bar(___, ___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)"]
 };
 TOOLBOX_CATEGORY.TURTLES = {
   name: "Turtles",
@@ -2745,6 +2745,12 @@ TOOLBOX_CATEGORY.DICTIONARIES = {
   blocks: ["{'1st key': ___, '2nd key': ___, '3rd key': ___}", "{}", "___['key']"]
 };
 BlockMirrorBlockEditor.prototype.TOOLBOXES = {
+  //******************************************************
+  'empty': [{
+    "name": "Empty Toolbox",
+    "colour": "PYTHON",
+    "blocks": []
+  }],
   //******************************************************
   'minimal': [// TODO: What should live in here?
   TOOLBOX_CATEGORY.VARIABLES],
