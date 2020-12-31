@@ -21,6 +21,7 @@ TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {name: "Output", colour: "PLOTTING", blo
     "plt.plot(___)",
     "plt.scatter(___, ___)",
     "plt.hist(___)",
+    "plt.bar(___, ___)",
     "plt.show()",
     "plt.title(___)",
     "plt.xlabel(___)",
@@ -64,6 +65,10 @@ TOOLBOX_CATEGORY.DICTIONARIES = {name: "Dictionaries", colour: "DICTIONARY", blo
 ]};
 
 BlockMirrorBlockEditor.prototype.TOOLBOXES = {
+    //******************************************************
+    'empty': [
+        {"name": "Empty Toolbox", "colour": "PYTHON", "blocks": []}
+    ],
     //******************************************************
     'minimal': [
         // TODO: What should live in here?
