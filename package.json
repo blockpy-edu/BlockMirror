@@ -30,7 +30,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-add-module-exports": "^1.0.2",
     "elliptic": "^6.5.3",
-    "lodash": ">=4.17.19",
+    "lodash": ">=4.17.21",
     "uglify-js": "^3.10.1",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
