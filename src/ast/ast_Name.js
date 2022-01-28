@@ -18,7 +18,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
  * @package
  * @readonly
  */
-Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR = {
+Blockly.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR = {
     /**
      * Add menu option to create getter/setter block for this setter/getter.
      * @param {!Array} options List of menu options to add to.
@@ -54,13 +54,13 @@ Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR
                 var renameOption = {
                     text: Blockly.Msg.RENAME_VARIABLE,
                     enabled: true,
-                    callback: Blockly.Constants.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
+                    callback: Blockly.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
                 };
                 name = this.getField('VAR').getText();
                 var deleteOption = {
                     text: Blockly.Msg.DELETE_VARIABLE.replace('%1', name),
                     enabled: true,
-                    callback: Blockly.Constants.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
+                    callback: Blockly.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
                 };
                 options.unshift(renameOption);
                 options.unshift(deleteOption);
@@ -70,7 +70,7 @@ Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR
 };
 
 Blockly.Extensions.registerMixin('contextMenu_variableSetterGetter_forBlockMirror',
-    Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR);
+    Blockly.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR);
 
 Blockly.Python['ast_Name'] = function (block) {
     // Variable getter.

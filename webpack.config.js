@@ -1,6 +1,5 @@
 const path = require('path');
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
-const Uglify = require("uglify-js");
 const babel = require("@babel/core");
 
 // Blockly
@@ -9,15 +8,6 @@ const JS_BLOCKLY_FILES = [
     path.resolve(__dirname, '../blockly/blocks_compressed.js'),
     path.resolve(__dirname, '../blockly/msg/js/en.js'),
     path.resolve(__dirname, '../blockly/python_compressed.js')
-];
-
-// CodeMirror
-const JS_CODEMIRROR_FILES = [
-    path.resolve(__dirname, 'lib/codemirror/codemirror.js'),
-    /*path.resolve(__dirname, '../lib/codemirror/show-hint.js'),
-    path.resolve(__dirname, '../lib/codemirror/python-hint.js'),*/
-    path.resolve(__dirname, 'lib/codemirror/fullscreen.js'),
-    path.resolve(__dirname, 'lib/codemirror/python.js'),
 ];
 
 // Skulpt
@@ -39,13 +29,8 @@ const JS_SKULPT_PARSER_FILES = [
 
 // BlockMirror
 const JS_BLOCKMIRROR_FILES = [
-    path.resolve(__dirname, 'src/blockly_shims.js'),
-    path.resolve(__dirname, 'src/block_mirror.js'),
-    path.resolve(__dirname, 'src/text_editor.js'),
-    path.resolve(__dirname, 'src/block_editor.js'),
     path.resolve(__dirname, 'src/text_to_blocks.js'),
     path.resolve(__dirname, 'src/ast/ast_functions.js'),
-    path.resolve(__dirname, 'src/toolbars.js'),
     // AST Handlers
     path.resolve(__dirname, 'src/ast/ast_For.js'),
     path.resolve(__dirname, 'src/ast/ast_If.js'),
@@ -81,7 +66,6 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/ast/ast_Yield.js'),
     path.resolve(__dirname, 'src/ast/ast_YieldFrom.js'),
     path.resolve(__dirname, 'src/ast/ast_Global.js'),
-    <!--src/ast/ast_Nonlocal.js-->
     path.resolve(__dirname, 'src/ast/ast_Break.js'),
     path.resolve(__dirname, 'src/ast/ast_Continue.js'),
     path.resolve(__dirname, 'src/ast/ast_Try.js'),
@@ -92,7 +76,7 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/ast/ast_Raw.js')
 ];
 
-const JS_FILES = [].concat(JS_BLOCKLY_FILES, JS_CODEMIRROR_FILES, JS_SKULPT_FILES,
+const JS_FILES = [].concat(JS_BLOCKLY_FILES, JS_SKULPT_FILES,
     JS_BLOCKMIRROR_FILES)
 
 const babelify = code =>
@@ -125,13 +109,7 @@ const config = {
         new MergeIntoSingleFilePlugin({
             files: {
                 "skulpt_parser.js": JS_SKULPT_PARSER_FILES,
-                "block_mirror.js": JS_BLOCKMIRROR_FILES,
-                "block_mirror.css": [
-                    /*path.resolve(__dirname, 'lib/codemirror/codemirror.css'),
-                    path.resolve(__dirname, 'lib/codemirror/fullscreen.css'),
-                    path.resolve(__dirname, 'lib/codemirror/show-hint.css'),*/
-                    path.resolve(__dirname, 'src/block_mirror.css'),
-                ],
+                "block_mirror.js": JS_BLOCKMIRROR_FILES
             },
             transform: {
                 "skulpt_parser.js":babelify,
@@ -139,10 +117,5 @@ const config = {
             }
         })
     ]
-    /*devServer: {
-        port: 3000,
-        contentBase: __dirname + '/dist',
-        inline: true
-    }*/
 };
 module.exports = config;
