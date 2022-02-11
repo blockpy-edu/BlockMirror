@@ -101,10 +101,9 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
     }
     values['VALUE'] = this.convert(value, node);
 
-    return BlockMirrorTextToBlocks.create_block("ast_Assign", node.lineno, fields,
+    return BlockMirrorTextToBlocks.create_block("variables_set", node.lineno, fields,
         values,
         {
-            "inline": "true",
         }, {
             "@targets": targets.length,
             "@simple": simpleTarget

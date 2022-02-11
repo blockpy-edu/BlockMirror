@@ -58,8 +58,8 @@ Blockly.Blocks['ast_If'] = {
      */
     mutationToDom: function () {
         let container = document.createElement('mutation');
-        container.setAttribute('orelse', this.orelse_);
-        container.setAttribute('elifs', this.elifs_);
+        container.setAttribute('else', this.orelse_);
+        container.setAttribute('elseif', this.elifs_);
         return container;
     },
     /**
@@ -68,8 +68,8 @@ Blockly.Blocks['ast_If'] = {
      * @this Blockly.Block
      */
     domToMutation: function (xmlElement) {
-        this.orelse_ = "true" === xmlElement.getAttribute('orelse');
-        this.elifs_ = parseInt(xmlElement.getAttribute('elifs'), 10) || 0;
+        this.orelse_ = "true" === xmlElement.getAttribute('else');
+        this.elifs_ = parseInt(xmlElement.getAttribute('elseif'), 10) || 0;
         this.updateShape_();
     },
 };
@@ -102,34 +102,34 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
     let body = node.body;
     let orelse = node.orelse;
 
-    let hasOrelse = false;
+    let hasOrelse = 0;
     let elifCount = 0;
 
-    let values = {"TEST": this.convert(test, node)};
-    let statements = {"BODY": this.convertBody(body, node)};
+    let values = {"IF0": this.convert(test, node)};
+    let statements = {"DO0": this.convertBody(body, node)};
 
     while (orelse !== undefined && orelse.length > 0) {
         if (orelse.length === 1) {
             if (orelse[0]._astname === "If") {
                 // This is an ELIF
                 this.heights.shift();
-                values['ELIFTEST' + elifCount] = this.convert(orelse[0].test, node);
-                statements['ELIFBODY' + elifCount] = this.convertBody(orelse[0].body, node);
                 elifCount++;
+                values['IF' + elifCount] = this.convert(orelse[0].test, node);
+                statements['DO' + elifCount] = this.convertBody(orelse[0].body, node);
             } else {
-                hasOrelse = true;
-                statements['ORELSEBODY'] = this.convertBody(orelse, node);
+                hasOrelse = 1;
+                statements['ELSE'] = this.convertBody(orelse, node);
             }
         } else {
-            hasOrelse = true;
-            statements['ORELSEBODY'] = this.convertBody(orelse, node);
+            hasOrelse = 1;
+            statements['ELSE'] = this.convertBody(orelse, node);
         }
         orelse = orelse[0].orelse;
     }
 
-    return BlockMirrorTextToBlocks.create_block("ast_If", node.lineno, {},
+    return BlockMirrorTextToBlocks.create_block("controls_if", node.lineno, {},
         values, {}, {
-            "@orelse": hasOrelse,
-            "@elifs": elifCount
+            "@else": hasOrelse,
+            "@elseif": elifCount
         }, statements);
 };

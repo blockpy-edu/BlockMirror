@@ -1566,8 +1566,8 @@ Blockly.Blocks['ast_If'] = {
    */
   mutationToDom: function mutationToDom() {
     var container = document.createElement('mutation');
-    container.setAttribute('orelse', this.orelse_);
-    container.setAttribute('elifs', this.elifs_);
+    container.setAttribute('else', this.orelse_);
+    container.setAttribute('elseif', this.elifs_);
     return container;
   },
 
@@ -1577,8 +1577,8 @@ Blockly.Blocks['ast_If'] = {
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.orelse_ = "true" === xmlElement.getAttribute('orelse');
-    this.elifs_ = parseInt(xmlElement.getAttribute('elifs'), 10) || 0;
+    this.orelse_ = "true" === xmlElement.getAttribute('else');
+    this.elifs_ = parseInt(xmlElement.getAttribute('elseif'), 10) || 0;
     this.updateShape_();
   }
 };
@@ -1612,13 +1612,13 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
   var test = node.test;
   var body = node.body;
   var orelse = node.orelse;
-  var hasOrelse = false;
+  var hasOrelse = 0;
   var elifCount = 0;
   var values = {
-    "TEST": this.convert(test, node)
+    "IF0": this.convert(test, node)
   };
   var statements = {
-    "BODY": this.convertBody(body, node)
+    "DO0": this.convertBody(body, node)
   };
 
   while (orelse !== undefined && orelse.length > 0) {
@@ -1626,24 +1626,24 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
       if (orelse[0]._astname === "If") {
         // This is an ELIF
         this.heights.shift();
-        values['ELIFTEST' + elifCount] = this.convert(orelse[0].test, node);
-        statements['ELIFBODY' + elifCount] = this.convertBody(orelse[0].body, node);
         elifCount++;
+        values['IF' + elifCount] = this.convert(orelse[0].test, node);
+        statements['DO' + elifCount] = this.convertBody(orelse[0].body, node);
       } else {
-        hasOrelse = true;
-        statements['ORELSEBODY'] = this.convertBody(orelse, node);
+        hasOrelse = 1;
+        statements['ELSE'] = this.convertBody(orelse, node);
       }
     } else {
-      hasOrelse = true;
-      statements['ORELSEBODY'] = this.convertBody(orelse, node);
+      hasOrelse = 1;
+      statements['ELSE'] = this.convertBody(orelse, node);
     }
 
     orelse = orelse[0].orelse;
   }
 
-  return BlockMirrorTextToBlocks.create_block("ast_If", node.lineno, {}, values, {}, {
-    "@orelse": hasOrelse,
-    "@elifs": elifCount
+  return BlockMirrorTextToBlocks.create_block("controls_if", node.lineno, {}, values, {}, {
+    "@else": hasOrelse,
+    "@elseif": elifCount
   }, statements);
 };
 
@@ -1761,7 +1761,7 @@ Blockly.Python['ast_Num'] = function (block) {
 
 BlockMirrorTextToBlocks.prototype['ast_Num'] = function (node, parent) {
   var n = node.n;
-  return BlockMirrorTextToBlocks.create_block("ast_Num", node.lineno, {
+  return BlockMirrorTextToBlocks.create_block("math_number", node.lineno, {
     "NUM": Sk.ffi.remapToJs(n)
   });
 };
@@ -1943,7 +1943,7 @@ BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node, parent) {
   if (id.v == Blockly.Python.blank) {
     return null;
   } else {
-    return BlockMirrorTextToBlocks.create_block('ast_Name', node.lineno, {
+    return BlockMirrorTextToBlocks.create_block('variables_get', node.lineno, {
       "VAR": id.v
     });
   }
@@ -2059,9 +2059,7 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
   }
 
   values['VALUE'] = this.convert(value, node);
-  return BlockMirrorTextToBlocks.create_block("ast_Assign", node.lineno, fields, values, {
-    "inline": "true"
-  }, {
+  return BlockMirrorTextToBlocks.create_block("variables_set", node.lineno, fields, values, {}, {
     "@targets": targets.length,
     "@simple": simpleTarget
   });
@@ -2759,7 +2757,7 @@ BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node, parent) {
   var result_block = this.convert(left, node);
 
   for (var i = 0; i < values.length; i += 1) {
-    result_block = BlockMirrorTextToBlocks.create_block("ast_Compare", node.lineno, {
+    result_block = BlockMirrorTextToBlocks.create_block("logic_compare", node.lineno, {
       "OP": ops[i].name
     }, {
       "A": result_block,
