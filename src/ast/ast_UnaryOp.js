@@ -35,7 +35,13 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
 BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
     let op = node.op.name;
     let operand = node.operand;
-
+    if(op === "Not"){
+        return BlockMirrorTextToBlocks.create_block('logic_negate', node.lineno, {}, {
+            "BOOL": this.convert(operand, node)
+        }, {
+            "inline": false
+        });
+    }
     return BlockMirrorTextToBlocks.create_block('ast_UnaryOp' + op, node.lineno, {}, {
         "VALUE": this.convert(operand, node)
     }, {

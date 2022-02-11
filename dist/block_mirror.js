@@ -2649,6 +2649,15 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
 BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
   var op = node.op.name;
   var operand = node.operand;
+
+  if (op === "Not") {
+    return BlockMirrorTextToBlocks.create_block('logic_negate', node.lineno, {}, {
+      "BOOL": this.convert(operand, node)
+    }, {
+      "inline": false
+    });
+  }
+
   return BlockMirrorTextToBlocks.create_block('ast_UnaryOp' + op, node.lineno, {}, {
     "VALUE": this.convert(operand, node)
   }, {
@@ -2699,8 +2708,8 @@ BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
   var result_block = this.convert(values[0], node);
 
   for (var i = 1; i < values.length; i += 1) {
-    result_block = BlockMirrorTextToBlocks.create_block("ast_BoolOp", node.lineno, {
-      "OP": op.name
+    result_block = BlockMirrorTextToBlocks.create_block("logic_operation", node.lineno, {
+      "OP": op.name.toUpperCase()
     }, {
       "A": result_block,
       "B": this.convert(values[i], node)
@@ -2713,6 +2722,14 @@ BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
 };
 
 BlockMirrorTextToBlocks.COMPARES = [["==", "Eq", 'Return whether the two values are equal.'], ["!=", "NotEq", 'Return whether the two values are not equal.'], ["<", "Lt", 'Return whether the left value is less than the right value.'], ["<=", "LtE", 'Return whether the left value is less than or equal to the right value.'], [">", "Gt", 'Return whether the left value is greater than the right value.'], [">=", "GtE", 'Return whether the left value is greater than or equal to the right value.'], ["is", "Is", 'Return whether the left value is identical to the right value.'], ["is not", "IsNot", 'Return whether the left value is not identical to the right value.'], ["in", "In", 'Return whether the left value is in the right value.'], ["not in", "NotIn", 'Return whether the left value is not in the right value.']];
+BlockMirrorTextToBlocks.CONVDICT = {
+  "Eq": "EQ",
+  "NotEq": "NEQ",
+  "Lt": "LT",
+  "LtE": "LTE",
+  "Gt": "GT",
+  "GtE": "GTE"
+};
 var COMPARES_BLOCKLY_DISPLAY = BlockMirrorTextToBlocks.COMPARES.map(function (boolop) {
   return [boolop[0], boolop[1]];
 });
@@ -2758,7 +2775,7 @@ BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node, parent) {
 
   for (var i = 0; i < values.length; i += 1) {
     result_block = BlockMirrorTextToBlocks.create_block("logic_compare", node.lineno, {
-      "OP": ops[i].name
+      "OP": BlockMirrorTextToBlocks.CONVDICT[ops[i].name]
     }, {
       "A": result_block,
       "B": this.convert(values[i], node)

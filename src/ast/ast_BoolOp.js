@@ -39,8 +39,8 @@ BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
     var values = node.values;
     var result_block = this.convert(values[0], node);
     for (var i = 1; i < values.length; i += 1) {
-        result_block = BlockMirrorTextToBlocks.create_block("ast_BoolOp", node.lineno, {
-            "OP": op.name
+        result_block = BlockMirrorTextToBlocks.create_block("logic_operation", node.lineno, {
+            "OP": op.name.toUpperCase()
         }, {
             "A": result_block,
             "B": this.convert(values[i], node)
