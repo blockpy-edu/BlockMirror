@@ -1,5 +1,5 @@
 BlockMirrorTextToBlocks.BLOCKS.push({
-    "type": "ast_Str",
+    "type": "TEXT",
     "message0": "%1",
     "args0": [
         {"type": "field_input", "name": "TEXT", "value": ''}
@@ -187,7 +187,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
         let dedented = this.dedent(text, this.levelIndex - 1, true);
         return [BlockMirrorTextToBlocks.create_block("ast_StrDocstring", node.lineno, {"TEXT": dedented})];
     } else if (text.indexOf('\n') === -1) {
-        return BlockMirrorTextToBlocks.create_block("ast_Str", node.lineno, {"TEXT": text});
+        return BlockMirrorTextToBlocks.create_block("text", node.lineno, {"TEXT": text});
     } else {
         let dedented = this.dedent(text, this.levelIndex - 1, false);
         return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {"TEXT": dedented});

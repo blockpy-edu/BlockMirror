@@ -2370,7 +2370,7 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
 };
 
 BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Str",
+  "type": "TEXT",
   "message0": "%1",
   "args0": [{
     "type": "field_input",
@@ -2576,7 +2576,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
       "TEXT": dedented
     })];
   } else if (text.indexOf('\n') === -1) {
-    return BlockMirrorTextToBlocks.create_block("ast_Str", node.lineno, {
+    return BlockMirrorTextToBlocks.create_block("text", node.lineno, {
       "TEXT": text
     });
   } else {
