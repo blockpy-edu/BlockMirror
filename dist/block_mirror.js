@@ -1492,7 +1492,7 @@ BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
   var iter = node.iter;
   var body = node.body;
   var orelse = node.orelse;
-  var blockName = 'ast_For';
+  var blockName = 'controls_forEach';
   var bodies = {
     'BODY': this.convertBody(body, node)
   };
@@ -3076,7 +3076,7 @@ Blockly.Python['ast_List'] = function (block) {
 BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {
   var elts = node.elts;
   var ctx = node.ctx;
-  return BlockMirrorTextToBlocks.create_block("ast_List", node.lineno, {}, this.convertElements("ADD", elts, node), {
+  return BlockMirrorTextToBlocks.create_block("lists_create_with", node.lineno, {}, this.convertElements("ADD", elts, node), {
     "inline": elts.length > 3 ? "false" : "true"
   }, {
     "@items": elts.length
@@ -3804,10 +3804,10 @@ BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
   var test = node.test;
   var body = node.body;
   var orelse = node.orelse;
-  return BlockMirrorTextToBlocks.create_block("ast_IfExp", node.lineno, {}, {
-    "TEST": this.convert(test, node),
-    "BODY": this.convert(body, node),
-    "ORELSE": this.convert(orelse, node)
+  return BlockMirrorTextToBlocks.create_block("logic_ternary", node.lineno, {}, {
+    "IF": this.convert(test, node),
+    "THEN": this.convert(body, node),
+    "ELSE": this.convert(orelse, node)
   });
 };
 

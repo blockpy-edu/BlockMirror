@@ -176,7 +176,7 @@ BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {
     var elts = node.elts;
     var ctx = node.ctx;
 
-    return BlockMirrorTextToBlocks.create_block("ast_List", node.lineno, {},
+    return BlockMirrorTextToBlocks.create_block("lists_create_with", node.lineno, {},
         this.convertElements("ADD", elts, node),
         {
             "inline": elts.length > 3 ? "false" : "true",

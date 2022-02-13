@@ -51,7 +51,7 @@ BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
     var body = node.body;
     var orelse = node.orelse;
     
-    var blockName = 'ast_For';
+    var blockName = 'controls_forEach';
     var bodies = {'BODY': this.convertBody(body, node)};
     
     if (orelse.length > 0) {
