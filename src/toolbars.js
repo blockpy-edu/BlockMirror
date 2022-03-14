@@ -21,11 +21,14 @@ TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {name: "Output", colour: "PLOTTING", blo
     "plt.plot(___)",
     "plt.scatter(___, ___)",
     "plt.hist(___)",
-    "plt.bar(___, ___)",
+    "plt.bar(___, ___, tick_label=___)",
+    "plt.boxplot(___)",
     "plt.show()",
     "plt.title(___)",
     "plt.xlabel(___)",
-    "plt.ylabel(___)"
+    "plt.ylabel(___)",
+    "plt.hlines(___, ___, ___)",
+    "plt.vlines(___, ___, ___)",
 ]};
 TOOLBOX_CATEGORY.TURTLES = {name: "Turtles", colour: "PLOTTING", blocks: [
     "turtle.mainloop()",
