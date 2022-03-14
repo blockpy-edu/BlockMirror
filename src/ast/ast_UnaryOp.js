@@ -18,16 +18,16 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
         ],
         "inputsInline": false,
         "output": null,
-        "colour": (unaryop[1] == 'Not' ?
+        "colour": (unaryop[1] === 'Not' ?
             BlockMirrorTextToBlocks.COLOR.LOGIC :
             BlockMirrorTextToBlocks.COLOR.MATH)
     });
 
     Blockly.Python[fullName] = function (block) {
         // Basic arithmetic operators, and power.
-        var order = (unaryop[1] == 'Not' ? Blockly.Python.ORDER_LOGICAL_NOT : Blockly.Python.ORDER_UNARY_SIGN);
+        var order = (unaryop[1] === 'Not' ? Blockly.Python.ORDER_LOGICAL_NOT : Blockly.Python.ORDER_UNARY_SIGN);
         var argument1 = Blockly.Python.valueToCode(block, 'VALUE', order) || Blockly.Python.blank;
-        var code = unaryop[0] + (unaryop[1] == 'Not' ? ' ' : '') + argument1;
+        var code = unaryop[0] + (unaryop[1] === 'Not' ? ' ' : '') + argument1;
         return [code, order];
     };
 });
