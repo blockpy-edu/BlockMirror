@@ -78,7 +78,7 @@ function BlockMirrorTextEditor(blockMirror) {
             if (change.origin === "paste") {
                 let oldText = change.text[0];
                 if (this.isImageUrl(oldText)) {
-                    let newText = imageLiteralHook(oldText);
+                    let newText = this.blockMirror.configuration.imageLiteralHook(oldText);
                     change.update(null, null, [newText]);
                 }
             }
@@ -130,9 +130,10 @@ BlockMirrorTextEditor.prototype.disableImages = function () {
 BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
     let newImage = document.createElement("IMG");
     newImage.setAttribute("src", url);
-    newImage.setAttribute("height", "40");
+    newImage.style.display = "none";
+    //newImage.setAttribute("height", "40");
     newImage.style.maxHeight = "100px";
-    newImage.setAttribute("width", "40");
+    //newImage.setAttribute("width", "40");
     newImage.setAttribute("title", url);
     newImage.onclick = (x) => {
         if (newImage.hasAttribute('width')) {
@@ -143,22 +144,38 @@ BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
             newImage.setAttribute("width", "40");
         }
     };
-    return newImage;
+    let newSpan = document.createElement("span");
+    newSpan.className = "cm-string";
+    newSpan.innerText = JSON.stringify(url);
+    newSpan.onmouseover = (x) => {
+        newImage.style.display = "block";
+    };
+    newSpan.onmouseout = (x) => {
+        newImage.style.display = "none";
+    }
+    newSpan.appendChild(newImage);
+
+    return newSpan;
+    //return newImage;
 };
 
 BlockMirrorTextEditor.prototype.updateImages = function(cm, from, to) {
     cm.doc.eachLine(from, to, (line) => {
         let match;
-        while ((match = CONSTRUCTOR_IMAGE_URL.exec(line.text)) !== null) {
+        const regex = BlockMirrorTextEditor.REGEX_PATTERNS[this.blockMirror.configuration.imageDetection];
+        while ((match = regex.exec(line.text)) !== null) {
             let imageWidget = this.makeImageWidget(match[3]);
             let offset = (match[0].length-match[1].length);
-            console.log(offset);
+            //console.log(offset);
             let imageMarker = cm.markText({
                     line: cm.doc.getLineNumber(line),
                     ch: match.index+ offset},
                 {line: cm.doc.getLineNumber(line),
                     ch: match.index + match[1].length + offset},
-                {atomic: true, replacedWith: imageWidget});
+                {className: "bm-hyperlinked-image", attributes: {
+                        "data-url": match[3]
+                    }, inclusiveLeft: false, inclusiveRight: false});
+            console.log(imageMarker);
             //imageWidget.onclick = (x) => imageMarker.clear();
             this.imageMarkers.push(imageMarker);
         }
@@ -169,7 +186,7 @@ BlockMirrorTextEditor.prototype.updateImages = function(cm, from, to) {
 const FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg|mp4)+$/;
 //const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
 //const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
-const STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2)/g;
+const STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.?[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}))\2)/g;
 //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
 const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
 BlockMirrorTextEditor.REGEX_PATTERNS = {

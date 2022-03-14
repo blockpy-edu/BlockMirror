@@ -105,8 +105,8 @@ Blockly.Python['ast_StrChar'] = function (block) {
 
 Blockly.Python['ast_Image'] = function (block) {
     // Text value
-    Blockly.Python.definitions_["import_image"] = "from image import Image";
-    let code = "Image("+Blockly.Python.quote_(block.src_)+")";
+    //Blockly.Python.definitions_["import_image"] = "from image import Image";
+    let code = Blockly.Python.quote_(block.src_);
     return [code, Blockly.Python.ORDER_FUNCTION_CALL];
 };
 
@@ -178,10 +178,13 @@ BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) 
 BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     let s = node.s;
     let text = Sk.ffi.remapToJs(s);
-    /*if (text.startsWith("http") && text.endsWith(".png")) {
+    const regex = BlockMirrorTextEditor.REGEX_PATTERNS[this.blockMirror.configuration.imageDetection];
+    //console.log(text, regex.test(JSON.stringify(text)));
+    if (regex.test(JSON.stringify(text))) {
+        //if (text.startsWith("http") && text.endsWith(".png")) {
         return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {},
             {"@src": text});
-    } else*/ if (this.isSingleChar(text)) {
+    } else if (this.isSingleChar(text)) {
         return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {"TEXT": text});
     } else if (this.isDocString(node, parent)) {
         let dedented = this.dedent(text, this.levelIndex - 1, true);

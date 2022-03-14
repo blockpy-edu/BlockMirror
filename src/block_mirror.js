@@ -95,6 +95,7 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     this.configuration.imageUploadHook = configuration.imageUploadHook || (old => Promise.resolve(old));
     this.configuration.imageDownloadHook = configuration.imageDownloadHook || (old => old);
     this.configuration.imageLiteralHook = configuration.imageLiteralHook || (old => old);
+    this.configuration.imageDetection = configuration.imageDetection || 'string';
     this.configuration.imageMode = configuration.imageMode || false;
 };
 
