@@ -246,10 +246,34 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
             message: 'plot histogram',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
+        'bar': {
+            returns: false,
+            simple: ['xs', 'heights', '*tick_label'],
+            message: 'plot bar chart',
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
         'plot': {
             returns: false,
             simple: ['values'],
             message: 'plot line',
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
+        'boxplot': {
+            returns: false,
+            simple: ['values'],
+            message: 'plot boxplot',
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
+        'hlines': {
+            returns: false,
+            simple: ['y', 'xmin', 'xmax'],
+            message: 'plot horizontal line',
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
+        'vlines': {
+            returns: false,
+            simple: ['x', 'ymin', 'ymax'],
+            message: 'plot vertical line',
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         },
         'scatter': {
@@ -274,6 +298,18 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
             returns: false,
             simple: ['label'],
             message: "make plot's y-axis label",
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
+        'xticks': {
+            returns: false,
+            simple: ['xs', 'labels', '*rotation'],
+            message: "make x ticks",
+            colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+        },
+        'yticks': {
+            returns: false,
+            simple: ['ys', 'labels', '*rotation'],
+            message: "make y ticks",
             colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
         }
     }
