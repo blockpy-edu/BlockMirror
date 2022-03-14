@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Remove some project directories with computer change">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Update random settings for pycharm">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/codemirror/python.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/codemirror/python.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
@@ -56,6 +54,9 @@
     </layout>
   </component>
   <component name="JupyterTrust" id="82bc531b-95d0-4482-98de-a85a078dc6d0" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectId" id="1OR0VFaxkOvFIyHle2nZjV999OR" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -239,6 +240,7 @@
       <workItem from="1640795597993" duration="10562000" />
       <workItem from="1641066422705" duration="2338000" />
       <workItem from="1641766804059" duration="3277000" />
+      <workItem from="1647296123971" duration="670000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -359,7 +361,28 @@
       <option name="project" value="LOCAL" />
       <updated>1609432269193</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="MIssing matplotlibg functions">
+      <created>1647296793014</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1647296793014</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Clean some code in unaryop">
+      <created>1647296814016</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1647296814016</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Update random settings for pycharm">
+      <created>1647296834752</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1647296834752</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -375,7 +398,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Basics of packaging, bug fixes, better updating" />
@@ -395,7 +417,10 @@
     <MESSAGE value="Add in bar chart to plot toolbar" />
     <MESSAGE value="Add in empty toolbox category for error situations" />
     <MESSAGE value="Remove some project directories with computer change" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove some project directories with computer change" />
+    <MESSAGE value="MIssing matplotlibg functions" />
+    <MESSAGE value="Clean some code in unaryop" />
+    <MESSAGE value="Update random settings for pycharm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update random settings for pycharm" />
   </component>
   <component name="masterDetails">
     <states>
