@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Remove some project directories with computer change">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/codemirror/python.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/codemirror/python.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_UnaryOp.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_functions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -220,7 +229,16 @@
       <workItem from="1604885437423" duration="1411000" />
       <workItem from="1608648143577" duration="1691000" />
       <workItem from="1608733277773" duration="1611000" />
-      <workItem from="1609428623156" duration="1883000" />
+      <workItem from="1609428623156" duration="3182000" />
+      <workItem from="1610644538411" duration="1184000" />
+      <workItem from="1610733372680" duration="13000" />
+      <workItem from="1611934159732" duration="1756000" />
+      <workItem from="1613143637361" duration="603000" />
+      <workItem from="1622211860596" duration="3027000" />
+      <workItem from="1634260054141" duration="230000" />
+      <workItem from="1640795597993" duration="10562000" />
+      <workItem from="1641066422705" duration="2338000" />
+      <workItem from="1641766804059" duration="3277000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
@@ -320,7 +338,28 @@
       <option name="project" value="LOCAL" />
       <updated>1600322354358</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Add in bar chart to plot toolbar">
+      <created>1609432245449</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1609432245449</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Add in empty toolbox category for error situations">
+      <created>1609432259042</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1609432259042</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Remove some project directories with computer change">
+      <created>1609432269193</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1609432269193</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -353,7 +392,10 @@
     <MESSAGE value="Dennis asked to remove one of the relational operators." />
     <MESSAGE value="Ugh, seriously gotta remove the config from the repo." />
     <MESSAGE value="Latest generated block_mirror.js file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Latest generated block_mirror.js file" />
+    <MESSAGE value="Add in bar chart to plot toolbar" />
+    <MESSAGE value="Add in empty toolbox category for error situations" />
+    <MESSAGE value="Remove some project directories with computer change" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove some project directories with computer change" />
   </component>
   <component name="masterDetails">
     <states>
