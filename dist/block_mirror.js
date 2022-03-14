@@ -324,6 +324,7 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     return old;
   };
 
+  this.configuration.imageDetection = configuration.imageDetection || 'string';
   this.configuration.imageMode = configuration.imageMode || false;
 };
 
@@ -551,7 +552,8 @@ function BlockMirrorTextEditor(blockMirror) {
         var oldText = change.text[0];
 
         if (_this.isImageUrl(oldText)) {
-          var newText = imageLiteralHook(oldText);
+          var newText = _this.blockMirror.configuration.imageLiteralHook(oldText);
+
           change.update(null, null, [newText]);
         }
       }
@@ -611,9 +613,10 @@ BlockMirrorTextEditor.prototype.disableImages = function () {
 BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
   var newImage = document.createElement("IMG");
   newImage.setAttribute("src", url);
-  newImage.setAttribute("height", "40");
-  newImage.style.maxHeight = "100px";
-  newImage.setAttribute("width", "40");
+  newImage.style.display = "none"; //newImage.setAttribute("height", "40");
+
+  newImage.style.maxHeight = "100px"; //newImage.setAttribute("width", "40");
+
   newImage.setAttribute("title", url);
 
   newImage.onclick = function (x) {
@@ -626,7 +629,20 @@ BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
     }
   };
 
-  return newImage;
+  var newSpan = document.createElement("span");
+  newSpan.className = "cm-string";
+  newSpan.innerText = JSON.stringify(url);
+
+  newSpan.onmouseover = function (x) {
+    newImage.style.display = "block";
+  };
+
+  newSpan.onmouseout = function (x) {
+    newImage.style.display = "none";
+  };
+
+  newSpan.appendChild(newImage);
+  return newSpan; //return newImage;
 };
 
 BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
@@ -634,12 +650,13 @@ BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
 
   cm.doc.eachLine(from, to, function (line) {
     var match;
+    var regex = BlockMirrorTextEditor.REGEX_PATTERNS[_this2.blockMirror.configuration.imageDetection];
 
-    while ((match = CONSTRUCTOR_IMAGE_URL.exec(line.text)) !== null) {
+    while ((match = regex.exec(line.text)) !== null) {
       var imageWidget = _this2.makeImageWidget(match[3]);
 
-      var offset = match[0].length - match[1].length;
-      console.log(offset);
+      var offset = match[0].length - match[1].length; //console.log(offset);
+
       var imageMarker = cm.markText({
         line: cm.doc.getLineNumber(line),
         ch: match.index + offset
@@ -647,9 +664,14 @@ BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
         line: cm.doc.getLineNumber(line),
         ch: match.index + match[1].length + offset
       }, {
-        atomic: true,
-        replacedWith: imageWidget
-      }); //imageWidget.onclick = (x) => imageMarker.clear();
+        className: "bm-hyperlinked-image",
+        attributes: {
+          "data-url": match[3]
+        },
+        inclusiveLeft: false,
+        inclusiveRight: false
+      });
+      console.log(imageMarker); //imageWidget.onclick = (x) => imageMarker.clear();
 
       _this2.imageMarkers.push(imageMarker);
     }
@@ -660,7 +682,7 @@ BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
 var FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg|mp4)+$/; //const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
 //const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
 
-var STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2)/g; //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
+var STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.?[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}))\2)/g; //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
 
 var CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
 BlockMirrorTextEditor.REGEX_PATTERNS = {
@@ -2560,10 +2582,34 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
       message: 'plot histogram',
       colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
     },
+    'bar': {
+      returns: false,
+      simple: ['xs', 'heights', '*tick_label'],
+      message: 'plot bar chart',
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
     'plot': {
       returns: false,
       simple: ['values'],
       message: 'plot line',
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
+    'boxplot': {
+      returns: false,
+      simple: ['values'],
+      message: 'plot boxplot',
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
+    'hlines': {
+      returns: false,
+      simple: ['y', 'xmin', 'xmax'],
+      message: 'plot horizontal line',
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
+    'vlines': {
+      returns: false,
+      simple: ['x', 'ymin', 'ymax'],
+      message: 'plot vertical line',
       colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
     },
     'scatter': {
@@ -2588,6 +2634,18 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
       returns: false,
       simple: ['label'],
       message: "make plot's y-axis label",
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
+    'xticks': {
+      returns: false,
+      simple: ['xs', 'labels', '*rotation'],
+      message: "make x ticks",
+      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
+    },
+    'yticks': {
+      returns: false,
+      simple: ['ys', 'labels', '*rotation'],
+      message: "make y ticks",
       colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
     }
   }
@@ -2716,7 +2774,7 @@ TOOLBOX_CATEGORY.CALCULATIONS = {
 TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {
   name: "Output",
   colour: "PLOTTING",
-  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.bar(___, ___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)"]
+  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.bar(___, ___, tick_label=___)", "plt.boxplot(___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)", "plt.hlines(___, ___, ___)", "plt.vlines(___, ___, ___)"]
 };
 TOOLBOX_CATEGORY.TURTLES = {
   name: "Turtles",
@@ -3938,8 +3996,8 @@ Blockly.Python['ast_StrChar'] = function (block) {
 
 Blockly.Python['ast_Image'] = function (block) {
   // Text value
-  Blockly.Python.definitions_["import_image"] = "from image import Image";
-  var code = "Image(" + Blockly.Python.quote_(block.src_) + ")";
+  //Blockly.Python.definitions_["import_image"] = "from image import Image";
+  var code = Blockly.Python.quote_(block.src_);
   return [code, Blockly.Python.ORDER_FUNCTION_CALL];
 };
 
@@ -4013,12 +4071,14 @@ BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) 
 BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
   var s = node.s;
   var text = Sk.ffi.remapToJs(s);
-  /*if (text.startsWith("http") && text.endsWith(".png")) {
-      return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {},
-          {"@src": text});
-  } else*/
+  var regex = BlockMirrorTextEditor.REGEX_PATTERNS[this.blockMirror.configuration.imageDetection]; //console.log(text, regex.test(JSON.stringify(text)));
 
-  if (this.isSingleChar(text)) {
+  if (regex.test(JSON.stringify(text))) {
+    //if (text.startsWith("http") && text.endsWith(".png")) {
+    return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {}, {
+      "@src": text
+    });
+  } else if (this.isSingleChar(text)) {
     return BlockMirrorTextToBlocks.create_block("ast_StrChar", node.lineno, {
       "TEXT": text
     });
@@ -4088,14 +4148,14 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
     }],
     "inputsInline": false,
     "output": null,
-    "colour": unaryop[1] == 'Not' ? BlockMirrorTextToBlocks.COLOR.LOGIC : BlockMirrorTextToBlocks.COLOR.MATH
+    "colour": unaryop[1] === 'Not' ? BlockMirrorTextToBlocks.COLOR.LOGIC : BlockMirrorTextToBlocks.COLOR.MATH
   });
 
   Blockly.Python[fullName] = function (block) {
     // Basic arithmetic operators, and power.
-    var order = unaryop[1] == 'Not' ? Blockly.Python.ORDER_LOGICAL_NOT : Blockly.Python.ORDER_UNARY_SIGN;
+    var order = unaryop[1] === 'Not' ? Blockly.Python.ORDER_LOGICAL_NOT : Blockly.Python.ORDER_UNARY_SIGN;
     var argument1 = Blockly.Python.valueToCode(block, 'VALUE', order) || Blockly.Python.blank;
-    var code = unaryop[0] + (unaryop[1] == 'Not' ? ' ' : '') + argument1;
+    var code = unaryop[0] + (unaryop[1] === 'Not' ? ' ' : '') + argument1;
     return [code, order];
   };
 });
