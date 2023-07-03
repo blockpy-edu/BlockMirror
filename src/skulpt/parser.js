@@ -72,6 +72,8 @@ function findInDfa (a, obj) {
 
 // Add a comment
 Parser.prototype.addcomment = function(value, start, end, line) {
+    if (start[1] != line.search(/\S/))
+        start[1] = line.search(/\S/);
     this.comments[start] = value;
 };
 

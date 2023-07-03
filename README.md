@@ -92,3 +92,12 @@ If it's a brand new type of ast node, you'll need to create a javascript file in
 ## Adding new functions
 
 Check out `src/ast/ast_functions.js`. Needs documentation!
+
+## Building the dist directory
+
+To build the dist directory, you have to run this command :
+```bash
+npx webpack --config webpack.config.js
+```
+
+If you have a problem like : `Error: error:0308010C:digital envelope routines::unsupported`, the command `export NODE_OPTIONS=--openssl-legacy-provider` should fix this.
