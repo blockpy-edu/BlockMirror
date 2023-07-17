@@ -341,18 +341,22 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
     this.highlightedHandles = this.highlightedHandles.concat(handles);
 };
 
-BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
+BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
     if (this.highlightedHandles) {
+        const kept = [];
         let removed = this.highlightedHandles.map((h) => {
-            this.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+            this.codeMirror.doc.removeLineClass(h.handle, "background", style || h.style);
             var info = this.codeMirror.doc.lineInfo(h.handle);
             if (info) {
+                if (info.style) {
+                    kept.push(h);
+                }
                 return info.line + 1;
             } else {
                 return info;
             }
         });
-        this.highlightedHandles = [];
+        this.highlightedHandles = kept;
         return removed;
     }
 };

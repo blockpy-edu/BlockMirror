@@ -472,7 +472,8 @@ BlockMirror.prototype.setHighlightedLines = function (lines, style) {
 };
 
 BlockMirror.prototype.clearHighlightedLines = function () {
-  this.textEditor.clearHighlightedLines(); //this.blockEditor.unhighlightLines(lines, style);
+  var style = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  this.textEditor.clearHighlightedLines(style); //this.blockEditor.unhighlightLines(lines, style);
 };
 
 function BlockMirrorTextEditor(blockMirror) {
@@ -854,22 +855,27 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
   this.highlightedHandles = this.highlightedHandles.concat(handles);
 };
 
-BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
+BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
   var _this5 = this;
 
   if (this.highlightedHandles) {
+    var kept = [];
     var removed = this.highlightedHandles.map(function (h) {
-      _this5.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+      _this5.codeMirror.doc.removeLineClass(h.handle, "background", style || h.style);
 
       var info = _this5.codeMirror.doc.lineInfo(h.handle);
 
       if (info) {
+        if (info.style) {
+          kept.push(h);
+        }
+
         return info.line + 1;
       } else {
         return info;
       }
     });
-    this.highlightedHandles = [];
+    this.highlightedHandles = kept;
     return removed;
   }
 };
@@ -1293,8 +1299,14 @@ function BlockMirrorTextToBlocks(blockMirror) {
   this.blockMirror = blockMirror;
   this.hiddenImports = ["plt"];
   this.strictAnnotations = ['int', 'float', 'str', 'bool'];
-  Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+
+  if (!BlockMirrorTextToBlocks.LOADED) {
+    Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+    BlockMirrorTextToBlocks.LOADED = true;
+  }
 }
+
+BlockMirrorTextToBlocks.LOADED = false;
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
   return new XMLSerializer().serializeToString(xml);

@@ -239,7 +239,7 @@ BlockMirror.prototype.setHighlightedLines = function(lines, style) {
     //this.blockEditor.highlightLines(lines, style);
 };
 
-BlockMirror.prototype.clearHighlightedLines = function() {
-    this.textEditor.clearHighlightedLines();
+BlockMirror.prototype.clearHighlightedLines = function(style=null) {
+    this.textEditor.clearHighlightedLines(style);
     //this.blockEditor.unhighlightLines(lines, style);
 };

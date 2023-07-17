@@ -2,8 +2,13 @@ function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
     this.hiddenImports = ["plt"];
     this.strictAnnotations = ['int', 'float', 'str', 'bool'];
-    Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+    if (!BlockMirrorTextToBlocks.LOADED) {
+        Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+        BlockMirrorTextToBlocks.LOADED = true;
+    }
 }
+
+BlockMirrorTextToBlocks.LOADED = false;
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
     return new XMLSerializer().serializeToString(xml);

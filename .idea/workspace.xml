@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Version 2 packaging">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="New version of  BlockMirror">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,12 +34,6 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
-  <component name="JsFlowSettings">
-    <service-enabled>true</service-enabled>
-    <exe-path />
-    <other-services-enabled>true</other-services-enabled>
-    <auto-save>true</auto-save>
-  </component>
   <component name="JsbtTreeLayoutManager">
     <layout place="tools.popupnpm">
       <scroll-view-position x="0" y="0" />
@@ -59,26 +55,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="full.screen.before.presentation.mode" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
-    <property name="javascript.nodejs.core.library.typings.version" value="10.17.28" />
-    <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../pedal-edu/pedal" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
-    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\WebStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\docs" />
@@ -90,7 +79,7 @@
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\src\ast" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.devbuild">
+  <component name="RunManager" selected="JavaScript Debug.simple_dev.html">
     <configuration name="simple_dev.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/BlockMirror/test/simple_dev.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -136,11 +125,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JavaScript Debug.simple_dev.html" />
         <item itemvalue="npm.devbuild" />
         <item itemvalue="npm.watch" />
         <item itemvalue="npm.skulpt" />
         <item itemvalue="JavaScript Debug.simple.html" />
-        <item itemvalue="JavaScript Debug.simple_dev.html" />
       </list>
     </recent_temporary>
   </component>
@@ -237,6 +226,10 @@
       <workItem from="1641766804059" duration="3277000" />
       <workItem from="1647296123971" duration="1179000" />
       <workItem from="1653084091490" duration="1946000" />
+      <workItem from="1654886801223" duration="1130000" />
+      <workItem from="1655498189498" duration="279000" />
+      <workItem from="1658170312616" duration="735000" />
+      <workItem from="1689607948083" duration="412000" />
     </task>
     <task id="LOCAL-00001" summary="Basics of packaging, bug fixes, better updating">
       <created>1564063805490</created>
