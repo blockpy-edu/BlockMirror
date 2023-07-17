@@ -8,6 +8,8 @@ Blockly.Blocks['ast_DictItem'] = {
         this.setInputsInline(true);
         this.setOutput(true, "DictPair");
         this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
+        this.setTooltip('A dict is a mapping object which maps hashable values to arbitrary objects');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#mapping-types-dict');
     }
 };
 
@@ -22,6 +24,8 @@ Blockly.Blocks['ast_Dict'] = {
         this.updateShape_();
         this.setOutput(true, 'Dict');
         this.setMutator(new Blockly.Mutator(['ast_Dict_create_with_item']));
+        this.setTooltip('A dict is a mapping object which maps hashable values to arbitrary objects');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#mapping-types-dict');
     },
     /**
      * Create XML to represent dict inputs.
@@ -173,6 +177,8 @@ Blockly.Blocks['ast_Dict_create_with_container'] = {
             .appendField('Add new dict elements below');
         this.appendStatementInput('STACK');
         this.contextMenu = false;
+        this.setTooltip('A dict is a mapping object which maps hashable values to arbitrary objects');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#mapping-types-dict');
     }
 };
 
@@ -188,6 +194,8 @@ Blockly.Blocks['ast_Dict_create_with_item'] = {
         this.setPreviousStatement(true);
         this.setNextStatement(true);
         this.contextMenu = false;
+        this.setTooltip('A dict is a mapping object which maps hashable values to arbitrary objects');
+        this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#mapping-types-dict');
     }
 };
 

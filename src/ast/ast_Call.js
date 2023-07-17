@@ -262,6 +262,318 @@ Blockly.Blocks['ast_Call'] = {
     mutationToDom: function () {
         var container = document.createElement('mutation');
         let name = this.getProcedureCall();
+
+        switch(name) {
+            case 'abs':
+                this.setTooltip('Return the absolute value of a number');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#abs');
+            break;
+
+            case 'all':
+                this.setTooltip('Return True if all elements of the iterable are true (or if the iterable is empty)');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#all');
+            break;
+
+            case 'any':
+                this.setTooltip('Return True if any element of the iterable is true. If the iterable is empty, return False');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#any');
+            break;
+
+            case 'ascii':
+                this.setTooltip('As repr(), return a string containing a printable representation of an object, but escape the non-ASCII characters in the string returned by repr() using \\x, \\u or \\U escapes');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#ascii');
+            break;
+
+            case 'bin':
+                this.setTooltip('Convert an integer number to a binary string prefixed with “0b”');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#bin');
+            break;
+
+            case 'bool':
+                this.setTooltip('Return a Boolean value, i.e. one of True or False. The parameter is converted using the standard truth testing procedure.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#bool');
+            break;
+
+            case 'breakpoint':
+                this.setTooltip('This function drops you into the debugger at the call site. Specifically, it calls sys.breakpointhook(), passing args and kws straight through.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#breakpoint');
+            break;
+
+            case 'bytearray':
+                this.setTooltip('Return a new array of bytes.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#func-bytearray');
+            break;
+
+            case 'bytes':
+                this.setTooltip('Return a new “bytes” object, which is an immutable sequence of integers in the range 0 <= x < 256.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#func-bytes');
+            break;
+
+            case 'callable':
+                this.setTooltip('Return True if the object argument appears callable, False if not');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#callable');
+            break;
+
+            case 'chr':
+                this.setTooltip('Return the string representing a character whose Unicode code point is the integer i. For example, chr(97) returns the string "a", while chr(8364) returns the string "€"');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#chr');
+            break;
+
+            case 'compile':
+                this.setTooltip('Compile the source into a code or AST object. Code objects can be executed by exec() or eval()');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#compile');
+            break;
+
+            case 'complex':
+                this.setTooltip('Return a complex number with the value real + imag*1j or convert a string or number to a complex number.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#complex');
+            break;
+
+            case 'delattr':
+                this.setTooltip('The function deletes the named attribute, provided the object allows it.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#delattr');
+            break;
+
+            case 'dict':
+                this.setTooltip('Create a new dictionary.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#func-dict');
+            break;
+
+            case 'dir':
+                this.setTooltip('Without arguments, return the list of names in the current local scope. With an argument, attempt to return a list of valid attributes for that object.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#dir');
+            break;
+
+            case 'divmod':
+                this.setTooltip('take two (non complex) numbers as arguments and return a pair of numbers consisting of their quotient and remainder when using integer division');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#divmod');
+            break;
+
+            case 'enumerate':
+                this.setTooltip('Return an enumerate object');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#enumerate');
+            break;
+
+            case 'eval':
+                this.setTooltip('The argument is parsed and evaluated as a Python expression. The return value is the result of the evaluated expression.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#eval');
+            break;
+
+            case 'exec':
+                this.setTooltip('This function supports dynamic execution of Python code.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#exec');
+            break;
+
+            case 'filter':
+                this.setTooltip('Construct an iterator from those elements of iterable for which function returns true');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#filter');
+            break;
+
+            case 'float':
+                this.setTooltip('Return a floating point number constructed from a number or string input');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#float');
+            break;
+
+            case 'format':
+                this.setTooltip('Convert a value to a “formatted” representation, as controlled by format_spec');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#format');
+            break;
+
+            case 'frozenset':
+                this.setTooltip('Return a new frozenset object, optionally with elements taken from iterable');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#func-frozenset');
+            break;
+
+            case 'getattr':
+                this.setTooltip('Return the value of the named attribute of object');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#getattr');
+            break;
+
+            case 'globals':
+                this.setTooltip('Return a dictionary representing the current global symbol table.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#globals');
+            break;
+
+            case 'hasattr':
+                this.setTooltip('The result is True if the string is the name of one of the object’s attributes, False if not.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#hasattr');
+            break;
+
+            case 'hash':
+                this.setTooltip('Return the hash value of the object (if it has one). Hash values are integers.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#hash');
+            break;
+
+            case 'hex':
+                this.setTooltip('Convert an integer number to a lowercase hexadecimal string prefixed with “0x”.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#hex');
+            break;
+
+            case 'id':
+                this.setTooltip('Return the “identity” of an object. This is an integer which is guaranteed to be unique and constant for this object during its lifetime');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#id');
+            break;
+
+            case 'input':
+                this.setTooltip('The function reads a line from input, converts it to a string (stripping a trailing newline), and returns that');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#input');
+            break;
+
+            case 'int':
+                this.setTooltip('Return an integer object constructed from a number or string');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#int');
+            break;
+
+            case 'isinstance':
+                this.setTooltip('Return True if the object argument is an instance of the classinfo argument, or of a (direct, indirect or virtual) subclass thereof');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#isinstance');
+            break;
+
+            case 'issubclass':
+                this.setTooltip('Return True if class is a subclass (direct, indirect or virtual) of classinfo');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#issubclass');
+            break;
+
+            case 'iter':
+                this.setTooltip('Return an iterator object');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#iter');
+            break;
+
+            case 'len':
+                this.setTooltip('Return the length (the number of items) of an object');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#len');
+            break;
+
+            case 'list':
+                this.setTooltip('mutable sequences, typically used to store collections of homogeneous items');
+                this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#typesseq-list');
+            break;
+
+            case 'locals':
+                this.setTooltip('Update and return a dictionary representing the current local symbol table');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#locals');
+            break;
+
+            case 'map':
+                this.setTooltip('Return an iterator that applies function to every item of iterable, yielding the results');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#map');
+            break;
+
+            case 'max':
+                this.setTooltip('Return the largest item in an iterable or the largest of two or more arguments');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#map');
+            break;
+
+            case 'min':
+                this.setTooltip('Return the smallest item in an iterable or the smallest of two or more arguments');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#min');
+            break;
+
+            case 'next':
+                this.setTooltip('Retrieve the next item from the iterator by calling its __next__() method');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#next');
+            break;
+
+            case 'object':
+                this.setTooltip('Return a new featureless object. object is a base for all classes');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#object');
+            break;
+
+            case 'oct':
+                this.setTooltip('Convert an integer number to an octal string prefixed with “0o”');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#oct');
+            break;
+
+            case 'ord':
+                this.setTooltip('Given a string representing one Unicode character, return an integer representing the Unicode code point of that character.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#ord');
+            break;
+
+            case 'pow':
+                this.setTooltip('Return base to the power exp; if mod is present, return base to the power exp, modulo mod (computed more efficiently than pow(base, exp) % mod)');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#pow');
+            break;
+
+            case 'print':
+                this.setTooltip('Print objects to the text stream');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#print');
+            break;
+
+            case 'property':
+                this.setTooltip('Return a property attribute.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#property');
+            break;
+
+            case 'repr':
+                this.setTooltip('Return a string containing a printable representation of an object.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#repr');
+            break;
+
+            case 'reversed':
+                this.setTooltip('Return a reverse iterator.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#reversed');
+            break;
+
+            case 'round':
+                this.setTooltip('Return number rounded to ndigits precision after the decimal point');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#round');
+            break;
+
+            case 'set':
+                this.setTooltip('Return a new set object, optionally with elements taken from iterable');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#func-set');
+            break;
+
+            case 'setattr':
+                this.setTooltip('This is the counterpart of getattr(). The arguments are an object, a string and an arbitrary value');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#setattr');
+            break;
+
+            case 'slice':
+                this.setTooltip('Return a slice object representing the set of indices specified by range(start, stop, step)');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#slice');
+            break;
+
+            case 'sorted':
+                this.setTooltip('Return a new sorted list from the items in iterable');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#sorted');
+            break;
+
+            case 'str':
+                this.setTooltip('Return a string version of object');
+                this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#str');
+            break;
+
+            case 'sum':
+                this.setTooltip('Sums start and the items of an iterable from left to right and returns the total');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#sum');
+            break;
+
+            case 'super':
+                this.setTooltip('Return a proxy object that delegates method calls to a parent or sibling class of type');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#super');
+            break;
+
+            case 'tuple':
+                this.setTooltip('immutable sequences, typically used to store collections of heterogeneous data');
+                this.setHelpUrl('https://docs.python.org/3/library/stdtypes.html#typesseq-tuple');
+            break;
+
+            case 'type':
+                this.setTooltip('With one argument, return the type of an object');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#type');
+            break;
+
+            case 'vars':
+                this.setTooltip('Return the __dict__ attribute for a module, class, instance, or any other object with a __dict__ attribute');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#vars');
+            break;
+
+            case 'zip':
+                this.setTooltip('Make an iterator that aggregates elements from each of the iterables.');
+                this.setHelpUrl('https://docs.python.org/3/library/functions.html#zip');
+            break;
+
         container.setAttribute('name', name === null ? '*' : name);
         container.setAttribute('arguments', this.argumentCount_);
         container.setAttribute('returns', this.returns_);

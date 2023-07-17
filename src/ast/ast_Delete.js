@@ -9,6 +9,8 @@ Blockly.Blocks['ast_Delete'] = {
         this.appendDummyInput()
             .appendField("delete");
         this.updateShape_();
+        this.setTooltip('Deletion is recursively defined very similar to the way assignment is defined');
+        this.setHelpUrl('https://docs.python.org/3/reference/simple_stmts.html#the-del-statement');
     },
     updateShape_: function () {
         // Add new inputs.

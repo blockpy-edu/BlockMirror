@@ -93,6 +93,8 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.updateShape_();
         this.setMutator(new Blockly.Mutator(['ast_FunctionMutantParameter',
             'ast_FunctionMutantParameterType']));
+        this.setTooltip('A user defined function');
+        this.setHelpUrl('https://docs.python.org/3/tutorial/controlflow.html#function-examples');
     },
     /**
      * Create XML to represent list inputs.

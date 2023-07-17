@@ -10,6 +10,8 @@ Blockly.Blocks['ast_Raise'] = {
         this.appendDummyInput()
             .appendField("raise");
         this.updateShape_();
+        this.setTooltip('The raise statement allows the programmer to force a specified exception to occur.');
+        this.setHelpUrl('https://docs.python.org/3/tutorial/errors.html#raising-exceptions');
     },
     updateShape_: function () {
         if (this.exc_ && !this.getInput('EXC')) {

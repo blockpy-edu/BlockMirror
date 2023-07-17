@@ -13,6 +13,8 @@ Blockly.Blocks['ast_Import'] = {
         this.setNextStatement(true, null);
         this.setColour(BlockMirrorTextToBlocks.COLOR.PYTHON);
         this.updateShape_();
+        this.setTooltip('Python code in one module gains access to the code in another module by the process of importing it');
+        this.setHelpUrl('https://docs.python.org/3/reference/import.html');
     },
     // TODO: Not mutable currently
     updateShape_: function () {

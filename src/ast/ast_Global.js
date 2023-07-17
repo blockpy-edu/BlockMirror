@@ -8,6 +8,8 @@ Blockly.Blocks['ast_Global'] = {
         this.appendDummyInput('GLOBAL')
             .appendField("make global", "START_GLOBALS");
         this.updateShape_();
+        this.setTooltip('The global statement is a declaration which holds for the entire current code block');
+        this.setHelpUrl('https://docs.python.org/3/reference/simple_stmts.html#grammar-token-global-stmt');
     },
     updateShape_: function () {
         let input = this.getInput("GLOBAL");
