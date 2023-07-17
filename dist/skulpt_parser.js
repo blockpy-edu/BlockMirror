@@ -4709,6 +4709,7 @@ function findInDfa(a, obj) {
 
 
 Parser.prototype.addcomment = function (value, start, end, line) {
+  if (start[1] != line.search(/\S/)) start[1] = line.search(/\S/);
   this.comments[start] = value;
 }; // Add a token; return true if we're done
 

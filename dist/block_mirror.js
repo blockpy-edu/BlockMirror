@@ -1371,7 +1371,8 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
   for (var commentLocation in parse.comments) {
     var lineColumn = commentLocation.split(",");
     var yLocation = parseInt(lineColumn[0], 10);
-    this.comments[yLocation] = parse.comments[commentLocation];
+    var xLocation = parseInt(lineColumn[1], 10);
+    this.comments[yLocation] = xLocation + "|" + parse.comments[commentLocation];
   }
 
   this.highestLineSeen = 0;
@@ -1540,26 +1541,35 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     commentCount = 0;
 
     for (var _commentLineInProgram in this.comments) {
-      if (_commentLineInProgram < lineNumberInProgram) {
-        var commentChild = this.ast_Comment(this.comments[_commentLineInProgram], _commentLineInProgram);
+      if (_commentLineInProgram <= lineNumberInProgram) {
+        var comment = this.comments[_commentLineInProgram].split("|", 2);
 
-        if (previousLineInProgram == null) {
-          nestChild(commentChild);
-        } else {
-          var skipped_previous_line = Math.abs(previousLineInProgram - _commentLineInProgram) > 1;
+        if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+          var commentLine = comment[1];
+          var commentChild = this.ast_Comment(commentLine, _commentLineInProgram);
+          this.highestLineSeen += 1;
 
-          if (is_top_level && skipped_previous_line) {
-            addPeer(commentChild);
-          } else {
+          if (previousLineInProgram == null) {
             nestChild(commentChild);
+          } else {
+            var skipped_previous_line = Math.abs(previousLineInProgram - _commentLineInProgram) > 1;
+
+            if (is_top_level && skipped_previous_line) {
+              addPeer(commentChild);
+            } else {
+              nestChild(commentChild);
+            }
           }
+
+          previousLineInProgram = _commentLineInProgram;
+          this.highestLineSeen = Math.max(this.highestLineSeen, parseInt(_commentLineInProgram, 10));
+          distance = lineNumberInProgram - previousLineInProgram;
+          delete this.comments[_commentLineInProgram];
+          commentCount += 1;
         }
 
-        previousLineInProgram = _commentLineInProgram;
-        this.highestLineSeen = Math.max(this.highestLineSeen, parseInt(_commentLineInProgram, 10));
-        distance = lineNumberInProgram - previousLineInProgram;
-        delete this.comments[_commentLineInProgram];
-        commentCount += 1;
+        visitedFirstLine = true;
+        previousWasStatement = true;
       }
     }
 
@@ -1596,34 +1606,47 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   var lastLineNumber = lineNumberInProgram + 1;
 
   if (lastLineNumber in this.comments) {
-    var _commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
+    var comment = this.comments[lastLineNumber].split("|", 2);
 
-    if (is_top_level && !previousWasStatement) {
-      addPeer(_commentChild);
-    } else {
-      nestChild(_commentChild);
+    if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+      var lastComment = comment[1];
+
+      var _commentChild = this.ast_Comment(lastComment, lastLineNumber);
+
+      if (is_top_level && !previousWasStatement) {
+        addPeer(_commentChild);
+      } else {
+        nestChild(_commentChild);
+      }
+
+      delete this.comments[lastLineNumber];
+      this.highestLineSeen += 1;
     }
-
-    delete this.comments[lastLineNumber];
   } // Handle any extra comments that stuck around
 
 
   if (is_top_level) {
     for (var commentLineInProgram in this.comments) {
-      var _commentChild2 = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
+      var comment = this.comments[commentLineInProgram].split("|", 2);
 
-      distance = commentLineInProgram - previousLineInProgram;
+      if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+        var commentInProgram = comment[1];
 
-      if (previousLineInProgram == null) {
-        addPeer(_commentChild2);
-      } else if (distance > 1) {
-        addPeer(_commentChild2);
-      } else {
-        nestChild(_commentChild2);
+        var _commentChild2 = this.ast_Comment(commentInProgram, commentLineInProgram);
+
+        distance = commentLineInProgram - previousLineInProgram;
+
+        if (previousLineInProgram == null) {
+          addPeer(_commentChild2);
+        } else if (distance > 1) {
+          addPeer(_commentChild2);
+        } else {
+          nestChild(_commentChild2);
+        }
+
+        previousLineInProgram = commentLineInProgram;
+        delete this.comments[lastLineNumber];
       }
-
-      previousLineInProgram = commentLineInProgram;
-      delete this.comments[lastLineNumber];
     }
   }
 
