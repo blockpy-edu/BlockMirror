@@ -23,14 +23,14 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC,
 });
 
-Blockly.Python['ast_Assert'] = function (block) {
-    var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+python.pythonGenerator.forBlock['ast_Assert'] = function(block, generator) {
+    var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
     return "assert " + test + "\n";
 };
 
-Blockly.Python['ast_AssertFull'] = function (block) {
-    var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
-    var msg = Blockly.Python.valueToCode(block, 'MSG', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+python.pythonGenerator.forBlock['ast_AssertFull'] = function(block, generator) {
+    var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+    var msg = python.pythonGenerator.valueToCode(block, 'MSG', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
     return "assert " + test + ", "+msg+"\n";
 };
 

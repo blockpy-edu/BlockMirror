@@ -21,16 +21,16 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
-Blockly.Python['ast_NameConstantBoolean'] = function (block) {
+python.pythonGenerator.forBlock['ast_NameConstantBoolean'] = function(block, generator) {
     // Boolean values true and false.
     var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'True' : 'False';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
-Blockly.Python['ast_NameConstantNone'] = function (block) {
+python.pythonGenerator.forBlock['ast_NameConstantNone'] = function(block, generator) {
     // Boolean values true and false.
     var code = 'None';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) {

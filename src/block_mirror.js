@@ -88,8 +88,7 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     // Toolbox
     this.configuration.toolbox = configuration.toolbox || "normal";
 
-    // IsParsons?
-    this.isParsons = function() { return false; };
+    this.configuration.renderer = configuration.renderer || 'Thrasos';
 
     // Convert image URLs?
     this.configuration.imageUploadHook = configuration.imageUploadHook || (old => Promise.resolve(old));

@@ -6,7 +6,7 @@ Blockly.Blocks['ast_If'] = {
             .appendField("if");
         this.appendStatementInput("BODY")
             .setCheck(null)
-            .setAlign(Blockly.ALIGN_RIGHT);
+            .setAlign(Blockly.inputs.Align.RIGHT);
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
@@ -74,25 +74,25 @@ Blockly.Blocks['ast_If'] = {
     },
 };
 
-Blockly.Python['ast_If'] = function (block) {
+python.pythonGenerator.forBlock['ast_If'] = function(block, generator) {
     // Test
-    let test = "if " + (Blockly.Python.valueToCode(block, 'TEST',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank) + ":\n";
+    let test = "if " + (python.pythonGenerator.valueToCode(block, 'TEST',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
     // Body:
-    let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Elifs
     let elifs = new Array(block.elifs_);
     for (let i = 0; i < block.elifs_; i++) {
         let elif = block.elifs_[i];
-        let clause = "elif " + (Blockly.Python.valueToCode(block, 'ELIFTEST' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank);
-        clause += ":\n" + (Blockly.Python.statementToCode(block, 'ELIFBODY' + i) || Blockly.Python.PASS);
+        let clause = "elif " + (python.pythonGenerator.valueToCode(block, 'ELIFTEST' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+        clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'ELIFBODY' + i) || python.pythonGenerator.PASS);
         elifs[i] = clause;
     }
     // Orelse:
     let orelse = "";
     if (this.orelse_) {
-        orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSEBODY') || Blockly.Python.PASS);
+        orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSEBODY') || python.pythonGenerator.PASS);
     }
     return test + body + elifs.join("") + orelse;
 };

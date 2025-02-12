@@ -5,7 +5,7 @@ Blockly.Blocks['ast_While'] = {
             .appendField("while");
         this.appendStatementInput("BODY")
             .setCheck(null)
-            .setAlign(Blockly.ALIGN_RIGHT);
+            .setAlign(Blockly.inputs.Align.RIGHT);
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
@@ -34,6 +34,7 @@ Blockly.Blocks['ast_While'] = {
     mutationToDom: function () {
         let container = document.createElement('mutation');
         container.setAttribute('orelse', this.orelse_);
+        return container;
     },
     /**
      * Parse XML to restore the (non-editable) name and parameters.
@@ -46,16 +47,16 @@ Blockly.Blocks['ast_While'] = {
     },
 };
 
-Blockly.Python['ast_While'] = function (block) {
+python.pythonGenerator.forBlock['ast_While'] = function(block, generator) {
     // Test
-    let test = "while " + (Blockly.Python.valueToCode(block, 'TEST',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank) + ":\n";
+    let test = "while " + (python.pythonGenerator.valueToCode(block, 'TEST',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
     // Body:
-    let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Orelse:
     let orelse = "";
     if (this.orelse_) {
-        orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSEBODY') || Blockly.Python.PASS);
+        orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSEBODY') || python.pythonGenerator.PASS);
     }
     return test + body + orelse;
 };

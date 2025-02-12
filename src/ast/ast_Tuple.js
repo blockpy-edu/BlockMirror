@@ -8,7 +8,8 @@ Blockly.Blocks['ast_Tuple'] = {
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Tuple');
-        this.setMutator(new Blockly.Mutator(['ast_Tuple_create_with_item']));
+        // TODO is this still needed?
+//         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Tuple_create_with_item']));
     },
     /**
      * Create XML to represent tuple inputs.
@@ -72,7 +73,7 @@ Blockly.Blocks['ast_Tuple'] = {
         this.updateShape_();
         // Reconnect any child blocks.
         for (var i = 0; i < this.itemCount_; i++) {
-            Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+            connections[i]?.reconnect(this, 'ADD' + i);
         }
     },
     /**
@@ -108,9 +109,9 @@ Blockly.Blocks['ast_Tuple'] = {
             if (!this.getInput('ADD' + i)) {
                 var input = this.appendValueInput('ADD' + i);
                 if (i === 0) {
-                    input.appendField('(', ).setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField('(', ).setAlign(Blockly.inputs.Align.RIGHT);
                 } else {
-                    input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
                 }
             }
         }
@@ -130,7 +131,7 @@ Blockly.Blocks['ast_Tuple'] = {
             } else {
                 tail.appendField(')');
             }
-            tail.setAlign(Blockly.ALIGN_RIGHT);
+            tail.setAlign(Blockly.inputs.Align.RIGHT);
         }
     }
 };
@@ -164,19 +165,19 @@ Blockly.Blocks['ast_Tuple_create_with_item'] = {
     }
 };
 
-Blockly.Python['ast_Tuple'] = function (block) {
+python.pythonGenerator.forBlock['ast_Tuple'] = function(block, generator) {
     // Create a tuple with any number of elements of any type.
     var elements = new Array(block.itemCount_);
     for (var i = 0; i < block.itemCount_; i++) {
-        elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     let requiredComma = "";
     if (block.itemCount_ == 1) {
         requiredComma = ", ";
     }
     var code = '(' + elements.join(', ') + requiredComma+')';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Tuple'] = function (node, parent) {

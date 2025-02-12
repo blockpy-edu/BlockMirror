@@ -9,7 +9,8 @@ Blockly.Blocks['ast_List'] = {
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'List');
-        this.setMutator(new Blockly.Mutator(['ast_List_create_with_item']));
+        // TODO is this still needed?
+        // this.setMutator(new Blockly.icons.MutatorIcon(['ast_List_create_with_item']));
     },
     /**
      * Create XML to represent list inputs.
@@ -73,7 +74,7 @@ Blockly.Blocks['ast_List'] = {
         this.updateShape_();
         // Reconnect any child blocks.
         for (var i = 0; i < this.itemCount_; i++) {
-            Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+            connections[i]?.reconnect(this, 'ADD' + i);
         }
     },
     /**
@@ -111,7 +112,7 @@ Blockly.Blocks['ast_List'] = {
                 if (i == 0) {
                     input.appendField('create list with [');
                 } else {
-                    input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
                 }
             }
         }
@@ -127,7 +128,7 @@ Blockly.Blocks['ast_List'] = {
         if (this.itemCount_) {
             this.appendDummyInput('TAIL')
                 .appendField(']')
-                .setAlign(Blockly.ALIGN_RIGHT);
+                .setAlign(Blockly.inputs.Align.RIGHT);
         }
     }
 };
@@ -161,15 +162,15 @@ Blockly.Blocks['ast_List_create_with_item'] = {
     }
 };
 
-Blockly.Python['ast_List'] = function (block) {
+python.pythonGenerator.forBlock['ast_List'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     var elements = new Array(block.itemCount_);
     for (var i = 0; i < block.itemCount_; i++) {
-        elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     var code = '[' + elements.join(', ') + ']';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {

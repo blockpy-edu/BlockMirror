@@ -9,10 +9,10 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES
 });
 
-Blockly.Python['ast_Starred'] = function (block) {
+python.pythonGenerator.forBlock['ast_Starred'] = function(block, generator) {
     // Basic arithmetic operators, and power.
-    var order = Blockly.Python.ORDER_NONE;
-    var argument1 = Blockly.Python.valueToCode(block, 'VALUE', order) || Blockly.Python.blank;
+    var order = python.pythonGenerator.ORDER_NONE;
+    var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
     var code = "*" + argument1;
     return [code, order];
 };

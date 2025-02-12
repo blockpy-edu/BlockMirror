@@ -27,7 +27,8 @@ function BlockMirrorBlockEditor(blockMirror) {
         oneBasedIndex: false,
         readOnly: blockMirror.configuration.readOnly,
         scrollbars: true,
-        toolbox: this.makeToolbox()
+        toolbox: this.makeToolbox(),
+        renderer: blockMirror.configuration.renderer
     };
     this.workspace = Blockly.inject(blockMirror.tags.blockEditor,
         blocklyOptions);
@@ -234,7 +235,7 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
  * percolating.
  */
 BlockMirrorBlockEditor.prototype.getCode = function () {
-    return Blockly.Python.workspaceToCode(this.workspace);
+    return python.pythonGenerator.workspaceToCode(this.workspace);
 };
 
 /**
@@ -249,14 +250,15 @@ BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
             Blockly.Events.disable();
         }
         try {
-            let xml_code = Blockly.Xml.textToDom(result.xml);
-            this.workspace.clear();
-            Blockly.Xml.domToWorkspace(xml_code, this.workspace);
-            if (this.blockMirror.isParsons()) {
-                this.workspace.shuffle();
-            } else {
-                this.workspace.cleanUp();
+            let xml_code = Blockly.utils.xml.textToDom(result.xml);
+
+            // Convert line numbers to y coordinates, to ensure proper ordering
+            for (let i = 0, xmlChild; (xmlChild = xml_code.childNodes[i]); i++) {
+                xmlChild.setAttribute('y', (xmlChild.getAttribute('line_number') ?? 1) * 100);
             }
+
+            Blockly.Xml.clearWorkspaceAndLoadFromXml(xml_code, this.workspace);
+            this.workspace.cleanUp();
         } catch (error) {
             console.error(error);
         }

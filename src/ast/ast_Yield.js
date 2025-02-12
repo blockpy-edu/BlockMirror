@@ -17,13 +17,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
-Blockly.Python['ast_Yield'] = function (block) {
-    return ["yield", Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_Yield'] = function(block, generator) {
+    return ["yield", python.pythonGenerator.ORDER_LAMBDA];
 };
 
-Blockly.Python['ast_YieldFull'] = function (block) {
-    var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_LAMBDA) || Blockly.Python.blank;
-    return ["yield " + value, Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_YieldFull'] = function(block, generator) {
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
+    return ["yield " + value, python.pythonGenerator.ORDER_LAMBDA];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {

@@ -2,7 +2,7 @@ function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
     this.hiddenImports = ["plt"];
     this.strictAnnotations = ['int', 'float', 'str', 'bool'];
-    Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+    Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
 }
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
@@ -502,7 +502,7 @@ BlockMirrorTextToBlocks.prototype.convertElements = function (key, values, paren
     return output;
 };
 
-Blockly.Python['blank'] = '___';
+python.pythonGenerator.forBlock['blank'] = '___';
 
 BlockMirrorTextToBlocks.prototype.LOCKED_BLOCK = {
     "inline": "true",

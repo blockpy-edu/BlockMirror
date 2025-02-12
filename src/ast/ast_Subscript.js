@@ -39,14 +39,14 @@ Blockly.Blocks['ast_Subscript'] = {
         // First colon
         input = this.setExistence('SLICECOLON' + i, !isIndex , true);
         if (input) {
-            input.appendField(':').setAlign(Blockly.ALIGN_RIGHT);
+            input.appendField(':').setAlign(Blockly.inputs.Align.RIGHT);
         }
         // Second index
         input = this.setExistence('SLICEUPPER' + i, !isIndex && "1" === kind.charAt(2), false);
         // Second colon and third index
         input = this.setExistence('SLICESTEP' + i, !isIndex && "1" === kind.charAt(3), false);
         if (input) {
-            input.appendField(':').setAlign(Blockly.ALIGN_RIGHT);
+            input.appendField(':').setAlign(Blockly.inputs.Align.RIGHT);
         }
     },
     updateShape_: function () {
@@ -120,35 +120,35 @@ Blockly.Blocks['ast_Subscript'] = {
     },
 };
 
-Blockly.Python['ast_Subscript'] = function (block) {
+python.pythonGenerator.forBlock['ast_Subscript'] = function(block, generator) {
     // Create a list with any number of elements of any type.
-    let value = Blockly.Python.valueToCode(block, 'VALUE',
-        Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+    let value = python.pythonGenerator.valueToCode(block, 'VALUE',
+        python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
     var slices = new Array(block.sliceKinds_.length);
     for (let i = 0; i < block.sliceKinds_.length; i++) {
         let kind = block.sliceKinds_[i];
         if (kind.charAt(0) === 'I') {
-            slices[i] = Blockly.Python.valueToCode(block, 'INDEX' + i,
-                Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+            slices[i] = python.pythonGenerator.valueToCode(block, 'INDEX' + i,
+                python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
         } else {
             slices[i] = "";
             if (kind.charAt(1) === '1') {
-                slices[i] += Blockly.Python.valueToCode(block, 'SLICELOWER' + i,
-                    Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+                slices[i] += python.pythonGenerator.valueToCode(block, 'SLICELOWER' + i,
+                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
             }
             slices[i] += ":";
             if (kind.charAt(2) === '1') {
-                slices[i] += Blockly.Python.valueToCode(block, 'SLICEUPPER' + i,
-                    Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+                slices[i] += python.pythonGenerator.valueToCode(block, 'SLICEUPPER' + i,
+                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
             }
             if (kind.charAt(3) === '1') {
-                slices[i] += ":" + Blockly.Python.valueToCode(block, 'SLICESTEP' + i,
-                    Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+                slices[i] += ":" + python.pythonGenerator.valueToCode(block, 'SLICESTEP' + i,
+                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
             }
         }
     }
     var code = value + '[' + slices.join(', ') + "]";
-    return [code, Blockly.Python.ORDER_MEMBER];
+    return [code, python.pythonGenerator.ORDER_MEMBER];
 };
 
 var isWeirdSliceCase = function(slice) {

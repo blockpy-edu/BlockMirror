@@ -21,7 +21,8 @@ Blockly.Blocks['ast_Dict'] = {
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Dict');
-        this.setMutator(new Blockly.Mutator(['ast_Dict_create_with_item']));
+        // TODO is this still needed?
+//         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Dict_create_with_item']));
     },
     /**
      * Create XML to represent dict inputs.
@@ -94,7 +95,7 @@ Blockly.Blocks['ast_Dict'] = {
         this.updateShape_();
         // Reconnect any child blocks.
         for (var i = 0; i < this.itemCount_; i++) {
-            Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+            connections[i]?.reconnect(this, 'ADD' + i);
             if (!connections[i]) {
                 let itemBlock = this.workspace.newBlock('ast_DictItem');
                 itemBlock.setDeletable(false);
@@ -140,7 +141,7 @@ Blockly.Blocks['ast_Dict'] = {
                 var input = this.appendValueInput('ADD' + i)
                     .setCheck('DictPair');
                 if (i === 0) {
-                    input.appendField('create dict with').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField('create dict with').setAlign(Blockly.inputs.Align.RIGHT);
                 }
             }
         }
@@ -157,7 +158,7 @@ Blockly.Blocks['ast_Dict'] = {
         if (this.itemCount_) {
             let tail = this.appendDummyInput('TAIL')
                 .appendField('}');
-            tail.setAlign(Blockly.ALIGN_RIGHT);
+            tail.setAlign(Blockly.inputs.Align.RIGHT);
         }*/
     }
 };
@@ -191,23 +192,23 @@ Blockly.Blocks['ast_Dict_create_with_item'] = {
     }
 };
 
-Blockly.Python['ast_Dict'] = function (block) {
+python.pythonGenerator.forBlock['ast_Dict'] = function(block, generator) {
     // Create a dict with any number of elements of any type.
     var elements = new Array(block.itemCount_);
     for (var i = 0; i < block.itemCount_; i++) {
         let child = block.getInputTargetBlock('ADD' + i);
         if (child === null || child.type != 'ast_DictItem') {
-            elements[i] = (Blockly.Python.blank + ": "+ Blockly.Python.blank);
+            elements[i] = (python.pythonGenerator.blank + ": "+ python.pythonGenerator.blank);
             continue;
         }
-        let key = Blockly.Python.valueToCode(child, 'KEY', Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank;
-        let value = Blockly.Python.valueToCode(child, 'VALUE', Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank;
+        let key = python.pythonGenerator.valueToCode(child, 'KEY', python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank;
+        let value = python.pythonGenerator.valueToCode(child, 'VALUE', python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank;
         elements[i] = (key+ ": "+value);
     }
     var code = '{' + elements.join(', ') + '}';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node, parent) {

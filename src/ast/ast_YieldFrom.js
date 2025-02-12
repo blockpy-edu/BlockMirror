@@ -9,9 +9,9 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
 });
 
-Blockly.Python['ast_YieldFrom'] = function (block) {
-    var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_LAMBDA) || Blockly.Python.blank;
-    return ["yield from " + value, Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_YieldFrom'] = function(block, generator) {
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
+    return ["yield from " + value, python.pythonGenerator.ORDER_LAMBDA];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_YieldFrom'] = function (node, parent) {

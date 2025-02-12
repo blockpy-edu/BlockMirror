@@ -5,10 +5,11 @@ const babel = require("@babel/core");
 
 // Blockly
 const JS_BLOCKLY_FILES = [
-    path.resolve(__dirname, '../blockly/blockly_compressed.js'),
-    path.resolve(__dirname, '../blockly/blocks_compressed.js'),
-    path.resolve(__dirname, '../blockly/msg/js/en.js'),
-    path.resolve(__dirname, '../blockly/python_compressed.js')
+    path.resolve(__dirname, 'node_modules/blockly/blockly_compressed.js'),
+    path.resolve(__dirname, 'node_modules/blockly/blocks_compressed.js'),
+    path.resolve(__dirname, 'node_modules/blockly/msg/js/en.js'),
+    path.resolve(__dirname, 'node_modules/blockly/python_compressed.js'),
+    path.resolve(__dirname, 'node_modules/@blockly/field-multilineinput/dist/index.js')
 ];
 
 // CodeMirror

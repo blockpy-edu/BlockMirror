@@ -11,11 +11,11 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
-Blockly.Python['ast_IfExp'] = function (block) {
-    var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-    var body = Blockly.Python.valueToCode(block, 'BODY', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-    var orelse = Blockly.Python.valueToCode(block, 'ORELSE', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-    return [body + " if " + test + " else " + orelse + "\n", Blockly.Python.ORDER_CONDITIONAL];
+python.pythonGenerator.forBlock['ast_IfExp'] = function(block, generator) {
+    var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+    var body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+    var orelse = python.pythonGenerator.valueToCode(block, 'ORELSE', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+    return [body + " if " + test + " else " + orelse + "\n", python.pythonGenerator.ORDER_CONDITIONAL];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {

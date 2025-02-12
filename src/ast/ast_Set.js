@@ -8,7 +8,8 @@ Blockly.Blocks['ast_Set'] = {
         this.itemCount_ = 3;
         this.updateShape_();
         this.setOutput(true, 'Set');
-        this.setMutator(new Blockly.Mutator(['ast_Set_create_with_item']));
+        // TODO is this still needed?
+//         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Set_create_with_item']));
     },
     /**
      * Create XML to represent set inputs.
@@ -72,7 +73,7 @@ Blockly.Blocks['ast_Set'] = {
         this.updateShape_();
         // Reconnect any child blocks.
         for (var i = 0; i < this.itemCount_; i++) {
-            Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+            connections[i]?.reconnect(this, 'ADD' + i);
         }
     },
     /**
@@ -108,9 +109,9 @@ Blockly.Blocks['ast_Set'] = {
             if (!this.getInput('ADD' + i)) {
                 var input = this.appendValueInput('ADD' + i);
                 if (i === 0) {
-                    input.appendField('create set with {').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField('create set with {').setAlign(Blockly.inputs.Align.RIGHT);
                 } else {
-                    input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
                 }
             }
         }
@@ -124,7 +125,7 @@ Blockly.Blocks['ast_Set'] = {
             this.removeInput('TAIL');
         }
         if (this.itemCount_) {
-            this.appendDummyInput('TAIL').appendField('}').setAlign(Blockly.ALIGN_RIGHT);
+            this.appendDummyInput('TAIL').appendField('}').setAlign(Blockly.inputs.Align.RIGHT);
 
         }
     }
@@ -159,18 +160,18 @@ Blockly.Blocks['ast_Set_create_with_item'] = {
     }
 };
 
-Blockly.Python['ast_Set'] = function (block) {
+python.pythonGenerator.forBlock['ast_Set'] = function(block, generator) {
     // Create a set with any number of elements of any type.
     if (block.itemCount_ === 0) {
-        return ['set()', Blockly.Python.ORDER_FUNCTION_CALL];
+        return ['set()', python.pythonGenerator.ORDER_FUNCTION_CALL];
     }
     var elements = new Array(block.itemCount_);
     for (var i = 0; i < block.itemCount_; i++) {
-        elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     var code = '{' + elements.join(', ') + '}';
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Set'] = function (node, parent) {

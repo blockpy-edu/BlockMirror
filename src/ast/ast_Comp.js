@@ -93,7 +93,8 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
                 .appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end);
             this.updateShape_();
             this.setOutput(true);
-            this.setMutator(new Blockly.Mutator(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
+            // TODO is this still needed?
+//             this.setMutator(new Blockly.icons.MutatorIcon(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
         },
         /**
          * Create XML to represent dict inputs.
@@ -189,7 +190,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
             this.updateShape_();
             // Reconnect any child blocks.
             for (var i = 1; i < this.itemCount_; i++) {
-                Blockly.Mutator.reconnect(connections[i], this, 'GENERATOR' + i);
+                connections[i]?.reconnect(this, 'GENERATOR' + i);
                 // TODO: glitch when inserting into middle, deletes children values
                 if (!connections[i]) {
                     let createName;
@@ -253,40 +254,40 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
         }
     };
 
-    Blockly.Python['ast_' + kind] = function (block) {
+    python.pythonGenerator.forBlock['ast_' + kind] = function (block) {
         // elt
         let elt;
         if (kind === 'DictComp') {
             let child = block.getInputTargetBlock('ELT');
             if (child === null || child.type !== 'ast_DictItem') {
-                elt = (Blockly.Python.blank + ": " + Blockly.Python.blank);
+                elt = (python.pythonGenerator.blank + ": " + python.pythonGenerator.blank);
             } else {
-                let key = Blockly.Python.valueToCode(child, 'KEY', Blockly.Python.ORDER_NONE) ||
-                    Blockly.Python.blank;
-                let value = Blockly.Python.valueToCode(child, 'VALUE', Blockly.Python.ORDER_NONE) ||
-                    Blockly.Python.blank;
+                let key = python.pythonGenerator.valueToCode(child, 'KEY', python.pythonGenerator.ORDER_NONE) ||
+                    python.pythonGenerator.blank;
+                let value = python.pythonGenerator.valueToCode(child, 'VALUE', python.pythonGenerator.ORDER_NONE) ||
+                    python.pythonGenerator.blank;
                 elt = (key + ": " + value);
             }
         } else {
-            elt = Blockly.Python.valueToCode(block, 'ELT', Blockly.Python.ORDER_NONE) ||
-                Blockly.Python.blank;
+            elt = python.pythonGenerator.valueToCode(block, 'ELT', python.pythonGenerator.ORDER_NONE) ||
+                python.pythonGenerator.blank;
         }
         // generators
         let elements = new Array(block.itemCount_);
-        const BAD_DEFAULT = (elt + " for " + Blockly.Python.blank + " in" + Blockly.Python.blank);
+        const BAD_DEFAULT = (elt + " for " + python.pythonGenerator.blank + " in" + python.pythonGenerator.blank);
         for (var i = 0; i < block.itemCount_; i++) {
             let child = block.getInputTargetBlock('GENERATOR' + i);
             if (child === null) {
                 elements[i] = BAD_DEFAULT;
             } else if (child.type === 'ast_comprehensionIf') {
-                let test = Blockly.Python.valueToCode(child, 'TEST', Blockly.Python.ORDER_NONE) ||
-                    Blockly.Python.blank;
+                let test = python.pythonGenerator.valueToCode(child, 'TEST', python.pythonGenerator.ORDER_NONE) ||
+                    python.pythonGenerator.blank;
                 elements[i] = ("if " + test);
             } else if (child.type === 'ast_comprehensionFor') {
-                let target = Blockly.Python.valueToCode(child, 'TARGET', Blockly.Python.ORDER_NONE) ||
-                    Blockly.Python.blank;
-                let iter = Blockly.Python.valueToCode(child, 'ITER', Blockly.Python.ORDER_NONE) ||
-                    Blockly.Python.blank;
+                let target = python.pythonGenerator.valueToCode(child, 'TARGET', python.pythonGenerator.ORDER_NONE) ||
+                    python.pythonGenerator.blank;
+                let iter = python.pythonGenerator.valueToCode(child, 'ITER', python.pythonGenerator.ORDER_NONE) ||
+                    python.pythonGenerator.blank;
                 elements[i] = ("for " + target + " in " + iter);
             } else {
                 elements[i] = BAD_DEFAULT;
@@ -296,7 +297,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
         let code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start
             + elt + " " + elements.join(' ') +
             BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
-        return [code, Blockly.Python.ORDER_ATOMIC];
+        return [code, python.pythonGenerator.ORDER_ATOMIC];
     };
 
     BlockMirrorTextToBlocks.prototype['ast_' + kind] = function (node, parent) {

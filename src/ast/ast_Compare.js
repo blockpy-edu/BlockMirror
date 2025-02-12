@@ -32,13 +32,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
-Blockly.Python['ast_Compare'] = function (block) {
+python.pythonGenerator.forBlock['ast_Compare'] = function(block, generator) {
     // Basic arithmetic operators, and power.
     var tuple = COMPARES_BLOCKLY_GENERATE[block.getFieldValue('OP')];
     var operator = ' ' + tuple + ' ';
-    var order = Blockly.Python.ORDER_RELATIONAL;
-    var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
-    var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
+    var order = python.pythonGenerator.ORDER_RELATIONAL;
+    var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
+    var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
     var code = argument0 + operator + argument1;
     return [code, order];
 };

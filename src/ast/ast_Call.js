@@ -141,7 +141,7 @@ Blockly.Blocks['ast_Call'] = {
                 var quarkId = this.quarkIds_[i];
                 if (quarkId in this.quarkConnections_) {
                     let connection = this.quarkConnections_[quarkId];
-                    if (!Blockly.Mutator.reconnect(connection, this, 'ARG' + i)) {
+                    if (!connection?.reconnect(this, 'ARG' + i)) {
                         // Block no longer exists or has been attached elsewhere.
                         delete this.quarkConnections_[quarkId];
                     }
@@ -180,7 +180,7 @@ Blockly.Blocks['ast_Call'] = {
                 message.removeField('MESSAGE');
             } else {
                 message = this.appendDummyInput('MESSAGE_AREA')
-                    .setAlign(Blockly.ALIGN_RIGHT);
+                    .setAlign(Blockly.inputs.Align.RIGHT);
             }
             message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE');
             // One argument, no MESSAGE_AREA
@@ -210,7 +210,7 @@ Blockly.Blocks['ast_Call'] = {
                 // Add new input.
                 field = new Blockly.FieldLabel(argumentName);
                 this.appendValueInput('ARG' + i)
-                    .setAlign(Blockly.ALIGN_RIGHT)
+                    .setAlign(Blockly.inputs.Align.RIGHT)
                     .appendField(field, 'ARGNAME' + i)
                     .init();
             }
@@ -224,7 +224,7 @@ Blockly.Blocks['ast_Call'] = {
         // Closing parentheses
         if (!this.getInput('CLOSE_PAREN')) {
             this.appendDummyInput('CLOSE_PAREN')
-                .setAlign(Blockly.ALIGN_RIGHT)
+                .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(new Blockly.FieldLabel(")"));
         }
 
@@ -413,24 +413,24 @@ Blockly.Blocks['ast_Call'] = {
     }
 };
 
-Blockly.Python['ast_Call'] = function (block) {
+python.pythonGenerator.forBlock['ast_Call'] = function(block, generator) {
     // TODO: Handle import
     if (block.module_) {
-        Blockly.Python.definitions_["import_"+block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
+        python.pythonGenerator.definitions_["import_"+block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
     }
-    // Blockly.Python.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
+    // python.pythonGenerator.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
     // Get the caller
     let funcName = "";
     if (block.isMethod_) {
-        funcName = Blockly.Python.valueToCode(block, 'FUNC', Blockly.Python.ORDER_FUNCTION_CALL) ||
-            Blockly.Python.blank;
+        funcName = python.pythonGenerator.valueToCode(block, 'FUNC', python.pythonGenerator.ORDER_FUNCTION_CALL) ||
+            python.pythonGenerator.blank;
     }
     funcName += this.name_;
     // Build the arguments
     var args = [];
     for (var i = 0; i < block.arguments_.length; i++) {
-        let value = Blockly.Python.valueToCode(block, 'ARG' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        let value = python.pythonGenerator.valueToCode(block, 'ARG' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         let argument = block.arguments_[i];
         if (argument.startsWith('KWARGS:')) {
             args[i] = "**" + value;
@@ -443,7 +443,7 @@ Blockly.Python['ast_Call'] = function (block) {
     // Return the result
     let code = funcName + '(' + args.join(', ') + ')';
     if (block.returns_) {
-        return [code, Blockly.Python.ORDER_FUNCTION_CALL];
+        return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
     } else {
         return code + "\n";
     }

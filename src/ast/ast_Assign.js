@@ -31,7 +31,7 @@ Blockly.Blocks['ast_Assign'] = {
                 if (!this.getInput('TARGET' + i)) {
                     var input = this.appendValueInput('TARGET' + i);
                     if (i !== 0) {
-                        input.appendField('and').setAlign(Blockly.ALIGN_RIGHT);
+                        input.appendField('and').setAlign(Blockly.inputs.Align.RIGHT);
                     }
                 }
                 this.moveInputBefore('TARGET' + i, 'VALUE');
@@ -70,17 +70,17 @@ Blockly.Blocks['ast_Assign'] = {
     },
 };
 
-Blockly.Python['ast_Assign'] = function (block) {
+python.pythonGenerator.forBlock['ast_Assign'] = function(block, generator) {
     // Create a list with any number of elements of any type.
-    let value = Blockly.Python.valueToCode(block, 'VALUE',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    let value = python.pythonGenerator.valueToCode(block, 'VALUE',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     let targets = new Array(block.targetCount_);
     if (block.targetCount_ === 1 && block.simpleTarget_) {
-        targets[0] = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+        targets[0] = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
     } else {
         for (var i = 0; i < block.targetCount_; i++) {
-            targets[i] = (Blockly.Python.valueToCode(block, 'TARGET' + i,
-                Blockly.Python.ORDER_NONE) || Blockly.Python.blank);
+            targets[i] = (python.pythonGenerator.valueToCode(block, 'TARGET' + i,
+                python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
         }
     }
     return targets.join(' = ') + " = " + value + "\n";
