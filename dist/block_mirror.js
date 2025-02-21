@@ -4003,19 +4003,18 @@ BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) 
     });
   }
 };
-Blockly.Blocks['ast_List'] = {
+Blockly.Blocks["ast_List"] = {
   /**
    * Block for creating a list with any number of elements of any type.
    * @this Blockly.Block
    */
   init: function init() {
-    this.setHelpUrl(Blockly.Msg['LISTS_CREATE_WITH_HELPURL']);
+    this.setHelpUrl(Blockly.Msg["LISTS_CREATE_WITH_HELPURL"]);
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'List');
-    // TODO is this still needed?
-    // this.setMutator(new Blockly.icons.MutatorIcon(['ast_List_create_with_item']));
+    this.setOutput(true, "List");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_List_create_with_item"], this));
   },
   /**
    * Create XML to represent list inputs.
@@ -4023,8 +4022,8 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
   /**
@@ -4033,7 +4032,7 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
   /**
@@ -4043,11 +4042,11 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_List_create_with_container');
+    var containerBlock = workspace.newBlock("ast_List_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_List_create_with_item');
+      var itemBlock = workspace.newBlock("ast_List_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
@@ -4060,7 +4059,7 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     // Count number of inputs.
     var connections = [];
     while (itemBlock) {
@@ -4069,7 +4068,7 @@ Blockly.Blocks['ast_List'] = {
     }
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
@@ -4079,7 +4078,7 @@ Blockly.Blocks['ast_List'] = {
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
       var _connections$i;
-      (_connections$i = connections[i]) === null || _connections$i === void 0 || _connections$i.reconnect(this, 'ADD' + i);
+      (_connections$i = connections[i]) === null || _connections$i === void 0 || _connections$i.reconnect(this, "ADD" + i);
     }
   },
   /**
@@ -4088,10 +4087,10 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
@@ -4103,80 +4102,80 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('create empty list []');
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("create empty list []");
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i == 0) {
-          input.appendField('create list with [');
+          input.appendField("create list with [");
         } else {
-          input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
     // Remove deleted inputs.
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
       i++;
     }
     // Add the trailing "]"
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
     }
     if (this.itemCount_) {
-      this.appendDummyInput('TAIL').appendField(']').setAlign(Blockly.inputs.Align.RIGHT);
+      this.appendDummyInput("TAIL").appendField("]").setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_List_create_with_container'] = {
+Blockly.Blocks["ast_List_create_with_container"] = {
   /**
    * Mutator block for list container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
-    this.appendDummyInput().appendField('Add new list elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new list elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_List_create_with_item'] = {
+Blockly.Blocks["ast_List_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-python.pythonGenerator.forBlock['ast_List'] = function (block, generator) {
+python.pythonGenerator.forBlock["ast_List"] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-  var code = '[' + elements.join(', ') + ']';
+  var code = "[" + elements.join(", ") + "]";
   return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_List"] = function (node, parent) {
   var elts = node.elts;
   var ctx = node.ctx;
   return BlockMirrorTextToBlocks.create_block("ast_List", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 3 ? "false" : "true"
+    inline: elts.length > 3 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-Blockly.Blocks['ast_Tuple'] = {
+Blockly.Blocks["ast_Tuple"] = {
   /**
    * Block for creating a tuple with any number of elements of any type.
    * @this Blockly.Block
@@ -4185,9 +4184,8 @@ Blockly.Blocks['ast_Tuple'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Tuple');
-    // TODO is this still needed?
-    //         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Tuple_create_with_item']));
+    this.setOutput(true, "Tuple");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Tuple_create_with_item"], this));
   },
   /**
    * Create XML to represent tuple inputs.
@@ -4195,8 +4193,8 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
   /**
@@ -4205,7 +4203,7 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
   /**
@@ -4215,11 +4213,11 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Tuple_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Tuple_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Tuple_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Tuple_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
@@ -4232,7 +4230,7 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     // Count number of inputs.
     var connections = [];
     while (itemBlock) {
@@ -4241,7 +4239,7 @@ Blockly.Blocks['ast_Tuple'] = {
     }
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
@@ -4251,7 +4249,7 @@ Blockly.Blocks['ast_Tuple'] = {
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
       var _connections$i2;
-      (_connections$i2 = connections[i]) === null || _connections$i2 === void 0 || _connections$i2.reconnect(this, 'ADD' + i);
+      (_connections$i2 = connections[i]) === null || _connections$i2 === void 0 || _connections$i2.reconnect(this, "ADD" + i);
     }
   },
   /**
@@ -4260,10 +4258,10 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
@@ -4275,90 +4273,90 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('()');
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("()");
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i === 0) {
-          input.appendField('(').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField("(").setAlign(Blockly.inputs.Align.RIGHT);
         } else {
-          input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
     // Remove deleted inputs.
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
       i++;
     }
     // Add the trailing "]"
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
     }
     if (this.itemCount_) {
-      var tail = this.appendDummyInput('TAIL');
+      var tail = this.appendDummyInput("TAIL");
       if (this.itemCount_ === 1) {
-        tail.appendField(',)');
+        tail.appendField(",)");
       } else {
-        tail.appendField(')');
+        tail.appendField(")");
       }
       tail.setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_Tuple_create_with_container'] = {
+Blockly.Blocks["ast_Tuple_create_with_container"] = {
   /**
    * Mutator block for tuple container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
-    this.appendDummyInput().appendField('Add new tuple elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new tuple elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Tuple_create_with_item'] = {
+Blockly.Blocks["ast_Tuple_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-python.pythonGenerator.forBlock['ast_Tuple'] = function (block, generator) {
+python.pythonGenerator.forBlock["ast_Tuple"] = function (block, generator) {
   // Create a tuple with any number of elements of any type.
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
   var requiredComma = "";
   if (block.itemCount_ == 1) {
     requiredComma = ", ";
   }
-  var code = '(' + elements.join(', ') + requiredComma + ')';
+  var code = "(" + elements.join(", ") + requiredComma + ")";
   return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-BlockMirrorTextToBlocks.prototype['ast_Tuple'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Tuple"] = function (node, parent) {
   var elts = node.elts;
   var ctx = node.ctx;
   return BlockMirrorTextToBlocks.create_block("ast_Tuple", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 4 ? "false" : "true"
+    inline: elts.length > 4 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-Blockly.Blocks['ast_Set'] = {
+Blockly.Blocks["ast_Set"] = {
   /**
    * Block for creating a set with any number of elements of any type.
    * @this Blockly.Block
@@ -4367,9 +4365,8 @@ Blockly.Blocks['ast_Set'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Set');
-    // TODO is this still needed?
-    //         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Set_create_with_item']));
+    this.setOutput(true, "Set");
+    this.setMutator(new Blockly.Mutator(["ast_Set_create_with_item"]), this);
   },
   /**
    * Create XML to represent set inputs.
@@ -4377,8 +4374,8 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
   /**
@@ -4387,7 +4384,7 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
   /**
@@ -4397,11 +4394,11 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Set_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Set_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Set_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Set_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
@@ -4414,7 +4411,7 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     // Count number of inputs.
     var connections = [];
     while (itemBlock) {
@@ -4423,7 +4420,7 @@ Blockly.Blocks['ast_Set'] = {
     }
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
@@ -4432,8 +4429,7 @@ Blockly.Blocks['ast_Set'] = {
     this.updateShape_();
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i3;
-      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, 'ADD' + i);
+      Blockly.Mutator.reconnect(connections[i], this, "ADD" + i);
     }
   },
   /**
@@ -4442,10 +4438,10 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
@@ -4457,82 +4453,82 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('create empty set');
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("create empty set");
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i === 0) {
-          input.appendField('create set with {').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField("create set with {").setAlign(Blockly.ALIGN_RIGHT);
         } else {
-          input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField(",").setAlign(Blockly.ALIGN_RIGHT);
         }
       }
     }
     // Remove deleted inputs.
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
       i++;
     }
     // Add the trailing "]"
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
     }
     if (this.itemCount_) {
-      this.appendDummyInput('TAIL').appendField('}').setAlign(Blockly.inputs.Align.RIGHT);
+      this.appendDummyInput("TAIL").appendField("}").setAlign(Blockly.ALIGN_RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_Set_create_with_container'] = {
+Blockly.Blocks["ast_Set_create_with_container"] = {
   /**
    * Mutator block for set container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
-    this.appendDummyInput().appendField('Add new set elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new set elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Set_create_with_item'] = {
+Blockly.Blocks["ast_Set_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-python.pythonGenerator.forBlock['ast_Set'] = function (block, generator) {
+Blockly.Python["ast_Set"] = function (block) {
   // Create a set with any number of elements of any type.
   if (block.itemCount_ === 0) {
-    return ['set()', python.pythonGenerator.ORDER_FUNCTION_CALL];
+    return ["set()", Blockly.Python.ORDER_FUNCTION_CALL];
   }
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, 'ADD' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = Blockly.Python.valueToCode(block, "ADD" + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
   }
-  var code = '{' + elements.join(', ') + '}';
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  var code = "{" + elements.join(", ") + "}";
+  return [code, Blockly.Python.ORDER_ATOMIC];
 };
-BlockMirrorTextToBlocks.prototype['ast_Set'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Set"] = function (node, parent) {
   var elts = node.elts;
   return BlockMirrorTextToBlocks.create_block("ast_Set", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 3 ? "false" : "true"
+    inline: elts.length > 3 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-Blockly.Blocks['ast_DictItem'] = {
+Blockly.Blocks["ast_DictItem"] = {
   init: function init() {
     this.appendValueInput("KEY").setCheck(null);
     this.appendValueInput("VALUE").setCheck(null).appendField(":");
@@ -4541,7 +4537,7 @@ Blockly.Blocks['ast_DictItem'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
   }
 };
-Blockly.Blocks['ast_Dict'] = {
+Blockly.Blocks["ast_Dict"] = {
   /**
    * Block for creating a dict with any number of elements of any type.
    * @this Blockly.Block
@@ -4550,9 +4546,8 @@ Blockly.Blocks['ast_Dict'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Dict');
-    // TODO is this still needed?
-    //         this.setMutator(new Blockly.icons.MutatorIcon(['ast_Dict_create_with_item']));
+    this.setOutput(true, "Dict");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Dict_create_with_item"], this));
   },
   /**
    * Create XML to represent dict inputs.
@@ -4560,8 +4555,8 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
   /**
@@ -4570,7 +4565,7 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
   /**
@@ -4580,11 +4575,11 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Dict_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Dict_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Dict_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Dict_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
@@ -4597,7 +4592,7 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     // Count number of inputs.
     var connections = [];
     while (itemBlock) {
@@ -4606,7 +4601,7 @@ Blockly.Blocks['ast_Dict'] = {
     }
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         var key = connection.getSourceBlock().getInput("KEY");
         if (key.connection.targetConnection) {
@@ -4624,14 +4619,14 @@ Blockly.Blocks['ast_Dict'] = {
     this.updateShape_();
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i4;
-      (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, 'ADD' + i);
+      var _connections$i3;
+      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, "ADD" + i);
       if (!connections[i]) {
-        var _itemBlock = this.workspace.newBlock('ast_DictItem');
+        var _itemBlock = this.workspace.newBlock("ast_DictItem");
         _itemBlock.setDeletable(false);
         _itemBlock.setMovable(false);
         _itemBlock.initSvg();
-        this.getInput('ADD' + i).connection.connect(_itemBlock.outputConnection);
+        this.getInput("ADD" + i).connection.connect(_itemBlock.outputConnection);
         _itemBlock.render();
         //this.get(itemBlock, 'ADD'+i)
       }
@@ -4643,10 +4638,10 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
@@ -4658,84 +4653,84 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('empty dictionary');
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("empty dictionary");
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i).setCheck('DictPair');
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i).setCheck("DictPair");
         if (i === 0) {
-          input.appendField('create dict with').setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField("create dict with").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
     // Remove deleted inputs.
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
       i++;
     }
     // Add the trailing "}"
     /*
-    if (this.getInput('TAIL')) {
-        this.removeInput('TAIL');
-    }
-    if (this.itemCount_) {
-        let tail = this.appendDummyInput('TAIL')
-            .appendField('}');
-        tail.setAlign(Blockly.inputs.Align.RIGHT);
-    }*/
+        if (this.getInput('TAIL')) {
+            this.removeInput('TAIL');
+        }
+        if (this.itemCount_) {
+            let tail = this.appendDummyInput('TAIL')
+                .appendField('}');
+            tail.setAlign(Blockly.inputs.Align.RIGHT);
+        }*/
   }
 };
-Blockly.Blocks['ast_Dict_create_with_container'] = {
+Blockly.Blocks["ast_Dict_create_with_container"] = {
   /**
    * Mutator block for dict container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
-    this.appendDummyInput().appendField('Add new dict elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new dict elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Dict_create_with_item'] = {
+Blockly.Blocks["ast_Dict_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-python.pythonGenerator.forBlock['ast_Dict'] = function (block, generator) {
+python.pythonGenerator.forBlock["ast_Dict"] = function (block, generator) {
   // Create a dict with any number of elements of any type.
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    var child = block.getInputTargetBlock('ADD' + i);
-    if (child === null || child.type != 'ast_DictItem') {
+    var child = block.getInputTargetBlock("ADD" + i);
+    if (child === null || child.type != "ast_DictItem") {
       elements[i] = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       continue;
     }
-    var key = python.pythonGenerator.valueToCode(child, 'KEY', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-    var value = python.pythonGenerator.valueToCode(child, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     elements[i] = key + ": " + value;
   }
-  var code = '{' + elements.join(', ') + '}';
+  var code = "{" + elements.join(", ") + "}";
   return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Dict"] = function (node, parent) {
   var keys = node.keys;
   var values = node.values;
   if (keys === null) {
     return BlockMirrorTextToBlocks.create_block("ast_Dict", node.lineno, {}, {}, {
-      "inline": "false"
+      inline: "false"
     }, {
       "@items": 0
     });
@@ -4745,12 +4740,12 @@ BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node, parent) {
     var key = keys[i];
     var value = values[i];
     elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {}, {
-      "KEY": this.convert(key, node),
-      "VALUE": this.convert(value, node)
+      KEY: this.convert(key, node),
+      VALUE: this.convert(value, node)
     }, this.LOCKED_BLOCK);
   }
   return BlockMirrorTextToBlocks.create_block("ast_Dict", node.lineno, {}, elements, {
-    "inline": "false"
+    inline: "false"
   }, {
     "@items": keys.length
   });
@@ -5786,110 +5781,109 @@ BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node, parent) {
   });
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_comprehensionFor",
-  "message0": "for %1 in %2",
-  "args0": [{
-    "type": "input_value",
-    "name": "TARGET"
+  type: "ast_comprehensionFor",
+  message0: "for %1 in %2",
+  args0: [{
+    type: "input_value",
+    name: "TARGET"
   }, {
-    "type": "input_value",
-    "name": "ITER"
+    type: "input_value",
+    name: "ITER"
   }],
-  "inputsInline": true,
-  "output": "ComprehensionFor",
-  "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
+  inputsInline: true,
+  output: "ComprehensionFor",
+  colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_comprehensionIf",
-  "message0": "if %1",
-  "args0": [{
-    "type": "input_value",
-    "name": "TEST"
+  type: "ast_comprehensionIf",
+  message0: "if %1",
+  args0: [{
+    type: "input_value",
+    name: "TEST"
   }],
-  "inputsInline": true,
-  "output": "ComprehensionIf",
-  "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
+  inputsInline: true,
+  output: "ComprehensionIf",
+  colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
-Blockly.Blocks['ast_Comp_create_with_container'] = {
+Blockly.Blocks["ast_Comp_create_with_container"] = {
   /**
    * Mutator block for dict container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('Add new comprehensions below');
-    this.appendDummyInput().appendField('   For clause');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new comprehensions below");
+    this.appendDummyInput().appendField("   For clause");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Comp_create_with_for'] = {
+Blockly.Blocks["ast_Comp_create_with_for"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('For clause');
+    this.appendDummyInput().appendField("For clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Comp_create_with_if'] = {
+Blockly.Blocks["ast_Comp_create_with_if"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('If clause');
+    this.appendDummyInput().appendField("If clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
 BlockMirrorTextToBlocks.COMP_SETTINGS = {
-  'ListComp': {
-    start: '[',
-    end: ']',
+  ListComp: {
+    start: "[",
+    end: "]",
     color: BlockMirrorTextToBlocks.COLOR.LIST
   },
-  'SetComp': {
-    start: '{',
-    end: '}',
+  SetComp: {
+    start: "{",
+    end: "}",
     color: BlockMirrorTextToBlocks.COLOR.SET
   },
-  'GeneratorExp': {
-    start: '(',
-    end: ')',
+  GeneratorExp: {
+    start: "(",
+    end: ")",
     color: BlockMirrorTextToBlocks.COLOR.SEQUENCES
   },
-  'DictComp': {
-    start: '{',
-    end: '}',
+  DictComp: {
+    start: "{",
+    end: "}",
     color: BlockMirrorTextToBlocks.COLOR.DICTIONARY
   }
 };
-['ListComp', 'SetComp', 'GeneratorExp', 'DictComp'].forEach(function (kind) {
-  Blockly.Blocks['ast_' + kind] = {
+["ListComp", "SetComp", "GeneratorExp", "DictComp"].forEach(function (kind) {
+  Blockly.Blocks["ast_" + kind] = {
     /**
      * Block for creating a dict with any number of elements of any type.
      * @this Blockly.Block
      */
     init: function init() {
-      this.setStyle('loop_blocks');
+      this.setStyle("loop_blocks");
       this.setColour(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color);
       this.itemCount_ = 3;
       var input = this.appendValueInput("ELT").appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start);
-      if (kind === 'DictComp') {
-        input.setCheck('DictPair');
+      if (kind === "DictComp") {
+        input.setCheck("DictPair");
       }
       this.appendDummyInput("END_BRACKET").appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end);
       this.updateShape_();
       this.setOutput(true);
-      // TODO is this still needed?
-      //             this.setMutator(new Blockly.icons.MutatorIcon(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
+      this.setMutator(new Blockly.icons.MutatorIcon(["ast_Comp_create_with_for", "ast_Comp_create_with_if"], this));
     },
     /**
      * Create XML to represent dict inputs.
@@ -5897,8 +5891,8 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     mutationToDom: function mutationToDom() {
-      var container = document.createElement('mutation');
-      container.setAttribute('items', this.itemCount_);
+      var container = document.createElement("mutation");
+      container.setAttribute("items", this.itemCount_);
       return container;
     },
     /**
@@ -5907,7 +5901,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     domToMutation: function domToMutation(xmlElement) {
-      this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+      this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
       this.updateShape_();
     },
     /**
@@ -5917,17 +5911,17 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     decompose: function decompose(workspace) {
-      var containerBlock = workspace.newBlock('ast_Comp_create_with_container');
+      var containerBlock = workspace.newBlock("ast_Comp_create_with_container");
       containerBlock.initSvg();
-      var connection = containerBlock.getInput('STACK').connection;
+      var connection = containerBlock.getInput("STACK").connection;
       var generators = [];
       for (var i = 1; i < this.itemCount_; i++) {
-        var generator = this.getInput('GENERATOR' + i).connection;
+        var generator = this.getInput("GENERATOR" + i).connection;
         var createName = void 0;
-        if (generator.targetConnection.getSourceBlock().type === 'ast_comprehensionIf') {
-          createName = 'ast_Comp_create_with_if';
-        } else if (generator.targetConnection.getSourceBlock().type === 'ast_comprehensionFor') {
-          createName = 'ast_Comp_create_with_for';
+        if (generator.targetConnection.getSourceBlock().type === "ast_comprehensionIf") {
+          createName = "ast_Comp_create_with_if";
+        } else if (generator.targetConnection.getSourceBlock().type === "ast_comprehensionFor") {
+          createName = "ast_Comp_create_with_for";
         } else {
           throw Error("Unknown block type: " + generator.targetConnection.getSourceBlock().type);
         }
@@ -5945,10 +5939,10 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     compose: function compose(containerBlock) {
-      var itemBlock = containerBlock.getInputTargetBlock('STACK');
+      var itemBlock = containerBlock.getInputTargetBlock("STACK");
       // Count number of inputs.
       var connections = [containerBlock.valueConnection_];
-      var blockTypes = ['ast_Comp_create_with_for'];
+      var blockTypes = ["ast_Comp_create_with_for"];
       while (itemBlock) {
         connections.push(itemBlock.valueConnection_);
         blockTypes.push(itemBlock.type);
@@ -5956,20 +5950,20 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       }
       // Disconnect any children that don't belong.
       for (var i = 1; i < this.itemCount_; i++) {
-        var connection = this.getInput('GENERATOR' + i).connection.targetConnection;
+        var connection = this.getInput("GENERATOR" + i).connection.targetConnection;
         if (connection && connections.indexOf(connection) === -1) {
           var connectedBlock = connection.getSourceBlock();
-          if (connectedBlock.type === 'ast_comprehensionIf') {
-            var testField = connectedBlock.getInput('TEST');
+          if (connectedBlock.type === "ast_comprehensionIf") {
+            var testField = connectedBlock.getInput("TEST");
             if (testField.connection.targetConnection) {
               testField.connection.targetConnection.getSourceBlock().unplug(true);
             }
-          } else if (connectedBlock.type === 'ast_comprehensionFor') {
-            var iterField = connectedBlock.getInput('ITER');
+          } else if (connectedBlock.type === "ast_comprehensionFor") {
+            var iterField = connectedBlock.getInput("ITER");
             if (iterField.connection.targetConnection) {
               iterField.connection.targetConnection.getSourceBlock().unplug(true);
             }
-            var targetField = connectedBlock.getInput('TARGET');
+            var targetField = connectedBlock.getInput("TARGET");
             if (targetField.connection.targetConnection) {
               targetField.connection.targetConnection.getSourceBlock().unplug(true);
             }
@@ -5984,15 +5978,15 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       this.updateShape_();
       // Reconnect any child blocks.
       for (var i = 1; i < this.itemCount_; i++) {
-        var _connections$i5;
-        (_connections$i5 = connections[i]) === null || _connections$i5 === void 0 || _connections$i5.reconnect(this, 'GENERATOR' + i);
+        var _connections$i4;
+        (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, "GENERATOR" + i);
         // TODO: glitch when inserting into middle, deletes children values
         if (!connections[i]) {
           var createName = void 0;
-          if (blockTypes[i] === 'ast_Comp_create_with_if') {
-            createName = 'ast_comprehensionIf';
-          } else if (blockTypes[i] === 'ast_Comp_create_with_for') {
-            createName = 'ast_comprehensionFor';
+          if (blockTypes[i] === "ast_Comp_create_with_if") {
+            createName = "ast_comprehensionIf";
+          } else if (blockTypes[i] === "ast_Comp_create_with_for") {
+            createName = "ast_comprehensionFor";
           } else {
             throw Error("Unknown block type: " + blockTypes[i]);
           }
@@ -6000,7 +5994,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
           _itemBlock2.setDeletable(false);
           _itemBlock2.setMovable(false);
           _itemBlock2.initSvg();
-          this.getInput('GENERATOR' + i).connection.connect(_itemBlock2.outputConnection);
+          this.getInput("GENERATOR" + i).connection.connect(_itemBlock2.outputConnection);
           _itemBlock2.render();
           //this.get(itemBlock, 'ADD'+i)
         }
@@ -6012,11 +6006,11 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     saveConnections: function saveConnections(containerBlock) {
-      containerBlock.valueConnection_ = this.getInput('GENERATOR0').connection.targetConnection;
-      var itemBlock = containerBlock.getInputTargetBlock('STACK');
+      containerBlock.valueConnection_ = this.getInput("GENERATOR0").connection.targetConnection;
+      var itemBlock = containerBlock.getInputTargetBlock("STACK");
       var i = 1;
       while (itemBlock) {
-        var input = this.getInput('GENERATOR' + i);
+        var input = this.getInput("GENERATOR" + i);
         itemBlock.valueConnection_ = input && input.connection.targetConnection;
         i++;
         itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
@@ -6030,82 +6024,82 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
     updateShape_: function updateShape_() {
       // Add new inputs.
       for (var i = 0; i < this.itemCount_; i++) {
-        if (!this.getInput('GENERATOR' + i)) {
-          var input = this.appendValueInput('GENERATOR' + i);
+        if (!this.getInput("GENERATOR" + i)) {
+          var input = this.appendValueInput("GENERATOR" + i);
           if (i === 0) {
             input.setCheck("ComprehensionFor");
           } else {
             input.setCheck(["ComprehensionFor", "ComprehensionIf"]);
           }
-          this.moveInputBefore('GENERATOR' + i, 'END_BRACKET');
+          this.moveInputBefore("GENERATOR" + i, "END_BRACKET");
         }
       }
       // Remove deleted inputs.
-      while (this.getInput('GENERATOR' + i)) {
-        this.removeInput('GENERATOR' + i);
+      while (this.getInput("GENERATOR" + i)) {
+        this.removeInput("GENERATOR" + i);
         i++;
       }
     }
   };
-  python.pythonGenerator.forBlock['ast_' + kind] = function (block) {
+  python.pythonGenerator.forBlock["ast_" + kind] = function (block) {
     // elt
     var elt;
-    if (kind === 'DictComp') {
-      var child = block.getInputTargetBlock('ELT');
-      if (child === null || child.type !== 'ast_DictItem') {
+    if (kind === "DictComp") {
+      var child = block.getInputTargetBlock("ELT");
+      if (child === null || child.type !== "ast_DictItem") {
         elt = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       } else {
-        var key = python.pythonGenerator.valueToCode(child, 'KEY', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-        var value = python.pythonGenerator.valueToCode(child, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elt = key + ": " + value;
       }
     } else {
-      elt = python.pythonGenerator.valueToCode(block, 'ELT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      elt = python.pythonGenerator.valueToCode(block, "ELT", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     // generators
     var elements = new Array(block.itemCount_);
     var BAD_DEFAULT = elt + " for " + python.pythonGenerator.blank + " in" + python.pythonGenerator.blank;
     for (var i = 0; i < block.itemCount_; i++) {
-      var _child = block.getInputTargetBlock('GENERATOR' + i);
+      var _child = block.getInputTargetBlock("GENERATOR" + i);
       if (_child === null) {
         elements[i] = BAD_DEFAULT;
-      } else if (_child.type === 'ast_comprehensionIf') {
-        var test = python.pythonGenerator.valueToCode(_child, 'TEST', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      } else if (_child.type === "ast_comprehensionIf") {
+        var test = python.pythonGenerator.valueToCode(_child, "TEST", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elements[i] = "if " + test;
-      } else if (_child.type === 'ast_comprehensionFor') {
-        var target = python.pythonGenerator.valueToCode(_child, 'TARGET', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-        var iter = python.pythonGenerator.valueToCode(_child, 'ITER', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      } else if (_child.type === "ast_comprehensionFor") {
+        var target = python.pythonGenerator.valueToCode(_child, "TARGET", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var iter = python.pythonGenerator.valueToCode(_child, "ITER", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elements[i] = "for " + target + " in " + iter;
       } else {
         elements[i] = BAD_DEFAULT;
       }
     }
     // Put it all together
-    var code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start + elt + " " + elements.join(' ') + BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
+    var code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start + elt + " " + elements.join(" ") + BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
     return [code, python.pythonGenerator.ORDER_ATOMIC];
   };
-  BlockMirrorTextToBlocks.prototype['ast_' + kind] = function (node, parent) {
+  BlockMirrorTextToBlocks.prototype["ast_" + kind] = function (node, parent) {
     var generators = node.generators;
     var elements = {};
-    if (kind === 'DictComp') {
+    if (kind === "DictComp") {
       var key = node.key;
       var value = node.value;
       elements["ELT"] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {}, {
-        "KEY": this.convert(key, node),
-        "VALUE": this.convert(value, node)
+        KEY: this.convert(key, node),
+        VALUE: this.convert(value, node)
       }, {
-        "inline": "true",
-        'deletable': "false",
-        "movable": "false"
+        inline: "true",
+        deletable: "false",
+        movable: "false"
       });
     } else {
       var elt = node.elt;
       elements["ELT"] = this.convert(elt, node);
     }
     var DEFAULT_SETTINGS = {
-      "inline": "true",
-      'deletable': "false",
-      "movable": "false"
+      inline: "true",
+      deletable: "false",
+      movable: "false"
     };
     var g = 0;
     for (var i = 0; i < generators.length; i++) {
@@ -6114,26 +6108,27 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       var ifs = generators[i].ifs;
       var is_async = generators[i].is_async;
       elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionFor", node.lineno, {}, {
-        "ITER": this.convert(iter, node),
-        "TARGET": this.convert(target, node)
+        ITER: this.convert(iter, node),
+        TARGET: this.convert(target, node)
       }, DEFAULT_SETTINGS);
       g += 1;
       if (ifs) {
         for (var j = 0; j < ifs.length; j++) {
           elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionIf", node.lineno, {}, {
-            "TEST": this.convert(ifs[j], node)
+            TEST: this.convert(ifs[j], node)
           }, DEFAULT_SETTINGS);
           g += 1;
         }
       }
     }
     return BlockMirrorTextToBlocks.create_block("ast_" + kind, node.lineno, {}, elements, {
-      "inline": "false"
+      inline: "false"
     }, {
       "@items": g
     });
   };
 });
+
 // TODO: what if a user deletes a parameter through the context menu?
 
 // The mutator container
