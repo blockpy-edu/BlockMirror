@@ -1142,10 +1142,11 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
   var originalSource = python_source;
   this.source = python_source.split("\n");
   var previousLine = 1 + this.source.length;
+  var startLine = 1;
   while (ast === null) {
     if (python_source.trim() === "") {
       if (badChunks.length) {
-        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
       }
       return {
         "xml": BlockMirrorTextToBlocks.xmlToString(xml),
@@ -1159,14 +1160,15 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     } catch (e) {
       //console.error(e);
       error = e;
-      if (e.traceback && e.traceback.length && e.traceback[0].lineno && e.traceback[0].lineno < previousLine) {
-        previousLine = e.traceback[0].lineno - 1;
+      if (e.position && e.position.length && e.position[0][0] && e.position[0][0] < previousLine) {
+        previousLine = e.position[0][0] - 1;
         badChunks = badChunks.concat(this.source.slice(previousLine));
+        startLine += previousLine;
         this.source = this.source.slice(0, previousLine);
         python_source = this.source.join("\n");
       } else {
         //console.error(e);
-        xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource, startLine));
         return {
           "xml": BlockMirrorTextToBlocks.xmlToString(xml),
           "error": error,
@@ -1193,7 +1195,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     }
   }
   if (badChunks.length) {
-    xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+    xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
   }
   return {
     "xml": BlockMirrorTextToBlocks.xmlToString(xml),
@@ -1490,7 +1492,7 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     for (var mutation in mutations) {
       var mutationValue = mutations[mutation];
       if (mutation.charAt(0) === '@') {
-        newMutation.setAttribute(mutation.substr(1), mutationValue);
+        newMutation.setAttribute(mutation.substring(1), mutationValue);
       } else if (mutationValue != null && mutationValue.constructor === Array) {
         for (var i = 0; i < mutationValue.length; i++) {
           var mutationNode = document.createElement(mutation);
@@ -1551,9 +1553,8 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
   }
   return newBlock;
 };
-BlockMirrorTextToBlocks.raw_block = function (txt) {
-  // TODO: lineno as second parameter!
-  return BlockMirrorTextToBlocks.create_block("ast_Raw", 0, {
+BlockMirrorTextToBlocks.raw_block = function (txt, lineno) {
+  return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno || 0, {
     "TEXT": txt
   });
 };
@@ -1576,7 +1577,7 @@ BlockMirrorTextToBlocks.prototype.convertElements = function (key, values, paren
   }
   return output;
 };
-python.pythonGenerator.forBlock['blank'] = '___';
+python.pythonGenerator.blank = '___';
 BlockMirrorTextToBlocks.prototype.LOCKED_BLOCK = {
   "inline": "true",
   'deletable': "false",
@@ -4366,7 +4367,7 @@ Blockly.Blocks["ast_Set"] = {
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Set");
-    this.setMutator(new Blockly.Mutator(["ast_Set_create_with_item"]), this);
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Set_create_with_item"], this));
   },
   /**
    * Create XML to represent set inputs.
@@ -4429,7 +4430,8 @@ Blockly.Blocks["ast_Set"] = {
     this.updateShape_();
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      Blockly.Mutator.reconnect(connections[i], this, "ADD" + i);
+      var _connections$i3;
+      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, "ADD" + i);
     }
   },
   /**
@@ -4463,9 +4465,9 @@ Blockly.Blocks["ast_Set"] = {
       if (!this.getInput("ADD" + i)) {
         var input = this.appendValueInput("ADD" + i);
         if (i === 0) {
-          input.appendField("create set with {").setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField("create set with {").setAlign(Blockly.inputs.Align.RIGHT);
         } else {
-          input.appendField(",").setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
@@ -4479,7 +4481,7 @@ Blockly.Blocks["ast_Set"] = {
       this.removeInput("TAIL");
     }
     if (this.itemCount_) {
-      this.appendDummyInput("TAIL").appendField("}").setAlign(Blockly.ALIGN_RIGHT);
+      this.appendDummyInput("TAIL").appendField("}").setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
@@ -4508,17 +4510,17 @@ Blockly.Blocks["ast_Set_create_with_item"] = {
     this.contextMenu = false;
   }
 };
-Blockly.Python["ast_Set"] = function (block) {
+python.pythonGenerator.forBlock["ast_Set"] = function (block, generator) {
   // Create a set with any number of elements of any type.
   if (block.itemCount_ === 0) {
-    return ["set()", Blockly.Python.ORDER_FUNCTION_CALL];
+    return ["set()", python.pythonGenerator.ORDER_FUNCTION_CALL];
   }
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = Blockly.Python.valueToCode(block, "ADD" + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
   var code = "{" + elements.join(", ") + "}";
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_Set"] = function (node, parent) {
   var elts = node.elts;
@@ -4619,8 +4621,8 @@ Blockly.Blocks["ast_Dict"] = {
     this.updateShape_();
     // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i3;
-      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, "ADD" + i);
+      var _connections$i4;
+      (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, "ADD" + i);
       if (!connections[i]) {
         var _itemBlock = this.workspace.newBlock("ast_DictItem");
         _itemBlock.setDeletable(false);
@@ -5978,8 +5980,8 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       this.updateShape_();
       // Reconnect any child blocks.
       for (var i = 1; i < this.itemCount_; i++) {
-        var _connections$i4;
-        (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, "GENERATOR" + i);
+        var _connections$i5;
+        (_connections$i5 = connections[i]) === null || _connections$i5 === void 0 || _connections$i5.reconnect(this, "GENERATOR" + i);
         // TODO: glitch when inserting into middle, deletes children values
         if (!connections[i]) {
           var createName = void 0;

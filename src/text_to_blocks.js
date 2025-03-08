@@ -33,10 +33,11 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     let originalSource = python_source;
     this.source = python_source.split("\n");
     let previousLine = 1+this.source.length;
+    let startLine = 1;
     while (ast === null) {
         if (python_source.trim() === "") {
             if (badChunks.length) {
-                xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+                xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
             }
             return {"xml": BlockMirrorTextToBlocks.xmlToString(xml),
                     "error": null,
@@ -48,15 +49,16 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         } catch (e) {
             //console.error(e);
             error = e;
-            if (e.traceback && e.traceback.length && e.traceback[0].lineno &&
-                e.traceback[0].lineno < previousLine) {
-                previousLine = e.traceback[0].lineno - 1;
+            if (e.position && e.position.length && e.position[0][0] &&
+                e.position[0][0] < previousLine) {
+                previousLine = e.position[0][0] - 1;
                 badChunks = badChunks.concat(this.source.slice(previousLine));
+                startLine += previousLine;
                 this.source = this.source.slice(0, previousLine);
                 python_source = this.source.join("\n");
             } else {
                 //console.error(e);
-                xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
+                xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource, startLine));
                 return {"xml": BlockMirrorTextToBlocks.xmlToString(xml), "error": error, "rawXml": xml};
             }
         }
@@ -79,7 +81,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         }
     }
     if (badChunks.length) {
-        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
     }
     return {
         "xml": BlockMirrorTextToBlocks.xmlToString(xml),
@@ -409,7 +411,7 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
         for (let mutation in mutations) {
             let mutationValue = mutations[mutation];
             if (mutation.charAt(0) === '@') {
-                newMutation.setAttribute(mutation.substr(1), mutationValue);
+                newMutation.setAttribute(mutation.substring(1), mutationValue);
             } else if (mutationValue != null && mutationValue.constructor === Array) {
                 for (let i = 0; i < mutationValue.length; i++) {
                     let mutationNode = document.createElement(mutation);
@@ -471,9 +473,8 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     return newBlock;
 };
 
-BlockMirrorTextToBlocks.raw_block = function (txt) {
-    // TODO: lineno as second parameter!
-    return BlockMirrorTextToBlocks.create_block("ast_Raw", 0, {"TEXT": txt});
+BlockMirrorTextToBlocks.raw_block = function (txt, lineno) {
+    return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno || 0, {"TEXT": txt});
 };
 
 BlockMirrorTextToBlocks.BLOCKS = [];
@@ -502,7 +503,7 @@ BlockMirrorTextToBlocks.prototype.convertElements = function (key, values, paren
     return output;
 };
 
-python.pythonGenerator.forBlock['blank'] = '___';
+python.pythonGenerator.blank = '___';
 
 BlockMirrorTextToBlocks.prototype.LOCKED_BLOCK = {
     "inline": "true",
