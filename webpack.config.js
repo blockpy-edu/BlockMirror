@@ -107,7 +107,7 @@ const config = {
     ],
     output: {
         path: __dirname + '/dist',
-        filename: 'block_mirror.js',
+        filename: 'block_mirror_unbundled.js',
         library: 'BlockMirror'
     },
     module: {

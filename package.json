@@ -1,6 +1,6 @@
 {
-  "name": "blockmirror",
-  "version": "1.0.0",
+  "name": "@blockpy-edu/blockmirror",
+  "version": "2.0.0",
   "description": "A dual block/text editor using Blockly and CodeMirror for Python",
   "main": "webpack.config.js",
   "directories": {
