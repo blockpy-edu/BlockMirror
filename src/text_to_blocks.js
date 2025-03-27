@@ -2,7 +2,10 @@ function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
     this.hiddenImports = ["plt"];
     this.strictAnnotations = ['int', 'float', 'str', 'bool'];
-    Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+    if (!BlockMirrorTextToBlocks.LOADED) {
+        Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+        BlockMirrorTextToBlocks.LOADED = true;
+    }
 }
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
@@ -49,7 +52,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         } catch (e) {
             //console.error(e);
             error = e;
-            if (e.position && e.position.length && e.position[0][0] &&
+            if (e.position && e.position.length && e.position[0].lineno &&
                 e.position[0][0] < previousLine) {
                 previousLine = e.position[0][0] - 1;
                 badChunks = badChunks.concat(this.source.slice(previousLine));
@@ -290,9 +293,9 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
 
         if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
             var lastComment = comment[1];
-      
+
             let commentChild = this.ast_Comment(lastComment, lastLineNumber);
-      
+
             if (is_top_level && !previousWasStatement) {
                 addPeer(commentChild);
             } else {
@@ -310,11 +313,11 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
 
             if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
               var commentInProgram = comment[1];
-      
+
               let commentChild = this.ast_Comment(commentInProgram, commentLineInProgram);
-      
+
               distance = commentLineInProgram - previousLineInProgram;
-      
+
                 if (previousLineInProgram == null) {
                     addPeer(commentChild);
                 } else if (distance > 1) {
