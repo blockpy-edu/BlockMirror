@@ -1,153 +1,99 @@
 "use strict";
 
-/**
- * Initialise the database of variable names.
- * @param {!Blockly.Workspace} workspace Workspace to generate code from.
- */
-Blockly.Python.init = function (workspace) {
+{
+  var orig_init = python.pythonGenerator.init;
+
   /**
-   * Empty loops or conditionals are not allowed in Python.
+   * Initialise the database of variable names.
+   * @param {!Blockly.Workspace} workspace Workspace to generate code from.
    */
-  Blockly.Python.PASS = this.INDENT + 'pass\n'; // Create a dictionary of definitions to be printed before the code.
-
-  Blockly.Python.definitions_ = Object.create(null); // Create a dictionary mapping desired function names in definitions_
-  // to actual function names (to avoid collisions with user functions).
-
-  Blockly.Python.functionNames_ = Object.create(null); // Keep track of datasets that are already imported
-
-  Blockly.Python.imported_ = Object.create(null);
-
-  if (!Blockly.Python.variableDB_) {
-    Blockly.Python.variableDB_ = new Blockly.Names(Blockly.Python.RESERVED_WORDS_);
-  } else {
-    Blockly.Python.variableDB_.reset();
-  }
-
-  Blockly.Python.variableDB_.setVariableMap(workspace.getVariableMap());
-  var defvars = []; // Add developer variables (not created or named by the user).
-
-  /*
-  var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
-  for (var i = 0; i < devVarList.length; i++) {
-      defvars.push(Blockly.Python.variableDB_.getName(devVarList[i],
-          Blockly.Names.DEVELOPER_VARIABLE_TYPE) + ' = None');
-  }
-   // Add user variables, but only ones that are being used.
-  var variables = Blockly.Variables.allUsedVarModels(workspace);
-  for (var i = 0; i < variables.length; i++) {
-      defvars.push(Blockly.Python.variableDB_.getName(variables[i].getId(),
-          Blockly.Variables.NAME_TYPE) + ' = None');
-  }
-   Blockly.Python.definitions_['variables'] = defvars.join('\n');
-   */
-};
-/**
- * Prepend the generated code with the variable definitions.
- * @param {string} code Generated code.
- * @return {string} Completed code.
- */
-
-
-Blockly.Python.finish = function (code) {
+  python.pythonGenerator.init = function (workspace) {
+    // Keep track of datasets that are already imported
+    python.pythonGenerator.imported_ = Object.create(null);
+    orig_init.bind(this)(workspace);
+  };
+}
+python.pythonGenerator.finish = function (code) {
   // Convert the definitions dictionary into a list.
   var imports = [];
   var definitions = [];
-
-  for (var name in Blockly.Python.definitions_) {
-    var def = Blockly.Python.definitions_[name];
-
-    if (name in Blockly.Python.imported_) {
-      continue;
-    }
-
+  for (var name in this.definitions_) {
+    var def = this.definitions_[name];
     if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
       imports.push(def);
     } else {
       definitions.push(def);
     }
-  } // Clean up temporary data.
-
-
-  delete Blockly.Python.definitions_;
-  delete Blockly.Python.functionNames_;
-  Blockly.Python.variableDB_.reset(); // acbart: Don't actually inject initializations - we don't need 'em.
-
-  if (imports.length) {
-    return imports.join('\n') + "\n\n" + code;
-  } else {
-    return code;
   }
+  this.definitions_ = Object.create(null);
+  this.functionNames_ = Object.create(null);
+  this.imported_ = Object.create(null);
+  this.isInitialized = false;
+  this.nameDB_.reset();
+  // acbart: Don't actually inject initializations - we don't need 'em.
+  var allDefs = imports.join('\n') + '\n\n'; // + definitions.join('\n\n');
+  return allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n\n') + code;
 };
+python.pythonGenerator.INDENT = '    ';
+python.pythonGenerator.RESERVED_WORDS_ = "False,None,True,and,as,assert,break,class," + "continue,def,del,elif,else,except,finally,for," + "from,global,if,import,in,is,lambda,nonlocal," + "not,or,pass,raise,return,try,while,with,yield";
 
-Blockly.Python.INDENT = '    ';
-Blockly.Python.RESERVED_WORDS_ = "False,None,True,and,as,assert,break,class," + "continue,def,del,elif,else,except,finally,for," + "from,global,if,import,in,is,lambda,nonlocal," + "not,or,pass,raise,return,try,while,with,yield";
 /**
  * Naked values are top-level blocks with outputs that aren't plugged into
  * anything.
  * @param {string} line Line of generated code.
  * @return {string} Legal line of code.
  */
-
-Blockly.Python.scrubNakedValue = function (line) {
+python.pythonGenerator.scrubNakedValue = function (line) {
   // acbart: Remove extra new line
   return line;
 };
+
 /**
  * Construct the blocks required by the flyout for the variable category.
  * @param {!Blockly.Workspace} workspace The workspace containing variables.
  * @return {!Array.<!Element>} Array of XML block elements.
  */
-
-
 Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
   var variableModelList = workspace.getVariablesOfType('');
   var xmlList = [];
-
   if (variableModelList.length > 0) {
     // New variables are added to the end of the variableModelList.
     var mostRecentVariableFieldXmlString = variableModelList[variableModelList.length - 1];
-
     if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_Assign']) {
       var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
       var blockText = '<xml>' + '<block type="ast_Assign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '</block>' + '</xml>';
-      var block = Blockly.Xml.textToDom(blockText).firstChild;
+      var block = Blockly.utils.xml.textToDom(blockText).firstChild;
       xmlList.push(block);
     }
-
     if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_AugAssign']) {
       var gap = Blockly.Blocks['ast_Name'] ? 20 : 8;
       var blockText = '<xml>' + '<block type="ast_AugAssign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '<value name="VALUE">' + '<shadow type="ast_Num">' + '<field name="NUM">1</field>' + '</shadow>' + '</value>' + '<mutation options="false" simple="true"></mutation>' + '</block>' + '</xml>';
-      var block = Blockly.Xml.textToDom(blockText).firstChild;
+      var block = Blockly.utils.xml.textToDom(blockText).firstChild;
       xmlList.push(block);
     }
-
     if (Blockly.Blocks['ast_Name']) {
       variableModelList.sort(Blockly.VariableModel.compareByName);
-
       for (var i = 0, variable; variable = variableModelList[i]; i++) {
         if (!Blockly.Variables._HIDE_GETTERS_SETTERS) {
           var _block = Blockly.utils.xml.createElement('block');
-
           _block.setAttribute('type', 'ast_Name');
-
           _block.setAttribute('gap', 8);
-
           _block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
-
           xmlList.push(_block);
         } else {
           block = Blockly.utils.xml.createElement('label');
           block.setAttribute('text', variable.name);
-          block.setAttribute('web-class', 'blockmirror-toolbox-variable'); //block.setAttribute('gap', 8);
-
+          block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+          //block.setAttribute('gap', 8);
           xmlList.push(block);
         }
       }
     }
   }
-
   return xmlList;
-}; //******************************************************************************
+};
+
+//******************************************************************************
 // Hacks to make variable names case sensitive
 
 /**
@@ -158,12 +104,9 @@ Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
  *     and 1 if greater.
  * @package
  */
-
-
 Blockly.VariableModel.compareByName = function (var1, var2) {
   var name1 = var1.name;
   var name2 = var2.name;
-
   if (name1 < name2) {
     return -1;
   } else if (name1 === name2) {
@@ -172,54 +115,46 @@ Blockly.VariableModel.compareByName = function (var1, var2) {
     return 1;
   }
 };
-
 Blockly.Names.prototype.getName = function (name, type) {
   if (type == Blockly.VARIABLE_CATEGORY_NAME) {
-    var varName = this.getNameForUserVariable_(name);
-
+    var varName = null;
+    var variable = this.variableMap.getVariableById(name);
+    if (variable) {
+      varName = variable.name;
+    }
     if (varName) {
       name = varName;
     }
   }
-
   var normalized = name + '_' + type;
   var isVarType = type == Blockly.VARIABLE_CATEGORY_NAME || type == Blockly.Names.DEVELOPER_VARIABLE_TYPE;
-  var prefix = isVarType ? this.variablePrefix_ : '';
-
-  if (normalized in this.db_) {
-    return prefix + this.db_[normalized];
+  var prefix = isVarType ? this.variablePrefix : '';
+  if (normalized in this.db) {
+    return prefix + this.db[normalized];
   }
-
   var safeName = this.getDistinctName(name, type);
-  this.db_[normalized] = safeName.substr(prefix.length);
+  this.db[normalized] = safeName.substr(prefix.length);
   return safeName;
 };
-
 Blockly.Names.equals = function (name1, name2) {
   return name1 == name2;
 };
-
-Blockly.Variables.nameUsedWithOtherType_ = function (name, type, workspace) {
+Blockly.Variables.nameUsedWithOtherType = function (name, type, workspace) {
   var allVariables = workspace.getVariableMap().getAllVariables();
-
   for (var i = 0, variable; variable = allVariables[i]; i++) {
     if (variable.name == name && variable.type != type) {
       return variable;
     }
   }
-
   return null;
 };
-
-Blockly.Variables.nameUsedWithAnyType_ = function (name, workspace) {
+Blockly.Variables.nameUsedWithAnyType = function (name, workspace) {
   var allVariables = workspace.getVariableMap().getAllVariables();
-
   for (var i = 0, variable; variable = allVariables[i]; i++) {
     if (variable.name == name) {
       return variable;
     }
   }
-
   return null;
 };
 /**
@@ -253,81 +188,75 @@ Blockly.Variables.nameUsedWithAnyType_ = function (name, workspace) {
 /**
  *
  */
-
-
 function BlockMirror(configuration) {
   this.validateConfiguration(configuration);
   this.initializeVariables();
-
   if (!this.configuration.skipSkulpt) {
     this.loadSkulpt();
   }
-
   this.textToBlocks = new BlockMirrorTextToBlocks(this);
   this.textEditor = new BlockMirrorTextEditor(this);
   this.blockEditor = new BlockMirrorBlockEditor(this);
   this.setMode(this.configuration.viewMode);
 }
-
 BlockMirror.prototype.validateConfiguration = function (configuration) {
-  this.configuration = {}; // Container
+  this.configuration = {};
 
+  // Container
   if ('container' in configuration) {
     this.configuration.container = configuration.container;
   } else {
     throw new Error('Invalid configuration: Missing "container" property.');
-  } // blocklyPath
+  }
 
-
+  // blocklyPath
   if ('blocklyMediaPath' in configuration) {
     this.configuration.blocklyMediaPath = configuration.blocklyMediaPath;
   } else {
     this.configuration.blocklyMediaPath = '../../blockly/media/';
-  } // Run function
+  }
 
-
+  // Run function
   if ('run' in configuration) {
     this.configuration.run = configuration.run;
   } else {
     this.configuration.run = function () {
       console.log('Ran!');
     };
-  } // readOnly
+  }
 
+  // readOnly
+  this.configuration['readOnly'] = configuration['readOnly'] || false;
 
-  this.configuration['readOnly'] = configuration['readOnly'] || false; // height
+  // height
+  this.configuration.height = configuration.height || 500;
 
-  this.configuration.height = configuration.height || 500; // viewMode
+  // viewMode
+  this.configuration.viewMode = configuration.viewMode || 'split';
 
-  this.configuration.viewMode = configuration.viewMode || 'split'; // Need to load skulpt?
+  // Need to load skulpt?
+  this.configuration.skipSkulpt = configuration.skipSkulpt || false;
 
-  this.configuration.skipSkulpt = configuration.skipSkulpt || false; // Delay?
+  // Delay?
+  this.configuration.blockDelay = configuration.blockDelay || false;
 
-  this.configuration.blockDelay = configuration.blockDelay || false; // Toolbox
+  // Toolbox
+  this.configuration.toolbox = configuration.toolbox || "normal";
+  this.configuration.renderer = configuration.renderer || 'Thrasos';
 
-  this.configuration.toolbox = configuration.toolbox || "normal"; // IsParsons?
-
-  this.isParsons = function () {
-    return false;
-  }; // Convert image URLs?
-
-
+  // Convert image URLs?
   this.configuration.imageUploadHook = configuration.imageUploadHook || function (old) {
     return Promise.resolve(old);
   };
-
   this.configuration.imageDownloadHook = configuration.imageDownloadHook || function (old) {
     return old;
   };
-
   this.configuration.imageLiteralHook = configuration.imageLiteralHook || function (old) {
     return old;
   };
-
   this.configuration.imageDetection = configuration.imageDetection || 'string';
   this.configuration.imageMode = configuration.imageMode || false;
 };
-
 BlockMirror.prototype.initializeVariables = function () {
   this.tags = {
     'toolbar': document.createElement('div'),
@@ -337,26 +266,26 @@ BlockMirror.prototype.initializeVariables = function () {
     'textSidebar': document.createElement('div'),
     'textContainer': document.createElement('div'),
     'textArea': document.createElement('textarea')
-  }; // Toolbar
-
-  this.configuration.container.appendChild(this.tags.toolbar); // Block side
-
+  };
+  // Toolbar
+  this.configuration.container.appendChild(this.tags.toolbar);
+  // Block side
   this.configuration.container.appendChild(this.tags.blockContainer);
   this.tags.blockContainer.appendChild(this.tags.blockEditor);
-  this.tags.blockContainer.appendChild(this.tags.blockArea); // Text side
-
+  this.tags.blockContainer.appendChild(this.tags.blockArea);
+  // Text side
   this.configuration.container.appendChild(this.tags.textContainer);
   this.tags.textContainer.appendChild(this.tags.textSidebar);
   this.tags.textContainer.appendChild(this.tags.textArea);
-
   for (var name in this.tags) {
     this.tags[name].style['box-sizing'] = 'border-box';
-  } // Files
+  }
 
-
+  // Files
   this.code_ = "";
-  this.mode_ = null; // Update Flags
+  this.mode_ = null;
 
+  // Update Flags
   this.silenceBlock = false;
   this.silenceBlockTimer = null;
   this.silenceText = false;
@@ -364,13 +293,14 @@ BlockMirror.prototype.initializeVariables = function () {
   this.blocksFailed = false;
   this.blocksFailedTimeout = null;
   this.triggerOnChange = null;
-  this.firstEdit = true; // Toolbox width
+  this.firstEdit = true;
 
-  this.blocklyToolboxWidth = 0; // Listeners
+  // Toolbox width
+  this.blocklyToolboxWidth = 0;
 
+  // Listeners
   this.listeners_ = [];
 };
-
 BlockMirror.prototype.loadSkulpt = function () {
   Sk.configure({
     __future__: Sk.python3,
@@ -378,117 +308,99 @@ BlockMirror.prototype.loadSkulpt = function () {
       if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
         throw "File not found: '" + filename + "'";
       }
-
       return Sk.builtinFiles["files"][filename];
     }
   });
 };
-
 BlockMirror.prototype.removeAllChangeListeners = function () {
   this.listeners_.length = 0;
 };
-
 BlockMirror.prototype.removeChangeListener = function (callback) {
   var index = this.listeners_.indexOf(callback);
-
   if (index !== -1) {
     this.listeners_.splice(index, 1);
   }
 };
-
 BlockMirror.prototype.addChangeListener = function (callback) {
   this.listeners_.push(callback);
 };
-
 BlockMirror.prototype.fireChangeListener = function (event) {
   for (var i = 0, func; func = this.listeners_[i]; i++) {
     func(event);
   }
 };
-
 BlockMirror.prototype.setCode = function (code, quietly) {
   this.code_ = code;
-
   if (!quietly) {
     this.blockEditor.setCode(code, true);
     this.textEditor.setCode(code, true);
   }
-
   this.fireChangeListener({
     'name': 'changed',
     'value': code
   });
 };
-
 BlockMirror.prototype.getCode = function () {
   return this.code_;
 };
-
 BlockMirror.prototype.getMode = function () {
   return this.mode_;
 };
-
 BlockMirror.prototype.setMode = function (mode) {
   this.mode_ = mode;
   this.blockEditor.setMode(mode);
   this.textEditor.setMode(mode);
 };
-
 BlockMirror.prototype.setImageMode = function (imageMode) {
   this.configuration.imageMode = imageMode;
-
   if (imageMode) {
     this.textEditor.enableImages();
   } else {
     this.textEditor.disableImages();
   }
-
   console.log(imageMode);
 };
-
 BlockMirror.prototype.setReadOnly = function (isReadOnly) {
   this.textEditor.setReadOnly(isReadOnly);
   this.blockEditor.setReadOnly(isReadOnly);
   $(this.configuration.container).toggleClass("block-mirror-read-only", isReadOnly);
 };
-
 BlockMirror.prototype.refresh = function () {
   this.blockEditor.resized();
   this.textEditor.codeMirror.refresh();
 };
-
 BlockMirror.prototype.forceBlockRefresh = function () {
   this.blockEditor.setCode(this.code_, true);
 };
-
 BlockMirror.prototype.VISIBLE_MODES = {
   'block': ['block', 'split'],
   'text': ['text', 'split']
 };
 BlockMirror.prototype.BREAK_WIDTH = 675;
-
 BlockMirror.prototype.setHighlightedLines = function (lines, style) {
-  this.textEditor.setHighlightedLines(lines, style); //this.blockEditor.highlightLines(lines, style);
+  this.textEditor.setHighlightedLines(lines, style);
+  //this.blockEditor.highlightLines(lines, style);
 };
-
 BlockMirror.prototype.clearHighlightedLines = function () {
   var style = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-  this.textEditor.clearHighlightedLines(style); //this.blockEditor.unhighlightLines(lines, style);
+  this.textEditor.clearHighlightedLines(style);
+  //this.blockEditor.unhighlightLines(lines, style);
 };
-
 function BlockMirrorTextEditor(blockMirror) {
   var _this = this;
-
   this.blockMirror = blockMirror;
   this.textContainer = blockMirror.tags.textContainer;
   this.textArea = blockMirror.tags.textArea;
   this.textSidebar = blockMirror.tags.textSidebar;
-  this.highlightedHandles = []; // notification
+  this.highlightedHandles = [];
 
-  this.silentEvents_ = false; // Do we need to force an update?
+  // notification
+  this.silentEvents_ = false;
 
-  this.outOfDate_ = null; // Use a timer to swallow updates
+  // Do we need to force an update?
+  this.outOfDate_ = null;
 
+  // Use a timer to swallow updates
   this.updateTimer_ = null;
   var codeMirrorOptions = {
     mode: {
@@ -530,13 +442,14 @@ function BlockMirrorTextEditor(blockMirror) {
   this.textContainer.style.border = '1px solid lightgray';
   this.textContainer.style["float"] = 'left';
   this.updateWidth();
-  this.textContainer.style.height = blockMirror.configuration.height; // Style sidebar
-
+  this.textContainer.style.height = blockMirror.configuration.height;
+  // Style sidebar
   this.textSidebar.style.height = '100%';
   this.textSidebar.style["float"] = 'left';
   this.textSidebar.style.backgroundColor = '#ddd';
-  window.addEventListener('resize', this.resizeResponsively.bind(this), false); // TODO: Finish implementing code completion
+  window.addEventListener('resize', this.resizeResponsively.bind(this), false);
 
+  // TODO: Finish implementing code completion
   /*this.codeMirror.on('inputRead', function onChange(editor, input) {
       if (input.text[0] === ';' || input.text[0] === ' ' || input.text[0] === ":") {
           return;
@@ -546,15 +459,12 @@ function BlockMirrorTextEditor(blockMirror) {
       });
   });*/
   //https://i.imgur.com/ITZKRiq.png
-
   this.codeMirror.on("beforeChange", function (cm, change) {
     if (_this.blockMirror.configuration.imageMode) {
       if (change.origin === "paste") {
         var oldText = change.text[0];
-
         if (_this.isImageUrl(oldText)) {
           var newText = _this.blockMirror.configuration.imageLiteralHook(oldText);
-
           change.update(null, null, [newText]);
         }
       }
@@ -563,29 +473,23 @@ function BlockMirrorTextEditor(blockMirror) {
   this.codeMirror.on("change", function (cm, change) {
     if (_this.blockMirror.configuration.imageMode) {
       var lastLine;
-
       if (change.origin === "paste" || change.origin === "setValue") {
         //"https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
         lastLine = change.from.line + change.text.length;
       } else {
         lastLine = Math.max(1 + change.to.line, change.text.length);
       }
-
       _this.updateImages(cm, change.from.line, lastLine);
     }
   });
   this.codeMirror.on("paste", function (cm, event) {
     if (_this.blockMirror.configuration.imageMode) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-
       for (var index = 0; index < items.length; index += 1) {
         var item = items[index];
-
         if (item.kind === 'file') {
           var blob = item.getAsFile();
-
           var promise = _this.blockMirror.configuration.imageUploadHook(blob, item);
-
           promise.then(function (newUrl) {
             var doc = cm.getDoc();
             doc.replaceRange(newUrl, doc.getCursor("from"), doc.getCursor("to"));
@@ -596,12 +500,10 @@ function BlockMirrorTextEditor(blockMirror) {
     }
   });
 }
-
 BlockMirrorTextEditor.prototype.enableImages = function () {
   var doc = this.codeMirror.getDoc();
   this.updateImages(this.codeMirror, doc.firstLine(), 1 + doc.lastLine());
 };
-
 BlockMirrorTextEditor.prototype.disableImages = function () {
   this.imageMarkers.map(function (imageMarker) {
     return imageMarker.clear();
@@ -610,16 +512,14 @@ BlockMirrorTextEditor.prototype.disableImages = function () {
     return i.find();
   });
 };
-
 BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
   var newImage = document.createElement("IMG");
   newImage.setAttribute("src", url);
-  newImage.style.display = "none"; //newImage.setAttribute("height", "40");
-
-  newImage.style.maxHeight = "100px"; //newImage.setAttribute("width", "40");
-
+  newImage.style.display = "none";
+  //newImage.setAttribute("height", "40");
+  newImage.style.maxHeight = "100px";
+  //newImage.setAttribute("width", "40");
   newImage.setAttribute("title", url);
-
   newImage.onclick = function (x) {
     if (newImage.hasAttribute('width')) {
       newImage.removeAttribute("height");
@@ -629,35 +529,28 @@ BlockMirrorTextEditor.prototype.makeImageWidget = function (url) {
       newImage.setAttribute("width", "40");
     }
   };
-
   var newSpan = document.createElement("span");
   newSpan.className = "cm-string";
   newSpan.innerText = JSON.stringify(url);
-
   newSpan.onmouseover = function (x) {
     newImage.style.display = "block";
   };
-
   newSpan.onmouseout = function (x) {
     newImage.style.display = "none";
   };
-
   newSpan.appendChild(newImage);
-  return newSpan; //return newImage;
+  return newSpan;
+  //return newImage;
 };
-
 BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
   var _this2 = this;
-
   cm.doc.eachLine(from, to, function (line) {
     var match;
     var regex = BlockMirrorTextEditor.REGEX_PATTERNS[_this2.blockMirror.configuration.imageDetection];
-
     while ((match = regex.exec(line.text)) !== null) {
       var imageWidget = _this2.makeImageWidget(match[3]);
-
-      var offset = match[0].length - match[1].length; //console.log(offset);
-
+      var offset = match[0].length - match[1].length;
+      //console.log(offset);
       var imageMarker = cm.markText({
         line: cm.doc.getLineNumber(line),
         ch: match.index + offset
@@ -672,46 +565,41 @@ BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
         inclusiveLeft: false,
         inclusiveRight: false
       });
-      console.log(imageMarker); //imageWidget.onclick = (x) => imageMarker.clear();
-
+      console.log(imageMarker);
+      //imageWidget.onclick = (x) => imageMarker.clear();
       _this2.imageMarkers.push(imageMarker);
     }
   });
-}; //'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
+};
 
-
-var FULL_IMAGE_URL = /^(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)$/; //const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
+//'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
+var FULL_IMAGE_URL = /^(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)$/;
+//const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
 //const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
-
-var STRING_IMAGE_URL = /((["'])(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)|(?:blob:null\/[A-Fa-f0-9-]+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2})\2)/g; //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
-
+var STRING_IMAGE_URL = /((["'])(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)|(?:blob:null\/[A-Fa-f0-9-]+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2})\2)/g;
+//const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
 var CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
 BlockMirrorTextEditor.REGEX_PATTERNS = {
   "constructor": CONSTRUCTOR_IMAGE_URL,
   "string": STRING_IMAGE_URL,
   "none": false
 };
-
 BlockMirrorTextEditor.prototype.isImageUrl = function (url) {
   return url.match(FULL_IMAGE_URL);
 };
-
 BlockMirrorTextEditor.prototype.defocus = function () {
   this.codeMirror.display.input.blur();
 };
-
-BlockMirrorTextEditor.prototype.updateWidth = function () {//var newWidth = '0%';
-
+BlockMirrorTextEditor.prototype.updateWidth = function () {
+  //var newWidth = '0%';
   /*if (this.blockMirror.views.includes('text')) {
       newWidth = (100 / this.blockMirror.views.length)+'%';
   }
   this.textContainer.style.width = newWidth;*/
 };
-
 BlockMirrorTextEditor.prototype.setReadOnly = function (isReadOnly) {
   this.codeMirror.setOption('readOnly', isReadOnly);
 };
-
 BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
   'split': {
     'width': '40%',
@@ -729,13 +617,11 @@ BlockMirrorTextEditor.prototype.VIEW_CONFIGURATIONS = {
     'indentSidebar': false
   }
 };
-
 BlockMirrorTextEditor.prototype.resizeResponsively = function () {
   var mode = this.blockMirror.mode_;
   var configuration = this.VIEW_CONFIGURATIONS[mode];
   var width = configuration.width;
   var height = this.blockMirror.configuration.height;
-
   if (mode === 'split') {
     if (window.innerWidth >= this.blockMirror.BREAK_WIDTH) {
       this.textContainer.style.width = width;
@@ -749,18 +635,15 @@ BlockMirrorTextEditor.prototype.resizeResponsively = function () {
     this.textContainer.style.height = height + "px";
   }
 };
-
 BlockMirrorTextEditor.prototype.setMode = function (mode) {
   mode = mode.toLowerCase();
-  var configuration = this.VIEW_CONFIGURATIONS[mode]; // If there is an update waiting and we're visible, then update
-
+  var configuration = this.VIEW_CONFIGURATIONS[mode];
+  // If there is an update waiting and we're visible, then update
   if (this.outOfDate_ !== null && this.isVisible()) {
     this.setCode(this.outOfDate_, true);
-  } // Show/hide editor
-
-
+  }
+  // Show/hide editor
   this.resizeResponsively();
-
   if (configuration.visible) {
     this.textContainer.style.display = 'block';
     this.codeMirror.getWrapperElement().style.display = 'block';
@@ -769,20 +652,16 @@ BlockMirrorTextEditor.prototype.setMode = function (mode) {
     this.textContainer.style.height = '0%';
     this.textContainer.style.display = 'none';
     this.codeMirror.getWrapperElement().style.display = 'none';
-  } // Should we indent the toolbox
-
-
+  }
+  // Should we indent the toolbox
   this.updateGutter(configuration);
 };
-
 BlockMirrorTextEditor.prototype.updateGutter = function (configuration) {
   if (configuration === undefined) {
     var mode = this.blockMirror.mode_.toLowerCase();
     configuration = this.VIEW_CONFIGURATIONS[mode];
   }
-
   var isBigWindow = window.innerWidth >= this.blockMirror.BREAK_WIDTH;
-
   if (configuration.indentSidebar && isBigWindow) {
     var gutters = this.textContainer.querySelector('.CodeMirror-gutters');
     var gutterWidth = gutters.offsetWidth;
@@ -795,12 +674,11 @@ BlockMirrorTextEditor.prototype.updateGutter = function (configuration) {
     this.textSidebar.style.width = '0px';
   }
 };
-
 BlockMirrorTextEditor.prototype.setCode = function (code, quietly) {
-  this.silentEvents_ = quietly; // Defaults to a single blank line
+  this.silentEvents_ = quietly;
 
+  // Defaults to a single blank line
   code = code === undefined || code.trim() === "" ? "\n" : code;
-
   if (this.isVisible()) {
     this.codeMirror.setValue(code);
     this.outOfDate_ = null;
@@ -808,44 +686,33 @@ BlockMirrorTextEditor.prototype.setCode = function (code, quietly) {
     this.outOfDate_ = code;
   }
 };
-
 BlockMirrorTextEditor.prototype.getCode = function () {
   return this.codeMirror.getValue();
 };
-
 BlockMirrorTextEditor.prototype.changed = function (codeMirror, event) {
   var _this3 = this;
-
   if (!this.silentEvents_) {
     var handleChange = function handleChange() {
       var newCode = _this3.getCode();
-
       _this3.blockMirror.blockEditor.setCode(newCode, true);
-
       _this3.blockMirror.setCode(newCode, true);
     };
-
     if (this.blockMirror.configuration.blockDelay === false) {
       handleChange();
     } else {
       if (this.updateTimer_ !== null) {
         clearTimeout(this.updateTimer_);
       }
-
       this.updateTimer_ = setTimeout(handleChange, this.blockMirror.configuration.blockDelay);
     }
   }
-
   this.silentEvents_ = false;
 };
-
 BlockMirrorTextEditor.prototype.isVisible = function () {
   return this.blockMirror.VISIBLE_MODES.text.indexOf(this.blockMirror.mode_) !== -1;
 };
-
 BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
   var _this4 = this;
-
   var handles = lines.map(function (l) {
     return {
       "handle": _this4.codeMirror.doc.addLineClass(l - 1, "background", style),
@@ -854,22 +721,17 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
   });
   this.highlightedHandles = this.highlightedHandles.concat(handles);
 };
-
 BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
   var _this5 = this;
-
   if (this.highlightedHandles) {
     var kept = [];
     var removed = this.highlightedHandles.map(function (h) {
       _this5.codeMirror.doc.removeLineClass(h.handle, "background", style || h.style);
-
       var info = _this5.codeMirror.doc.lineInfo(h.handle);
-
       if (info) {
         if (info.style) {
           kept.push(h);
         }
-
         return info.line + 1;
       } else {
         return info;
@@ -879,6 +741,7 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
     return removed;
   }
 };
+
 /**
  * Worth noting - Blockly uses a setTimeOut of 0 steps to make events
  * wait. That has some confusing interaction with trying to make things percolate.
@@ -886,17 +749,19 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
  * @constructor
  */
 
-
 function BlockMirrorBlockEditor(blockMirror) {
   this.blockMirror = blockMirror;
   this.blockContainer = blockMirror.tags.blockContainer;
   this.blockEditor = blockMirror.tags.blockEditor;
-  this.blockArea = blockMirror.tags.blockArea; // Null, or the source of the last update
+  this.blockArea = blockMirror.tags.blockArea;
 
-  this.outOfDate_ = null; // Have to call BEFORE we inject, or Blockly will delete the css string!
+  // Null, or the source of the last update
+  this.outOfDate_ = null;
 
-  this.loadBlocklyCSS(); // Inject Blockly
+  // Have to call BEFORE we inject, or Blockly will delete the css string!
+  this.loadBlocklyCSS();
 
+  // Inject Blockly
   var blocklyOptions = {
     media: blockMirror.configuration.blocklyMediaPath,
     // We use special comment blocks
@@ -908,13 +773,15 @@ function BlockMirrorBlockEditor(blockMirror) {
     oneBasedIndex: false,
     readOnly: blockMirror.configuration.readOnly,
     scrollbars: true,
-    toolbox: this.makeToolbox()
+    toolbox: this.makeToolbox(),
+    renderer: blockMirror.configuration.renderer
   };
-  this.workspace = Blockly.inject(blockMirror.tags.blockEditor, blocklyOptions); // Configure Blockly
+  this.workspace = Blockly.inject(blockMirror.tags.blockEditor, blocklyOptions);
+  // Configure Blockly
+  this.workspace.addChangeListener(this.changed.bind(this));
 
-  this.workspace.addChangeListener(this.changed.bind(this)); // Configure Blockly DIV
+  // Configure Blockly DIV
   //blockMirror.tags.blockEditor.style.resize = 'horizontal';
-
   this.blockContainer.style["float"] = 'left';
   this.blockEditor.style.position = 'absolute';
   this.blockEditor.style.width = '100%';
@@ -923,7 +790,6 @@ function BlockMirrorBlockEditor(blockMirror) {
   window.addEventListener('resize', this.resized.bind(this), false);
   this.resized();
 }
-
 BlockMirrorBlockEditor.prototype.resizeReadOnlyDiv = function () {
   if (this.readOnlyDiv_ !== null) {
     if (!this.isVisible()) {
@@ -932,48 +798,41 @@ BlockMirrorBlockEditor.prototype.resizeReadOnlyDiv = function () {
       this.readOnlyDiv_.css("width", '0px');
       this.readOnlyDiv_.css("height", '0px');
     }
-
     var blockArea = this.blockMirror.tags.blockArea;
     var current = blockArea;
     var x = 0;
     var y = 0;
-
     do {
       x += current.offsetLeft;
       y += current.offsetTop;
       current = current.offsetParent;
-    } while (current); // Position blocklyDiv over blockArea.
-
-
+    } while (current);
+    // Position blocklyDiv over blockArea.
     this.readOnlyDiv_.css("left", x + 'px');
     this.readOnlyDiv_.css("top", y + 'px');
     this.readOnlyDiv_.css("width", blockArea.offsetWidth + 'px');
     this.readOnlyDiv_.css("height", blockArea.offsetHeight + 'px');
   }
 };
-
 BlockMirrorBlockEditor.prototype.setReadOnly = function (isReadOnly) {
   if (isReadOnly) {
     if (this.readOnlyDiv_ === null) {
       this.readOnlyDiv_ = $("<div class='blockly-readonly-layer'></div>");
       $("body").append(this.readOnlyDiv_);
     }
-
     this.resizeReadOnlyDiv();
   } else if (this.readOnlyDiv_ !== null) {
     this.readOnlyDiv_.remove();
     this.readOnlyDiv_ = null;
   }
 };
-
 BlockMirrorBlockEditor.prototype.updateWidth = function () {
   var newWidth = '0%';
   this.resized();
 };
-
 BlockMirrorBlockEditor.prototype.resized = function (e) {
-  this.resizeResponsively(); // Compute the absolute coordinates and dimensions of blocklyArea.
-
+  this.resizeResponsively();
+  // Compute the absolute coordinates and dimensions of blocklyArea.
   var blockArea = this.blockMirror.tags.blockArea;
   /*var current = blockArea;
   var x = 0;
@@ -984,81 +843,65 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
       current = current.offsetParent;
   } while (current);*/
   // Position blocklyDiv over blockArea.
-
   var blockEditor = this.blockMirror.tags.blockEditor;
   /*blockEditor.style.left = x + 'px';
   blockEditor.style.top = y + 'px';*/
-
   blockEditor.style.width = blockArea.offsetWidth + 'px';
   blockEditor.style.height = blockArea.offsetHeight + 'px';
   Blockly.svgResize(this.workspace);
   this.resizeReadOnlyDiv();
 };
-
 BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
   var _this6 = this;
-
   Blockly.Variables._HIDE_GETTERS_SETTERS = false;
   return toolboxPython.map(function (category) {
     if (typeof category === "string") {
       return category;
     }
-
     var colour = BlockMirrorTextToBlocks.COLOR[category.colour];
     var header = "<category name=\"".concat(category.name, "\" colour=\"").concat(colour, "\"");
-
     if (category.custom) {
       header += " custom=\"".concat(category.custom, "\">");
     } else {
       header += ">";
     }
-
     var body = (category.blocks || []).map(function (code) {
       var result = _this6.blockMirror.textToBlocks.convertSource('toolbox.py', code);
-
       return result.rawXml.innerHTML.toString();
     }).join("\n");
     var footer = "</category>";
-
     if (category['hideGettersSetters']) {
       Blockly.Variables._HIDE_GETTERS_SETTERS = true;
     }
-
     return [header, body, footer].join("\n");
   }).join("\n");
 };
-
 BlockMirrorBlockEditor.prototype.makeToolbox = function () {
-  var toolbox = this.blockMirror.configuration.toolbox; // Use palette if it exists, otherwise assume its a custom one.
-
+  var toolbox = this.blockMirror.configuration.toolbox;
+  // Use palette if it exists, otherwise assume its a custom one.
   if (toolbox in this.TOOLBOXES) {
     toolbox = this.TOOLBOXES[toolbox];
-  } // Convert if necessary
-
-
+  }
+  // Convert if necessary
   if (typeof toolbox !== "string") {
     toolbox = this.toolboxPythonToBlocks(toolbox);
-  } // TODO: Fix Hack, this should be configurable by instance rather than by class
-
-
+  }
+  // TODO: Fix Hack, this should be configurable by instance rather than by class
   for (var name in BlockMirrorBlockEditor.EXTRA_TOOLS) {
     toolbox += BlockMirrorBlockEditor.EXTRA_TOOLS[name];
   }
-
   return '<xml id="toolbox" style="display:none">' + toolbox + '</xml>';
 };
-
 BlockMirrorBlockEditor.prototype.remakeToolbox = function () {
   this.workspace.updateToolbox(this.makeToolbox());
   this.resized();
 };
+
 /**
  * Retrieves the current width of the Blockly Toolbox, unless
  * we're in read-only mode (when there is no toolbox).
  * @returns {Number} The current width of the toolbox.
  */
-
-
 BlockMirrorBlockEditor.prototype.getToolbarWidth = function () {
   if (this.blockMirror.configuration.readOnly) {
     return 0;
@@ -1066,7 +909,6 @@ BlockMirrorBlockEditor.prototype.getToolbarWidth = function () {
     return this.workspace.toolbox_.width;
   }
 };
-
 BlockMirrorBlockEditor.prototype.VIEW_CONFIGURATIONS = {
   'split': {
     'width': '60%',
@@ -1081,11 +923,9 @@ BlockMirrorBlockEditor.prototype.VIEW_CONFIGURATIONS = {
     'visible': false
   }
 };
-
 BlockMirrorBlockEditor.prototype.resizeResponsively = function () {
   var mode = this.blockMirror.mode_;
   var configuration = this.VIEW_CONFIGURATIONS[mode];
-
   if (mode === 'split') {
     if (window.innerWidth >= this.blockMirror.BREAK_WIDTH) {
       this.blockContainer.style.width = configuration.width;
@@ -1102,13 +942,12 @@ BlockMirrorBlockEditor.prototype.resizeResponsively = function () {
     this.blockArea.style.height = this.blockMirror.configuration.height + "px";
   }
 };
-
 BlockMirrorBlockEditor.prototype.setMode = function (mode) {
   mode = mode.toLowerCase();
-  var configuration = this.VIEW_CONFIGURATIONS[mode]; // Show/hide editor
+  var configuration = this.VIEW_CONFIGURATIONS[mode];
 
+  // Show/hide editor
   this.workspace.setVisible(configuration.visible);
-
   if (configuration.visible) {
     this.blockEditor.style.width = '100%';
     this.resized();
@@ -1116,66 +955,58 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
     this.blockContainer.style.height = '0%';
     this.blockArea.style.height = '0%';
     this.resizeReadOnlyDiv();
-  } // If there is an update waiting and we're visible, then update
+  }
 
-
+  // If there is an update waiting and we're visible, then update
   if (this.outOfDate_ !== null && this.isVisible()) {
     this.setCode(this.outOfDate_, true);
   }
 };
+
 /**
  * Attempts to update the model for the current code file from the
  * block workspace. Might be prevented if an update event was already
  * percolating.
  */
-
-
 BlockMirrorBlockEditor.prototype.getCode = function () {
-  return Blockly.Python.workspaceToCode(this.workspace);
+  return python.pythonGenerator.workspaceToCode(this.workspace);
 };
+
 /**
  * Attempts to update the model for the current code file from the
  * block workspace. Might be prevented if an update event was already
  * percolating.
  */
-
-
 BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
   if (this.isVisible()) {
     var result = this.blockMirror.textToBlocks.convertSource('__main__.py', code);
-
     if (quietly) {
       Blockly.Events.disable();
     }
-
     try {
-      var xml_code = Blockly.Xml.textToDom(result.xml);
-      this.workspace.clear();
-      Blockly.Xml.domToWorkspace(xml_code, this.workspace);
+      var xml_code = Blockly.utils.xml.textToDom(result.xml);
 
-      if (this.blockMirror.isParsons()) {
-        this.workspace.shuffle();
-      } else {
-        this.workspace.cleanUp();
+      // Convert line numbers to y coordinates, to ensure proper ordering
+      for (var i = 0, xmlChild; xmlChild = xml_code.childNodes[i]; i++) {
+        var _xmlChild$getAttribut;
+        xmlChild.setAttribute('y', ((_xmlChild$getAttribut = xmlChild.getAttribute('line_number')) !== null && _xmlChild$getAttribut !== void 0 ? _xmlChild$getAttribut : 1) * 100);
       }
+      Blockly.Xml.clearWorkspaceAndLoadFromXml(xml_code, this.workspace);
+      this.workspace.cleanUp();
     } catch (error) {
       console.error(error);
     }
-
     if (quietly) {
       Blockly.Events.enable();
     } else {
       this.blockMirror.setCode(code, true);
     }
-
     this.outOfDate_ = null;
   } else {
     this.outOfDate_ = code;
   }
 };
-
 BlockMirrorBlockEditor.prototype.BLOCKLY_CHANGE_EVENTS = [Blockly.Events.CREATE, Blockly.Events.DELETE, Blockly.Events.CHANGE, Blockly.Events.MOVE, Blockly.Events.VAR_RENAME];
-
 BlockMirrorBlockEditor.prototype.changed = function (event) {
   if ((event === undefined || this.BLOCKLY_CHANGE_EVENTS.indexOf(event.type) !== -1) && !this.workspace.isDragging()) {
     var newCode = this.getCode();
@@ -1183,29 +1014,25 @@ BlockMirrorBlockEditor.prototype.changed = function (event) {
     this.blockMirror.setCode(newCode, true);
   }
 };
-
 BlockMirrorBlockEditor.prototype.isVisible = function () {
   return this.blockMirror.VISIBLE_MODES.block.indexOf(this.blockMirror.mode_) !== -1;
 };
-
 BlockMirrorBlockEditor.prototype.DOCTYPE = '<?xml version="1.0" standalone="no"?> <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
 BlockMirrorBlockEditor.prototype.BLOCKLY_LOADED_CSS = null;
-
 BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function () {
   if (this.BLOCKLY_LOADED_CSS === null) {
     var result = [".blocklyDraggable {}"];
     result = result.concat(Blockly.Css.CONTENT);
-
     if (Blockly.FieldDate) {
       result = result.concat(Blockly.FieldDate.CSS);
     }
-
-    result = result.join("\n"); // Strip off any trailing slash (either Unix or Windows).
-
+    result = result.join("\n");
+    // Strip off any trailing slash (either Unix or Windows).
     result = result.replace(/<<<PATH>>>/g, Blockly.Css.mediaPath_);
     this.BLOCKLY_LOADED_CSS = result;
   }
 };
+
 /**
  * Generates a PNG version of the current workspace. This PNG is stored in a Base-64 encoded
  * string as part of a data URL (e.g., "data:image/png;base64,...").
@@ -1216,68 +1043,59 @@ BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function () {
  *  This function should take two parameters, the URL (as a string) of the generated
  *  base64-encoded PNG and the IMG tag.
  */
-
-
 BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
   try {
-    this.loadBlocklyCSS(); // Retreive the entire canvas, strip some unnecessary tags
-
+    this.loadBlocklyCSS();
+    // Retreive the entire canvas, strip some unnecessary tags
     var blocks = this.workspace.svgBlockCanvas_.cloneNode(true);
     blocks.removeAttribute("width");
-    blocks.removeAttribute("height"); // Ensure that we have some content
-
+    blocks.removeAttribute("height");
+    // Ensure that we have some content
     if (blocks.childNodes[0] !== undefined) {
       // Remove tags that offset
       blocks.removeAttribute("transform");
       blocks.childNodes[0].removeAttribute("transform");
-      blocks.childNodes[0].childNodes[0].removeAttribute("transform"); // Add in styles
-
+      blocks.childNodes[0].childNodes[0].removeAttribute("transform");
+      // Add in styles
       var linkElm = document.createElementNS("http://www.w3.org/1999/xhtml", "style");
       linkElm.textContent = this.BLOCKLY_LOADED_CSS + "\n\n";
-      blocks.insertBefore(linkElm, blocks.firstChild); // Get the bounding box
-
-      var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox(); // Create the XML representation of the SVG
-
+      blocks.insertBefore(linkElm, blocks.firstChild);
+      // Get the bounding box
+      var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox();
+      // Create the XML representation of the SVG
       var xml = new XMLSerializer().serializeToString(blocks);
-      xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' + bbox.width + '" height="' + bbox.height + '" viewBox="0 0 ' + bbox.width + " " + bbox.height + '"><rect width="100%" height="100%" fill="white"></rect>' + xml + "</svg>"; // create a file blob of our SVG.
+      xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' + bbox.width + '" height="' + bbox.height + '" viewBox="0 0 ' + bbox.width + " " + bbox.height + '"><rect width="100%" height="100%" fill="white"></rect>' + xml + "</svg>";
+      // create a file blob of our SVG.
       // Unfortunately, this crashes modern chrome for unknown reasons.
       //var blob = new Blob([ this.DOCTYPE + xml], { type: 'image/svg+xml' });
       //var url = window.URL.createObjectURL(blob);
       // Old method: this failed on IE
-
-      var url = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml))); // Create an IMG tag to hold the new element
-
+      var url = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+      // Create an IMG tag to hold the new element
       var img = document.createElement("img");
       img.style.display = "block";
-
       img.onload = function () {
         var canvas = document.createElement("canvas");
         canvas.width = bbox.width;
         canvas.height = bbox.height;
-
         if (!canvas.width || !canvas.height) {
           callback("", img);
           return;
         }
-
         var ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
         var canvasUrl;
-
         try {
           canvasUrl = canvas.toDataURL("image/png");
         } catch (e) {
           canvasUrl = url;
         }
-
         img.onload = null;
         callback(canvasUrl, img);
       };
-
       img.onerror = function () {
         callback("", img);
       };
-
       img.setAttribute("src", url);
     } else {
       callback("", document.createElement("img"));
@@ -1287,36 +1105,30 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
     console.error("PNG image creation not supported!", e);
   }
 };
-
-BlockMirrorBlockEditor.prototype.highlightLines = function (lines, style) {// Make some kind of block map?
-
+BlockMirrorBlockEditor.prototype.highlightLines = function (lines, style) {
+  // Make some kind of block map?
   /*this.workspace.getAllBlocks().map((block) => {
       block
   });*/
 };
-
 function BlockMirrorTextToBlocks(blockMirror) {
   this.blockMirror = blockMirror;
   this.hiddenImports = ["plt"];
   this.strictAnnotations = ['int', 'float', 'str', 'bool'];
-
   if (!BlockMirrorTextToBlocks.LOADED) {
-    Blockly.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+    Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
     BlockMirrorTextToBlocks.LOADED = true;
   }
 }
-
-BlockMirrorTextToBlocks.LOADED = false;
-
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
   return new XMLSerializer().serializeToString(xml);
 };
-
 BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function (python_source) {
   var xml = document.createElement("xml");
   xml.appendChild(BlockMirrorTextToBlocks.raw_block(python_source));
   return BlockMirrorTextToBlocks.xmlToString(xml);
 };
+
 /**
  * The main function for converting a string representation of Python
  * code to the Blockly XML representation.
@@ -1327,48 +1139,44 @@ BlockMirrorTextToBlocks.prototype.convertSourceToCodeBlock = function (python_so
  * @returns {Object} An object which will either have the converted
  *      source code or an error message and the code as a code-block.
  */
-
-
 BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_source) {
-  var xml = document.createElement("xml"); // Attempt parsing - might fail!
-
+  var xml = document.createElement("xml");
+  // Attempt parsing - might fail!
   var parse,
-      ast = null,
-      symbol_table,
-      error;
+    ast = null,
+    symbol_table,
+    error;
   var badChunks = [];
   var originalSource = python_source;
   this.source = python_source.split("\n");
   var previousLine = 1 + this.source.length;
-
+  var startLine = 1;
   while (ast === null) {
     if (python_source.trim() === "") {
       if (badChunks.length) {
-        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
       }
-
       return {
         "xml": BlockMirrorTextToBlocks.xmlToString(xml),
         "error": null,
         rawXml: xml
       };
     }
-
     try {
       parse = Sk.parse(filename, python_source);
       ast = Sk.astFromParse(parse.cst, filename, parse.flags);
     } catch (e) {
       //console.error(e);
       error = e;
-
-      if (e.traceback && e.traceback.length && e.traceback[0].lineno && e.traceback[0].lineno < previousLine) {
-        previousLine = e.traceback[0].lineno - 1;
+      if (e.position && e.position.length && e.position[0].lineno && e.position[0][0] < previousLine) {
+        previousLine = e.position[0][0] - 1;
         badChunks = badChunks.concat(this.source.slice(previousLine));
+        startLine += previousLine;
         this.source = this.source.slice(0, previousLine);
         python_source = this.source.join("\n");
       } else {
         //console.error(e);
-        xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource));
+        xml.appendChild(BlockMirrorTextToBlocks.raw_block(originalSource, startLine));
         return {
           "xml": BlockMirrorTextToBlocks.xmlToString(xml),
           "error": error,
@@ -1377,31 +1185,26 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
       }
     }
   }
-
   this.comments = {};
-
   for (var commentLocation in parse.comments) {
     var lineColumn = commentLocation.split(",");
     var yLocation = parseInt(lineColumn[0], 10);
-    this.comments[yLocation] = parse.comments[commentLocation];
+    var xLocation = parseInt(lineColumn[1], 10);
+    this.comments[yLocation] = xLocation + "|" + parse.comments[commentLocation];
   }
-
   this.highestLineSeen = 0;
   this.levelIndex = 0;
   this.nextExpectedLine = 0;
   this.measureNode(ast);
   var converted = this.convert(ast);
-
   if (converted !== null) {
     for (var block = 0; block < converted.length; block += 1) {
       xml.appendChild(converted[block]);
     }
   }
-
   if (badChunks.length) {
-    xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n")));
+    xml.appendChild(BlockMirrorTextToBlocks.raw_block(badChunks.join("\n"), startLine));
   }
-
   return {
     "xml": BlockMirrorTextToBlocks.xmlToString(xml),
     "error": null,
@@ -1410,14 +1213,11 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     "rawXml": xml
   };
 };
-
 BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLine) {
   if (node === undefined) {
     return;
   }
-
   var myNext = nextBlockLine;
-
   if ("orelse" in node && node.orelse.length > 0) {
     if (node.orelse.length === 1 && node.orelse[0]._astname === "If") {
       myNext = node.orelse[0].lineno - 1;
@@ -1425,92 +1225,76 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
       myNext = node.orelse[0].lineno - 1 - 1;
     }
   }
-
   this.heights.push(nextBlockLine);
-
   if ("body" in node) {
     for (var i = 0; i < node.body.length; i++) {
       var next = void 0;
-
       if (i + 1 === node.body.length) {
         next = myNext;
       } else {
         next = node.body[i + 1].lineno - 1;
       }
-
       this.recursiveMeasure(node.body[i], next);
     }
   }
-
   if ("orelse" in node) {
     for (var _i = 0; _i < node.orelse.length; _i++) {
       var _next = void 0;
-
       if (_i === node.orelse.length) {
         _next = nextBlockLine;
       } else {
         _next = 1 + (node.orelse[_i].lineno - 1);
       }
-
       this.recursiveMeasure(node.orelse[_i], _next);
     }
   }
 };
-
 BlockMirrorTextToBlocks.prototype.measureNode = function (node) {
   this.heights = [];
   this.recursiveMeasure(node, this.source.length - 1);
   this.heights.shift();
 };
-
 BlockMirrorTextToBlocks.prototype.getSourceCode = function (frm, to) {
-  var lines = this.source.slice(frm - 1, to); // Strip out any starting indentation.
-
+  var lines = this.source.slice(frm - 1, to);
+  // Strip out any starting indentation.
   if (lines.length > 0) {
     var indentation = lines[0].search(/\S/);
-
     for (var i = 0; i < lines.length; i++) {
       lines[i] = lines[i].substring(indentation);
     }
   }
-
   return lines.join("\n");
 };
-
 BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   this.levelIndex += 1;
-  var is_top_level = this.isTopLevel(parent); // Empty body, return nothing
-
+  var is_top_level = this.isTopLevel(parent);
+  // Empty body, return nothing
   /*if (node.length === 0) {
       return null;
   }*/
+
   // Final result list
-
   var children = [],
-      // The complete set of peers
-  root = null,
-      // The top of the current peer
-  current = null,
-      // The bottom of the current peer
-  levelIndex = this.levelIndex;
-
+    // The complete set of peers
+    root = null,
+    // The top of the current peer
+    current = null,
+    // The bottom of the current peer
+    levelIndex = this.levelIndex;
   function addPeer(peer) {
     if (root == null) {
       children.push(peer);
     } else {
       children.push(root);
     }
-
     root = peer;
     current = peer;
   }
-
   function finalizePeers() {
     if (root != null) {
       children.push(root);
     }
   }
-
   function nestChild(child) {
     if (root == null) {
       root = child;
@@ -1524,155 +1308,154 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
       current = child;
     }
   }
-
   var lineNumberInBody = 0,
-      lineNumberInProgram,
-      previousLineInProgram = null,
-      distance,
-      skipped_line,
-      commentCount,
-      previousHeight = null,
-      previousWasStatement = false,
-      visitedFirstLine = false,
-      wasFirstLine = false; // Iterate through each node
+    lineNumberInProgram,
+    previousLineInProgram = null,
+    distance,
+    skipped_line,
+    commentCount,
+    previousHeight = null,
+    previousWasStatement = false,
+    visitedFirstLine = false,
+    wasFirstLine = false;
 
+  // Iterate through each node
   for (var i = 0; i < node.length; i++) {
     lineNumberInBody += 1;
     lineNumberInProgram = node[i].lineno;
     distance = 0;
     wasFirstLine = true;
-
     if (previousLineInProgram != null) {
       distance = lineNumberInProgram - previousLineInProgram - 1;
       wasFirstLine = false;
     }
+    lineNumberInBody += distance;
 
-    lineNumberInBody += distance; // Handle earlier comments
-
+    // Handle earlier comments
     commentCount = 0;
-
     for (var _commentLineInProgram in this.comments) {
-      if (_commentLineInProgram < lineNumberInProgram) {
-        var commentChild = this.ast_Comment(this.comments[_commentLineInProgram], _commentLineInProgram);
-
-        if (previousLineInProgram == null) {
-          nestChild(commentChild);
-        } else {
-          var skipped_previous_line = Math.abs(previousLineInProgram - _commentLineInProgram) > 1;
-
-          if (is_top_level && skipped_previous_line) {
-            addPeer(commentChild);
-          } else {
+      if (_commentLineInProgram <= lineNumberInProgram) {
+        var comment = this.comments[_commentLineInProgram].split("|", 2);
+        if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+          var commentLine = comment[1];
+          var commentChild = this.ast_Comment(commentLine, _commentLineInProgram);
+          this.highestLineSeen += 1;
+          if (previousLineInProgram == null) {
             nestChild(commentChild);
+          } else {
+            var skipped_previous_line = Math.abs(previousLineInProgram - _commentLineInProgram) > 1;
+            if (is_top_level && skipped_previous_line) {
+              addPeer(commentChild);
+            } else {
+              nestChild(commentChild);
+            }
           }
+          previousLineInProgram = _commentLineInProgram;
+          this.highestLineSeen = Math.max(this.highestLineSeen, parseInt(_commentLineInProgram, 10));
+          distance = lineNumberInProgram - previousLineInProgram;
+          delete this.comments[_commentLineInProgram];
+          commentCount += 1;
         }
-
-        previousLineInProgram = _commentLineInProgram;
-        this.highestLineSeen = Math.max(this.highestLineSeen, parseInt(_commentLineInProgram, 10));
-        distance = lineNumberInProgram - previousLineInProgram;
-        delete this.comments[_commentLineInProgram];
-        commentCount += 1;
+        visitedFirstLine = true;
+        previousWasStatement = true;
       }
     }
-
     distance = lineNumberInProgram - this.highestLineSeen;
-    this.highestLineSeen = Math.max(lineNumberInProgram, this.highestLineSeen); // Now convert the actual node
+    this.highestLineSeen = Math.max(lineNumberInProgram, this.highestLineSeen);
 
+    // Now convert the actual node
     var height = this.heights.shift();
     var originalSourceCode = this.getSourceCode(lineNumberInProgram, height);
-    var newChild = this.convertStatement(node[i], originalSourceCode, parent); // Skip null blocks (e.g., imports)
+    var newChild = this.convertStatement(node[i], originalSourceCode, parent);
 
+    // Skip null blocks (e.g., imports)
     if (newChild == null) {
       continue;
     }
-
     skipped_line = distance > 1;
     previousLineInProgram = lineNumberInProgram;
-    previousHeight = height; // Handle top-level expression blocks
+    previousHeight = height;
 
+    // Handle top-level expression blocks
     if (is_top_level && newChild.constructor === Array) {
-      addPeer(newChild[0]); // Handle skipped line
+      addPeer(newChild[0]);
+      // Handle skipped line
     } else if (is_top_level && skipped_line && visitedFirstLine) {
-      addPeer(newChild); // The previous line was not a Peer
+      addPeer(newChild);
+      // The previous line was not a Peer
     } else if (is_top_level && !previousWasStatement) {
-      addPeer(newChild); // Otherwise, always embed it in there.
+      addPeer(newChild);
+      // Otherwise, always embed it in there.
     } else {
       nestChild(newChild);
     }
-
     previousWasStatement = newChild.constructor !== Array;
     visitedFirstLine = true;
-  } // Handle comments that are on the very last line
+  }
 
-
+  // Handle comments that are on the very last line
   var lastLineNumber = lineNumberInProgram + 1;
-
   if (lastLineNumber in this.comments) {
-    var _commentChild = this.ast_Comment(this.comments[lastLineNumber], lastLineNumber);
-
-    if (is_top_level && !previousWasStatement) {
-      addPeer(_commentChild);
-    } else {
-      nestChild(_commentChild);
-    }
-
-    delete this.comments[lastLineNumber];
-  } // Handle any extra comments that stuck around
-
-
-  if (is_top_level) {
-    for (var commentLineInProgram in this.comments) {
-      var _commentChild2 = this.ast_Comment(this.comments[commentLineInProgram], commentLineInProgram);
-
-      distance = commentLineInProgram - previousLineInProgram;
-
-      if (previousLineInProgram == null) {
-        addPeer(_commentChild2);
-      } else if (distance > 1) {
-        addPeer(_commentChild2);
+    var comment = this.comments[lastLineNumber].split("|", 2);
+    if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+      var lastComment = comment[1];
+      var _commentChild = this.ast_Comment(lastComment, lastLineNumber);
+      if (is_top_level && !previousWasStatement) {
+        addPeer(_commentChild);
       } else {
-        nestChild(_commentChild2);
+        nestChild(_commentChild);
       }
-
-      previousLineInProgram = commentLineInProgram;
       delete this.comments[lastLineNumber];
+      this.highestLineSeen += 1;
     }
   }
 
+  // Handle any extra comments that stuck around
+  if (is_top_level) {
+    for (var commentLineInProgram in this.comments) {
+      var comment = this.comments[commentLineInProgram].split("|", 2);
+      if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+        var commentInProgram = comment[1];
+        var _commentChild2 = this.ast_Comment(commentInProgram, commentLineInProgram);
+        distance = commentLineInProgram - previousLineInProgram;
+        if (previousLineInProgram == null) {
+          addPeer(_commentChild2);
+        } else if (distance > 1) {
+          addPeer(_commentChild2);
+        } else {
+          nestChild(_commentChild2);
+        }
+        previousLineInProgram = commentLineInProgram;
+        delete this.comments[lastLineNumber];
+      }
+    }
+  }
   finalizePeers();
   this.levelIndex -= 1;
   return children;
 };
-
 BlockMirrorTextToBlocks.prototype.TOP_LEVEL_NODES = ['Module', 'Expression', 'Interactive', 'Suite'];
-
 BlockMirrorTextToBlocks.prototype.isTopLevel = function (parent) {
   return !parent || this.TOP_LEVEL_NODES.indexOf(parent._astname) !== -1;
 };
-
 BlockMirrorTextToBlocks.prototype.convert = function (node, parent) {
   var functionName = 'ast_' + node._astname;
-
   if (this[functionName] === undefined) {
     throw new Error("Could not find function: " + functionName);
   }
-
   node._parent = parent;
   return this[functionName](node, parent);
 };
-
 function arrayMax(array) {
   return array.reduce(function (a, b) {
     return Math.max(a, b);
   });
 }
-
 function arrayMin(array) {
   return array.reduce(function (a, b) {
     return Math.min(a, b);
   });
 }
-
 BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source, parent) {
   try {
     return this.convert(node, parent);
@@ -1683,51 +1466,41 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source
     return BlockMirrorTextToBlocks.raw_block(extractedSource);
   }
 };
-
 BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
   var lineNumbers = [];
-
   if (node.hasOwnProperty("lineno")) {
     lineNumbers.push(node.lineno);
   }
-
   if (node.hasOwnProperty("body")) {
     for (var i = 0; i < node.body.length; i += 1) {
       var subnode = node.body[i];
       lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
     }
   }
-
   if (node.hasOwnProperty("orelse")) {
     for (var _i2 = 0; _i2 < node.orelse.length; _i2 += 1) {
       var _subnode = node.orelse[_i2];
       lineNumbers = lineNumbers.concat(this.getChunkHeights(_subnode));
     }
   }
-
   return lineNumbers;
 };
-
 BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, values, settings, mutations, statements) {
-  var newBlock = document.createElement("block"); // Settings
-
+  var newBlock = document.createElement("block");
+  // Settings
   newBlock.setAttribute("type", type);
   newBlock.setAttribute("line_number", lineNumber);
-
   for (var setting in settings) {
     var settingValue = settings[setting];
     newBlock.setAttribute(setting, settingValue);
-  } // Mutations
-
-
+  }
+  // Mutations
   if (mutations !== undefined && Object.keys(mutations).length > 0) {
     var newMutation = document.createElement("mutation");
-
     for (var mutation in mutations) {
       var mutationValue = mutations[mutation];
-
       if (mutation.charAt(0) === '@') {
-        newMutation.setAttribute(mutation.substr(1), mutationValue);
+        newMutation.setAttribute(mutation.substring(1), mutationValue);
       } else if (mutationValue != null && mutationValue.constructor === Array) {
         for (var i = 0; i < mutationValue.length; i++) {
           var mutationNode = document.createElement(mutation);
@@ -1736,50 +1509,41 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
         }
       } else {
         var _mutationNode = document.createElement("arg");
-
         if (mutation.charAt(0) === '!') {
           _mutationNode.setAttribute("name", "");
         } else {
           _mutationNode.setAttribute("name", mutation);
         }
-
         if (mutationValue !== null) {
           _mutationNode.appendChild(mutationValue);
         }
-
         newMutation.appendChild(_mutationNode);
       }
     }
-
     newBlock.appendChild(newMutation);
-  } // Fields
-
-
+  }
+  // Fields
   for (var field in fields) {
     var fieldValue = fields[field];
     var newField = document.createElement("field");
     newField.setAttribute("name", field);
     newField.appendChild(document.createTextNode(fieldValue));
     newBlock.appendChild(newField);
-  } // Values
-
-
+  }
+  // Values
   for (var value in values) {
     var valueValue = values[value];
     var newValue = document.createElement("value");
-
     if (valueValue !== null) {
       newValue.setAttribute("name", value);
       newValue.appendChild(valueValue);
       newBlock.appendChild(newValue);
     }
-  } // Statements
-
-
+  }
+  // Statements
   if (statements !== undefined && Object.keys(statements).length > 0) {
     for (var statement in statements) {
       var statementValue = statements[statement];
-
       if (statementValue == null) {
         continue;
       } else {
@@ -1795,45 +1559,33 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
       }
     }
   }
-
   return newBlock;
 };
-
-BlockMirrorTextToBlocks.raw_block = function (txt) {
-  // TODO: lineno as second parameter!
-  return BlockMirrorTextToBlocks.create_block("ast_Raw", 0, {
+BlockMirrorTextToBlocks.raw_block = function (txt, lineno) {
+  return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno || 0, {
     "TEXT": txt
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS = [];
-
 BlockMirrorTextToBlocks.prototype['ast_Module'] = function (node) {
   return this.convertBody(node.body, node);
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Interactive'] = function (node) {
   return this.convertBody(node.body, node);
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Expression'] = BlockMirrorTextToBlocks.prototype['ast_Interactive'];
 BlockMirrorTextToBlocks.prototype['ast_Suite'] = BlockMirrorTextToBlocks.prototype['ast_Module'];
-
 BlockMirrorTextToBlocks.prototype['ast_Pass'] = function () {
   return null; //block("controls_pass");
 };
-
 BlockMirrorTextToBlocks.prototype.convertElements = function (key, values, parent) {
   var output = {};
-
   for (var i = 0; i < values.length; i++) {
     output[key + i] = this.convert(values[i], parent);
   }
-
   return output;
 };
-
-Blockly.Python['blank'] = '___';
+python.pythonGenerator.blank = '___';
 BlockMirrorTextToBlocks.prototype.LOCKED_BLOCK = {
   "inline": "true",
   'deletable': "false",
@@ -1857,25 +1609,20 @@ BlockMirrorTextToBlocks.COLOR = {
   SET: 10,
   TUPLE: 20
 };
-
 BlockMirrorTextToBlocks['ast_Image'] = function (node, parent, bmttb) {
   if (!bmttb.blockMirror.configuration.imageMode) {
     throw "Not using image constructor";
   }
-
   if (node.args.length !== 1) {
     throw "More than one argument to Image constructor";
   }
-
   if (node.args[0]._astname !== "Str") {
     throw "First argument for Image constructor must be string literal";
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {}, {
     "@src": Sk.ffi.remapToJs(node.args[0].s)
   });
 };
-
 BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
   'abs': {
     'returns': true,
@@ -2663,7 +2410,6 @@ BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
   }
 };
 BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES['assert_equal'] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['cisc108']['assert_equal'];
-
 function makeTurtleBlock(name, returns, values, message, aliases) {
   BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name] = {
     "returns": returns,
@@ -2671,14 +2417,12 @@ function makeTurtleBlock(name, returns, values, message, aliases) {
     "message": message,
     colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
   };
-
   if (aliases) {
     aliases.forEach(function (alias) {
       BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][alias] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name];
     });
   }
 }
-
 makeTurtleBlock("forward", false, ["amount"], "move turtle forward by", ["fd"]);
 makeTurtleBlock("backward", false, ["amount"], "move turtle backward by", ["bd"]);
 makeTurtleBlock("right", false, ["angle"], "turn turtle right by", ["rt"]);
@@ -2704,32 +2448,29 @@ makeTurtleBlock("distance", true, ["x", "y"], "get the distance from turtle's po
 makeTurtleBlock("degrees", false, [], "set turtle mode to degrees", []);
 makeTurtleBlock("radians", false, [], "set turtle mode to radians", []);
 makeTurtleBlock("pendown", false, [], "pull turtle pen down ", ["pd", "down"]);
-makeTurtleBlock("penup", false, [], "pull turtle pen up ", ["pu", "up"]); // Skipped some
-
-makeTurtleBlock("pensize", false, [], "set or get the pen size ", ["width"]); // Skipped some
-
+makeTurtleBlock("penup", false, [], "pull turtle pen up ", ["pu", "up"]);
+// Skipped some
+makeTurtleBlock("pensize", false, [], "set or get the pen size ", ["width"]);
+// Skipped some
 makeTurtleBlock("pencolor", false, [], "set or get the pen color ", []);
 makeTurtleBlock("fillcolor", false, [], "set or get the fill color ", []);
 makeTurtleBlock("reset", false, [], "reset drawing", []);
 makeTurtleBlock("clear", false, [], "clear drawing", []);
-makeTurtleBlock("write", false, ["message"], "write text ", []); // Skipped some
-
+makeTurtleBlock("write", false, ["message"], "write text ", []);
+// Skipped some
 makeTurtleBlock("bgpic", false, ["url"], "set background to ", []);
 makeTurtleBlock("done", false, [], "start the turtle loop ", ["mainloop"]);
 makeTurtleBlock("setup", false, ["width", "height"], "set drawing area size ", []);
 makeTurtleBlock("title", false, ["message"], "set title of drawing area ", []);
 makeTurtleBlock("bye", false, [], "say goodbye to turtles ", []);
 BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['matplotlib.pyplot'] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['plt'];
-
 BlockMirrorTextToBlocks.getFunctionBlock = function (name, values, module) {
   if (values === undefined) {
     values = {};
-  } // TODO: hack, we shouldn't be accessing the prototype like this
-
-
+  }
+  // TODO: hack, we shouldn't be accessing the prototype like this
   var signature;
   var method = false;
-
   if (module !== undefined) {
     signature = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module][name];
   } else if (name.startsWith('.')) {
@@ -2738,7 +2479,6 @@ BlockMirrorTextToBlocks.getFunctionBlock = function (name, values, module) {
   } else {
     signature = BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES[name];
   }
-
   var args = signature.simple !== undefined ? signature.simple : signature.full !== undefined ? signature.full : [];
   var argumentsMutation = {
     "@arguments": args.length,
@@ -2751,18 +2491,15 @@ BlockMirrorTextToBlocks.getFunctionBlock = function (name, values, module) {
     "@colour": signature.colour ? signature.colour : 0,
     "@module": module || ""
   };
-
   for (var i = 0; i < args.length; i += 1) {
     argumentsMutation["UNKNOWN_ARG:" + i] = null;
   }
-
   var newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", null, {}, values, {
     inline: true
-  }, argumentsMutation); // Return as either statement or expression
-
+  }, argumentsMutation);
+  // Return as either statement or expression
   return BlockMirrorTextToBlocks.xmlToString(newBlock);
 };
-
 var ZERO_BLOCK = BlockMirrorTextToBlocks.create_block('ast_Num', null, {
   'NUM': 0
 });
@@ -2822,7 +2559,8 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
     "blocks": []
   }],
   //******************************************************
-  'minimal': [// TODO: What should live in here?
+  'minimal': [
+  // TODO: What should live in here?
   TOOLBOX_CATEGORY.VARIABLES],
   //******************************************************
   'normal': [TOOLBOX_CATEGORY.VARIABLES, TOOLBOX_CATEGORY.DECISIONS, {
@@ -2909,13 +2647,11 @@ BlockMirrorBlockEditor.prototype.TOOLBOXES = {
     name: "Comments",
     colour: "PYTHON",
     blocks: ["# ", '"""\n"""']
-  }
-  /*,
-  {name: "Weird Stuff", colour: "PYTHON", blocks: [
-    "delete ___",
-    "global ___"
-  ]}*/
-  ],
+  } /*,
+    {name: "Weird Stuff", colour: "PYTHON", blocks: [
+      "delete ___",
+      "global ___"
+    ]}*/],
   //******************************************************
   'ct2': [{
     name: 'Memory',
@@ -2993,22 +2729,20 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL
 });
-
-Blockly.Python['ast_For'] = function (block) {
+python.pythonGenerator.forBlock['ast_For'] = function (block, generator) {
   // For each loop.
-  var argument0 = Blockly.Python.valueToCode(block, 'TARGET', Blockly.Python.ORDER_RELATIONAL) || Blockly.Python.blank;
-  var argument1 = Blockly.Python.valueToCode(block, 'ITER', Blockly.Python.ORDER_RELATIONAL) || Blockly.Python.blank;
-  var branchBody = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
-  var branchElse = Blockly.Python.statementToCode(block, 'ELSE');
+  var argument0 = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'ITER', python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+  var branchBody = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   var code = 'for ' + argument0 + ' in ' + argument1 + ':\n' + branchBody;
-
-  if (branchElse) {
-    code += 'else:\n' + branchElse;
+  if (block.getInputTargetBlock('ELSE')) {
+    var branchElse = python.pythonGenerator.statementToCode(block, 'ELSE');
+    if (branchElse) {
+      code += 'else:\n' + branchElse;
+    }
   }
-
   return code;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
   var target = node.target;
   var iter = node.iter;
@@ -3018,26 +2752,23 @@ BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
   var bodies = {
     'BODY': this.convertBody(body, node)
   };
-
   if (orelse.length > 0) {
     blockName = "ast_ForElse";
     bodies['ELSE'] = this.convertBody(orelse, node);
   }
-
   return BlockMirrorTextToBlocks.create_block(blockName, node.lineno, {}, {
     "ITER": this.convert(iter, node),
     "TARGET": this.convert(target, node)
   }, {}, {}, bodies);
 };
-
-Blockly.Python['ast_ForElse'] = Blockly.Python['ast_For'];
+python.pythonGenerator.forBlock['ast_ForElse'] = python.pythonGenerator.forBlock['ast_For'];
 BlockMirrorTextToBlocks.prototype['ast_ForElse'] = BlockMirrorTextToBlocks.prototype['ast_For'];
 Blockly.Blocks['ast_If'] = {
   init: function init() {
     this.orelse_ = 0;
     this.elifs_ = 0;
     this.appendValueInput('TEST').appendField("if");
-    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.ALIGN_RIGHT);
+    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -3047,21 +2778,18 @@ Blockly.Blocks['ast_If'] = {
   // TODO: Not mutable currently
   updateShape_: function updateShape_() {
     var latestInput = "BODY";
-
     for (var i = 0; i < this.elifs_; i++) {
       if (!this.getInput('ELIF' + i)) {
         this.appendValueInput('ELIFTEST' + i).appendField('elif');
         this.appendStatementInput("ELIFBODY" + i).setCheck(null);
       }
-    } // Remove deleted inputs.
-
-
+    }
+    // Remove deleted inputs.
     while (this.getInput('ELIFTEST' + i)) {
       this.removeInput('ELIFTEST' + i);
       this.removeInput('ELIFBODY' + i);
       i++;
     }
-
     if (this.orelse_ && !this.getInput('ELSE')) {
       this.appendDummyInput('ORELSETEST').appendField("else:");
       this.appendStatementInput("ORELSEBODY").setCheck(null);
@@ -3069,7 +2797,6 @@ Blockly.Blocks['ast_If'] = {
       block.removeInput('ORELSETEST');
       block.removeInput('ORELSEBODY');
     }
-
     for (i = 0; i < this.elifs_; i++) {
       if (this.orelse_) {
         this.moveInputBefore('ELIFTEST' + i, 'ORELSETEST');
@@ -3080,7 +2807,6 @@ Blockly.Blocks['ast_If'] = {
       }
     }
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -3092,7 +2818,6 @@ Blockly.Blocks['ast_If'] = {
     container.setAttribute('elifs', this.elifs_);
     return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -3104,32 +2829,26 @@ Blockly.Blocks['ast_If'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_If'] = function (block) {
+python.pythonGenerator.forBlock['ast_If'] = function (block, generator) {
   // Test
-  var test = "if " + (Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_NONE) || Blockly.Python.blank) + ":\n"; // Body:
-
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS; // Elifs
-
+  var test = "if " + (python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+  // Body:
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
+  // Elifs
   var elifs = new Array(block.elifs_);
-
   for (var i = 0; i < block.elifs_; i++) {
     var elif = block.elifs_[i];
-    var clause = "elif " + (Blockly.Python.valueToCode(block, 'ELIFTEST' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank);
-    clause += ":\n" + (Blockly.Python.statementToCode(block, 'ELIFBODY' + i) || Blockly.Python.PASS);
+    var clause = "elif " + (python.pythonGenerator.valueToCode(block, 'ELIFTEST' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+    clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'ELIFBODY' + i) || python.pythonGenerator.PASS);
     elifs[i] = clause;
-  } // Orelse:
-
-
-  var orelse = "";
-
-  if (this.orelse_) {
-    orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSEBODY') || Blockly.Python.PASS);
   }
-
+  // Orelse:
+  var orelse = "";
+  if (this.orelse_) {
+    orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSEBODY') || python.pythonGenerator.PASS);
+  }
   return test + body + elifs.join("") + orelse;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
   var test = node.test;
   var body = node.body;
@@ -3142,7 +2861,6 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
   var statements = {
     "BODY": this.convertBody(body, node)
   };
-
   while (orelse !== undefined && orelse.length > 0) {
     if (orelse.length === 1) {
       if (orelse[0]._astname === "If") {
@@ -3159,21 +2877,18 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
       hasOrelse = true;
       statements['ORELSEBODY'] = this.convertBody(orelse, node);
     }
-
     orelse = orelse[0].orelse;
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_If", node.lineno, {}, values, {}, {
     "@orelse": hasOrelse,
     "@elifs": elifCount
   }, statements);
 };
-
 Blockly.Blocks['ast_While'] = {
   init: function init() {
     this.orelse_ = 0;
     this.appendValueInput('TEST').appendField("while");
-    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.ALIGN_RIGHT);
+    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -3183,7 +2898,6 @@ Blockly.Blocks['ast_While'] = {
   // TODO: Not mutable currently
   updateShape_: function updateShape_() {
     var latestInput = "BODY";
-
     if (this.orelse_ && !this.getInput('ELSE')) {
       this.appendDummyInput('ORELSETEST').appendField("else:");
       this.appendStatementInput("ORELSEBODY").setCheck(null);
@@ -3192,7 +2906,6 @@ Blockly.Blocks['ast_While'] = {
       block.removeInput('ORELSEBODY');
     }
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -3201,8 +2914,8 @@ Blockly.Blocks['ast_While'] = {
   mutationToDom: function mutationToDom() {
     var container = document.createElement('mutation');
     container.setAttribute('orelse', this.orelse_);
+    return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -3213,22 +2926,18 @@ Blockly.Blocks['ast_While'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_While'] = function (block) {
+python.pythonGenerator.forBlock['ast_While'] = function (block, generator) {
   // Test
-  var test = "while " + (Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_NONE) || Blockly.Python.blank) + ":\n"; // Body:
-
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS; // Orelse:
-
+  var test = "while " + (python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+  // Body:
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
+  // Orelse:
   var orelse = "";
-
   if (this.orelse_) {
-    orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSEBODY') || Blockly.Python.PASS);
+    orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSEBODY') || python.pythonGenerator.PASS);
   }
-
   return test + body + orelse;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_While'] = function (node, parent) {
   var test = node.test;
   var body = node.body;
@@ -3240,17 +2949,14 @@ BlockMirrorTextToBlocks.prototype['ast_While'] = function (node, parent) {
     "BODY": this.convertBody(body, node)
   };
   var hasOrelse = false;
-
   if (orelse !== null && orelse.length > 0) {
     statements['ORELSEBODY'] = this.convertBody(orelse, node);
     hasOrelse = true;
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_While", node.lineno, {}, values, {}, {
     "@orelse": hasOrelse
   }, statements);
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Num",
   "message0": "%1",
@@ -3262,33 +2968,28 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": "Number",
   "colour": BlockMirrorTextToBlocks.COLOR.MATH
 });
-
-Blockly.Python['ast_Num'] = function (block) {
+python.pythonGenerator.forBlock['ast_Num'] = function (block) {
   // Numeric value.
   var code = parseFloat(block.getFieldValue('NUM'));
   var order;
-
   if (code == Infinity) {
     code = 'float("inf")';
-    order = Blockly.Python.ORDER_FUNCTION_CALL;
+    order = python.pythonGenerator.ORDER_FUNCTION_CALL;
   } else if (code == -Infinity) {
     code = '-float("inf")';
-    order = Blockly.Python.ORDER_UNARY_SIGN;
+    order = python.pythonGenerator.ORDER_UNARY_SIGN;
   } else {
-    order = code < 0 ? Blockly.Python.ORDER_UNARY_SIGN : Blockly.Python.ORDER_ATOMIC;
+    order = code < 0 ? python.pythonGenerator.ORDER_UNARY_SIGN : python.pythonGenerator.ORDER_ATOMIC;
   }
-
   return [code, order];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Num'] = function (node, parent) {
   var n = node.n;
   return BlockMirrorTextToBlocks.create_block("ast_Num", node.lineno, {
     "NUM": Sk.ffi.remapToJs(n)
   });
 };
-
-BlockMirrorTextToBlocks.BINOPS = [["+", "Add", Blockly.Python.ORDER_ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'], ["-", "Sub", Blockly.Python.ORDER_ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'], ["*", "Mult", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'], ["/", "Div", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'], ["%", "Mod", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.', 'modulo', 'by'], ["**", "Pow", Blockly.Python.ORDER_EXPONENTIATION, 'Return the first number raised to the power of the second number.', 'raise', 'to'], ["//", "FloorDiv", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.', 'floor divide', 'by'], ["<<", "LShift", Blockly.Python.ORDER_BITWISE_SHIFT, 'Return the left number left shifted by the right number.', 'left shift', 'by'], [">>", "RShift", Blockly.Python.ORDER_BITWISE_SHIFT, 'Return the left number right shifted by the right number.', 'right shift', 'by'], ["|", "BitOr", Blockly.Python.ORDER_BITWISE_OR, 'Returns the bitwise OR of the two values.', 'bitwise OR', 'using'], ["^", "BitXor", Blockly.Python.ORDER_BITWISE_XOR, 'Returns the bitwise XOR of the two values.', 'bitwise XOR', 'using'], ["&", "BitAnd", Blockly.Python.ORDER_BITWISE_AND, 'Returns the bitwise AND of the two values.', 'bitwise AND', 'using'], ["@", "MatMult", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.', 'matrix multiply', 'by']];
+BlockMirrorTextToBlocks.BINOPS = [["+", "Add", python.pythonGenerator.ORDER_ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'], ["-", "Sub", python.pythonGenerator.ORDER_ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'], ["*", "Mult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'], ["/", "Div", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'], ["%", "Mod", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.', 'modulo', 'by'], ["**", "Pow", python.pythonGenerator.ORDER_EXPONENTIATION, 'Return the first number raised to the power of the second number.', 'raise', 'to'], ["//", "FloorDiv", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.', 'floor divide', 'by'], ["<<", "LShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number left shifted by the right number.', 'left shift', 'by'], [">>", "RShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number right shifted by the right number.', 'right shift', 'by'], ["|", "BitOr", python.pythonGenerator.ORDER_BITWISE_OR, 'Returns the bitwise OR of the two values.', 'bitwise OR', 'using'], ["^", "BitXor", python.pythonGenerator.ORDER_BITWISE_XOR, 'Returns the bitwise XOR of the two values.', 'bitwise XOR', 'using'], ["&", "BitAnd", python.pythonGenerator.ORDER_BITWISE_AND, 'Returns the bitwise AND of the two values.', 'bitwise AND', 'using'], ["@", "MatMult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.', 'matrix multiply', 'by']];
 var BINOPS_SIMPLE = ['Add', 'Sub', 'Mult', 'Div', 'Mod', 'Pow'];
 var BINOPS_BLOCKLY_DISPLAY_FULL = BlockMirrorTextToBlocks.BINOPS.map(function (binop) {
   return [binop[0], binop[1]];
@@ -3306,7 +3007,8 @@ var BINOPS_BLOCKLY_GENERATE = {};
 BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION = {};
 BlockMirrorTextToBlocks.BINOPS.forEach(function (binop) {
   BINOPS_BLOCKLY_GENERATE[binop[1]] = [" " + binop[0], binop[2]];
-  BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[binop[1]] = binop[5]; //Blockly.Constants.Math.TOOLTIPS_BY_OP[binop[1]] = binop[3];
+  BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[binop[1]] = binop[5];
+  //Blockly.Constants.Math.TOOLTIPS_BY_OP[binop[1]] = binop[3];
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_BinOpFull",
@@ -3324,8 +3026,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   }],
   "inputsInline": true,
   "output": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.MATH //"extensions": ["math_op_tooltip"]
-
+  "colour": BlockMirrorTextToBlocks.COLOR.MATH
+  //"extensions": ["math_op_tooltip"]
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_BinOp",
@@ -3343,21 +3045,19 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   }],
   "inputsInline": true,
   "output": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.MATH //"extensions": ["math_op_tooltip"]
-
+  "colour": BlockMirrorTextToBlocks.COLOR.MATH
+  //"extensions": ["math_op_tooltip"]
 });
-
-Blockly.Python['ast_BinOp'] = function (block) {
+python.pythonGenerator.forBlock['ast_BinOp'] = function (block, generator) {
   // Basic arithmetic operators, and power.
   var tuple = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP')];
   var operator = tuple[0] + " ";
   var order = tuple[1];
-  var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
-  var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
+  var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
   var code = argument0 + operator + argument1;
   return [code, order];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node, parent) {
   var left = node.left;
   var op = node.op.name;
@@ -3372,8 +3072,7 @@ BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node, parent) {
     "inline": true
   });
 };
-
-Blockly.Python['ast_BinOpFull'] = Blockly.Python['ast_BinOp'];
+python.pythonGenerator.forBlock['ast_BinOpFull'] = python.pythonGenerator.forBlock['ast_BinOp'];
 BlockMirrorTextToBlocks.prototype['ast_BinOpFull'] = BlockMirrorTextToBlocks.prototype['ast_BinOp'];
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Name",
@@ -3387,82 +3086,78 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES,
   "extensions": ["contextMenu_variableSetterGetter_forBlockMirror"]
 });
-/**
- * Mixin to add context menu items to create getter/setter blocks for this
- * setter/getter.
- * Used by blocks 'ast_Name' and 'ast_Assign'.
- * @mixin
- * @augments Blockly.Block
- * @package
- * @readonly
- */
-
-Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR = {
+{
   /**
-   * Add menu option to create getter/setter block for this setter/getter.
-   * @param {!Array} options List of menu options to add to.
-   * @this Blockly.Block
+   * Mixin to add context menu items to create getter/setter blocks for this
+   * setter/getter.
+   * Used by blocks 'ast_Name' and 'ast_Assign'.
+   * @mixin
+   * @augments Blockly.Block
+   * @package
+   * @readonly
    */
-  customContextMenu: function customContextMenu(options) {
-    var name;
-
-    if (!this.isInFlyout) {
-      // Getter blocks have the option to create a setter block, and vice versa.
-      var opposite_type, contextMenuMsg;
-
-      if (this.type === 'ast_Name') {
-        opposite_type = 'ast_Assign';
-        contextMenuMsg = Blockly.Msg['VARIABLES_GET_CREATE_SET'];
-      } else {
-        opposite_type = 'ast_Name';
-        contextMenuMsg = Blockly.Msg['VARIABLES_SET_CREATE_GET'];
-      }
-
-      var option = {
-        enabled: this.workspace.remainingCapacity() > 0
-      };
-      name = this.getField('VAR').getText();
-      option.text = contextMenuMsg.replace('%1', name);
-      var xmlField = document.createElement('field');
-      xmlField.setAttribute('name', 'VAR');
-      xmlField.appendChild(document.createTextNode(name));
-      var xmlBlock = document.createElement('block');
-      xmlBlock.setAttribute('type', opposite_type);
-      xmlBlock.appendChild(xmlField);
-      option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
-      options.push(option); // Getter blocks have the option to rename or delete that variable.
-    } else {
-      if (this.type === 'ast_Name' || this.type === 'variables_get_reporter') {
-        var renameOption = {
-          text: Blockly.Msg.RENAME_VARIABLE,
-          enabled: true,
-          callback: Blockly.Constants.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
+  var mixin = {
+    /**
+     * Add menu option to create getter/setter block for this setter/getter.
+     * @param {!Array} options List of menu options to add to.
+     * @this Blockly.Block
+     */
+    customContextMenu: function customContextMenu(options) {
+      var name;
+      if (!this.isInFlyout) {
+        // Getter blocks have the option to create a setter block, and vice versa.
+        var opposite_type, contextMenuMsg;
+        if (this.type === 'ast_Name') {
+          opposite_type = 'ast_Assign';
+          contextMenuMsg = Blockly.Msg['VARIABLES_GET_CREATE_SET'];
+        } else {
+          opposite_type = 'ast_Name';
+          contextMenuMsg = Blockly.Msg['VARIABLES_SET_CREATE_GET'];
+        }
+        var option = {
+          enabled: this.workspace.remainingCapacity() > 0
         };
         name = this.getField('VAR').getText();
-        var deleteOption = {
-          text: Blockly.Msg.DELETE_VARIABLE.replace('%1', name),
-          enabled: true,
-          callback: Blockly.Constants.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
-        };
-        options.unshift(renameOption);
-        options.unshift(deleteOption);
+        option.text = contextMenuMsg.replace('%1', name);
+        var xmlField = document.createElement('field');
+        xmlField.setAttribute('name', 'VAR');
+        xmlField.appendChild(document.createTextNode(name));
+        var xmlBlock = document.createElement('block');
+        xmlBlock.setAttribute('type', opposite_type);
+        xmlBlock.appendChild(xmlField);
+        option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
+        options.push(option);
+        // Getter blocks have the option to rename or delete that variable.
+      } else {
+        if (this.type === 'ast_Name' || this.type === 'variables_get_reporter') {
+          var renameOption = {
+            text: Blockly.Msg.RENAME_VARIABLE,
+            enabled: true,
+            callback: Blockly.Constants.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
+          };
+          name = this.getField('VAR').getText();
+          var deleteOption = {
+            text: Blockly.Msg.DELETE_VARIABLE.replace('%1', name),
+            enabled: true,
+            callback: Blockly.Constants.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
+          };
+          options.unshift(renameOption);
+          options.unshift(deleteOption);
+        }
       }
     }
-  }
-};
-Blockly.Extensions.registerMixin('contextMenu_variableSetterGetter_forBlockMirror', Blockly.Constants.Variables.CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN_FOR_BLOCK_MIRROR);
-
-Blockly.Python['ast_Name'] = function (block) {
+  };
+  Blockly.Extensions.registerMixin('contextMenu_variableSetterGetter_forBlockMirror', mixin);
+}
+python.pythonGenerator.forBlock['ast_Name'] = function (block, generator) {
   // Variable getter.
-  var code = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node, parent) {
   var id = node.id;
   var ctx = node.ctx;
-
-  if (id.v == Blockly.Python.blank) {
+  if (id.v == python.pythonGenerator.blank) {
     return null;
   } else {
     return BlockMirrorTextToBlocks.create_block('ast_Name', node.lineno, {
@@ -3470,7 +3165,6 @@ BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node, parent) {
     });
   }
 };
-
 Blockly.Blocks['ast_Assign'] = {
   init: function init() {
     this.setInputsInline(true);
@@ -3487,45 +3181,36 @@ Blockly.Blocks['ast_Assign'] = {
       this.appendDummyInput().appendField("set");
       this.appendValueInput('VALUE').appendField('=');
     }
-
     var i = 0;
-
     if (this.targetCount_ === 1 && this.simpleTarget_) {
       this.setInputsInline(true);
-
       if (!this.getInput('VAR_ANCHOR')) {
         this.appendDummyInput('VAR_ANCHOR').appendField(new Blockly.FieldVariable("variable"), "VAR");
       }
-
       this.moveInputBefore('VAR_ANCHOR', 'VALUE');
     } else {
-      this.setInputsInline(true); // Add new inputs.
-
+      this.setInputsInline(true);
+      // Add new inputs.
       for (; i < this.targetCount_; i++) {
         if (!this.getInput('TARGET' + i)) {
           var input = this.appendValueInput('TARGET' + i);
-
           if (i !== 0) {
-            input.appendField('and').setAlign(Blockly.ALIGN_RIGHT);
+            input.appendField('and').setAlign(Blockly.inputs.Align.RIGHT);
           }
         }
-
         this.moveInputBefore('TARGET' + i, 'VALUE');
-      } // Kill simple VAR
-
-
+      }
+      // Kill simple VAR
       if (this.getInput('VAR_ANCHOR')) {
         this.removeInput('VAR_ANCHOR');
       }
-    } // Remove deleted inputs.
-
-
+    }
+    // Remove deleted inputs.
     while (this.getInput('TARGET' + i)) {
       this.removeInput('TARGET' + i);
       i++;
     }
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -3537,7 +3222,6 @@ Blockly.Blocks['ast_Assign'] = {
     container.setAttribute('simple', this.simpleTarget_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -3549,37 +3233,31 @@ Blockly.Blocks['ast_Assign'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Assign'] = function (block) {
+python.pythonGenerator.forBlock['ast_Assign'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   var targets = new Array(block.targetCount_);
-
   if (block.targetCount_ === 1 && block.simpleTarget_) {
-    targets[0] = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    targets[0] = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   } else {
     for (var i = 0; i < block.targetCount_; i++) {
-      targets[i] = Blockly.Python.valueToCode(block, 'TARGET' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+      targets[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
   }
-
   return targets.join(' = ') + " = " + value + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
   var targets = node.targets;
   var value = node.value;
   var values;
   var fields = {};
   var simpleTarget = targets.length === 1 && targets[0]._astname === 'Name';
-
   if (simpleTarget) {
     values = {};
     fields['VAR'] = Sk.ffi.remapToJs(targets[0].id);
   } else {
     values = this.convertElements("TARGET", targets, node);
   }
-
   values['VALUE'] = this.convert(value, node);
   return BlockMirrorTextToBlocks.create_block("ast_Assign", node.lineno, fields, values, {
     "inline": "true"
@@ -3588,7 +3266,6 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
     "@simple": simpleTarget
   });
 };
-
 Blockly.Blocks['ast_AnnAssignFull'] = {
   init: function init() {
     this.appendValueInput("TARGET").setCheck(null).appendField("set");
@@ -3600,7 +3277,6 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
     this.initialized_ = true;
     this.updateShape_();
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -3611,7 +3287,6 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
     container.setAttribute('initialized', this.initialized_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -3624,9 +3299,8 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
   updateShape_: function updateShape_(block) {
     // Add new inputs.
     if (this.initialized_ && !this.getInput('VALUE')) {
-      this.appendValueInput('VALUE').appendField('=').setAlign(Blockly.ALIGN_RIGHT);
+      this.appendValueInput('VALUE').appendField('=').setAlign(Blockly.inputs.Align.RIGHT);
     }
-
     if (!this.initialized_ && this.getInput('VALUE')) {
       this.removeInput('VALUE');
     }
@@ -3648,7 +3322,6 @@ Blockly.Blocks['ast_AnnAssign'] = {
     this.strAnnotations_ = false;
     this.initialized_ = true;
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -3660,7 +3333,6 @@ Blockly.Blocks['ast_AnnAssign'] = {
     container.setAttribute('initialized', this.initialized_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -3674,56 +3346,46 @@ Blockly.Blocks['ast_AnnAssign'] = {
   updateShape_: function updateShape_(block) {
     // Add new inputs.
     if (this.initialized_ && !this.getInput('VALUE')) {
-      this.appendValueInput('VALUE').appendField('=').setAlign(Blockly.ALIGN_RIGHT);
+      this.appendValueInput('VALUE').appendField('=').setAlign(Blockly.inputs.Align.RIGHT);
     }
-
     if (!this.initialized_ && this.getInput('VALUE')) {
       this.removeInput('VALUE');
     }
   }
 };
-
-Blockly.Python['ast_AnnAssignFull'] = function (block) {
+python.pythonGenerator.forBlock['ast_AnnAssignFull'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var target = Blockly.Python.valueToCode(block, 'TARGET', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  var annotation = Blockly.Python.valueToCode(block, 'ANNOTATION', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+  var target = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  var annotation = python.pythonGenerator.valueToCode(block, 'ANNOTATION', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   var value = "";
-
   if (this.initialized_) {
-    value = " = " + Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
   return target + ": " + annotation + value + "\n";
 };
-
-Blockly.Python['ast_AnnAssign'] = function (block) {
+python.pythonGenerator.forBlock['ast_AnnAssign'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var target = Blockly.Python.variableDB_.getName(block.getFieldValue('TARGET'), Blockly.Variables.NAME_TYPE);
+  var target = python.pythonGenerator.getVariableName(block.getFieldValue('TARGET'), Blockly.Variables.NAME_TYPE);
   var annotation = block.getFieldValue('ANNOTATION');
-
   if (block.strAnnotations_) {
-    annotation = Blockly.Python.quote_(annotation);
+    annotation = python.pythonGenerator.quote_(annotation);
   }
-
   var value = "";
-
   if (this.initialized_) {
-    value = " = " + Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
   return target + ": " + annotation + value + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype.getBuiltinAnnotation = function (annotation) {
-  var result = false; // Can we turn it into a basic type?
-
+  var result = false;
+  // Can we turn it into a basic type?
   if (annotation._astname === 'Name') {
     result = Sk.ffi.remapToJs(annotation.id);
   } else if (annotation._astname === 'Str') {
     result = Sk.ffi.remapToJs(annotation.s);
-  } // Potentially filter out unknown annotations
+  }
 
-
+  // Potentially filter out unknown annotations
   if (result !== false && this.strictAnnotations) {
     if (this.strictAnnotations.indexOf(result) !== -1) {
       return result;
@@ -3734,7 +3396,6 @@ BlockMirrorTextToBlocks.prototype.getBuiltinAnnotation = function (annotation) {
     return result;
   }
 };
-
 BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
   var target = node.target;
   var annotation = node.annotation;
@@ -3743,17 +3404,15 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
   var mutations = {
     '@initialized': false
   };
-
   if (value !== null) {
     values['VALUE'] = this.convert(value, node);
     mutations['@initialized'] = true;
-  } // TODO: This controls whether the annotation is stored in __annotations__
+  }
 
-
+  // TODO: This controls whether the annotation is stored in __annotations__
   var simple = node.simple;
   var builtinAnnotation = this.getBuiltinAnnotation(annotation);
-
-  if (target._astname === 'Name' && target.id.v !== Blockly.Python.blank && builtinAnnotation !== false) {
+  if (target._astname === 'Name' && target.id.v !== python.pythonGenerator.blank && builtinAnnotation !== false) {
     mutations['@str'] = annotation._astname === 'Str';
     return BlockMirrorTextToBlocks.create_block("ast_AnnAssign", node.lineno, {
       'TARGET': target.id.v,
@@ -3769,7 +3428,6 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
     }, mutations);
   }
 };
-
 Blockly.Blocks['ast_AugAssign'] = {
   init: function init() {
     var block = this;
@@ -3782,7 +3440,7 @@ Blockly.Blocks['ast_AugAssign'] = {
       var block = this.sourceBlock_;
       block.updatePreposition_(value);
     }), "OP_NAME").appendField(" ");
-    this.appendDummyInput('PREPOSITION_ANCHOR').setAlign(Blockly.ALIGN_RIGHT).appendField("by", 'PREPOSITION');
+    this.appendDummyInput('PREPOSITION_ANCHOR').setAlign(Blockly.inputs.Align.RIGHT).appendField("by", 'PREPOSITION');
     this.appendValueInput('VALUE');
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
@@ -3795,7 +3453,6 @@ Blockly.Blocks['ast_AugAssign'] = {
     var preposition = BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[value];
     this.setFieldValue(preposition, 'PREPOSITION');
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -3808,7 +3465,6 @@ Blockly.Blocks['ast_AugAssign'] = {
     container.setAttribute('preposition', this.initialPreposition_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -3824,13 +3480,11 @@ Blockly.Blocks['ast_AugAssign'] = {
   updateShape_: function updateShape_(block) {
     // Add new inputs.
     this.getField("OP_NAME").getOptions(false);
-
     if (this.simpleTarget_) {
       if (!this.getInput('VAR_ANCHOR')) {
         this.appendDummyInput('VAR_ANCHOR').appendField(new Blockly.FieldVariable("variable"), "VAR");
         this.moveInputBefore('VAR_ANCHOR', 'PREPOSITION_ANCHOR');
       }
-
       if (this.getInput('TARGET')) {
         this.removeInput('TARGET');
       }
@@ -3838,7 +3492,6 @@ Blockly.Blocks['ast_AugAssign'] = {
       if (this.getInput('VAR_ANCHOR')) {
         this.removeInput('VAR_ANCHOR');
       }
-
       if (!this.getInput('TARGET')) {
         this.appendValueInput('TARGET');
         this.moveInputBefore('TARGET', 'PREPOSITION_ANCHOR');
@@ -3846,22 +3499,18 @@ Blockly.Blocks['ast_AugAssign'] = {
     }
   }
 };
-
-Blockly.Python['ast_AugAssign'] = function (block) {
+python.pythonGenerator.forBlock['ast_AugAssign'] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var target;
-
   if (block.simpleTarget_) {
-    target = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    target = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   } else {
-    target = Blockly.Python.valueToCode(block, 'TARGET', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    target = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
   var operator = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP_NAME')][0];
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   return target + operator + "= " + value + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
   var target = node.target;
   var op = node.op.name;
@@ -3873,13 +3522,11 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
     'OP_NAME': op
   };
   var simpleTarget = target._astname === 'Name';
-
   if (simpleTarget) {
     fields['VAR'] = Sk.ffi.remapToJs(target.id);
   } else {
     values['TARGET'] = this.convert(value, node);
   }
-
   var preposition = op;
   var allOptions = BINOPS_SIMPLE.indexOf(op) === -1;
   return BlockMirrorTextToBlocks.create_block("ast_AugAssign", node.lineno, fields, values, {
@@ -3890,7 +3537,6 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
     "@preposition": preposition
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Str",
   "message0": "%1",
@@ -3915,32 +3561,44 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
   "extensions": ["text_quotes"]
 });
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_StrMultiline",
-  "message0": "%1",
-  "args0": [{
-    "type": "field_multilinetext",
-    "name": "TEXT",
-    "value": ''
-  }],
-  "output": "String",
-  "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
-  "extensions": ["text_quotes"]
-});
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_StrDocstring",
-  "message0": "Docstring: %1 %2",
-  "args0": [{
-    "type": "input_dummy"
-  }, {
-    "type": "field_multilinetext",
-    "name": "TEXT",
-    "value": ''
-  }],
-  "previousStatement": null,
-  "nextStatement": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.TEXT
-});
+{
+  var multiline_input_type = "field_multilinetext";
+  if (!Blockly.registry.hasItem(Blockly.registry.Type.FIELD, multiline_input_type)) {
+    if (typeof registerFieldMultilineInput === "function") {
+      // Register if the field-multilineinput plugin is available
+      registerFieldMultilineInput();
+    } else {
+      // Fallback in case plugin @blockly/field-multilineinput is not available
+      multiline_input_type = "field_input";
+    }
+  }
+  BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_StrMultiline",
+    "message0": "%1",
+    "args0": [{
+      "type": multiline_input_type,
+      "name": "TEXT",
+      "value": ''
+    }],
+    "output": "String",
+    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+    "extensions": ["text_quotes"]
+  });
+  BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_StrDocstring",
+    "message0": "Docstring: %1 %2",
+    "args0": [{
+      "type": "input_dummy"
+    }, {
+      "type": multiline_input_type,
+      "name": "TEXT",
+      "value": ''
+    }],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": BlockMirrorTextToBlocks.COLOR.TEXT
+  });
+}
 Blockly.Blocks['ast_Image'] = {
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
@@ -3959,7 +3617,6 @@ Blockly.Blocks['ast_Image'] = {
   },
   updateShape_: function updateShape_() {
     var image = this.getInput('IMAGE');
-
     if (!image) {
       image = this.appendDummyInput("IMAGE");
       image.appendField(new Blockly.FieldImage(this.src_, 40, 40, {
@@ -3967,11 +3624,11 @@ Blockly.Blocks['ast_Image'] = {
         flipRtl: "FALSE"
       }));
     }
-
     var imageField = image.fieldRow[0];
     imageField.setValue(this.src_);
   }
 };
+
 /*
 "https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png"
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -3986,105 +3643,90 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     //"extensions": ["text_quotes"]
 });*/
 
-Blockly.Python['ast_Str'] = function (block) {
+python.pythonGenerator.forBlock['ast_Str'] = function (block, generator) {
   // Text value
-  var code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+  var code = python.pythonGenerator.quote_(block.getFieldValue('TEXT'));
   code = code.replace("\n", "n");
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-Blockly.Python['ast_StrChar'] = function (block) {
+python.pythonGenerator.forBlock['ast_StrChar'] = function (block, generator) {
   // Text value
   var value = block.getFieldValue('TEXT');
-
   switch (value) {
     case "\n":
-      return ["'\\n'", Blockly.Python.ORDER_ATOMIC];
-
+      return ["'\\n'", python.pythonGenerator.ORDER_ATOMIC];
     case "\t":
-      return ["'\\t'", Blockly.Python.ORDER_ATOMIC];
+      return ["'\\t'", python.pythonGenerator.ORDER_ATOMIC];
   }
 };
-
-Blockly.Python['ast_Image'] = function (block) {
+python.pythonGenerator.forBlock['ast_Image'] = function (block, generator) {
   // Text value
-  //Blockly.Python.definitions_["import_image"] = "from image import Image";
-  var code = Blockly.Python.quote_(block.src_);
-  return [code, Blockly.Python.ORDER_FUNCTION_CALL];
+  //python.pythonGenerator.definitions_["import_image"] = "from image import Image";
+  var code = python.pythonGenerator.quote_(block.src_);
+  return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
 };
-
-Blockly.Python['ast_StrMultiline'] = function (block) {
+python.pythonGenerator.forBlock['ast_StrMultiline'] = function (block, generator) {
   // Text value
-  var code = Blockly.Python.multiline_quote_(block.getFieldValue('TEXT'));
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = python.pythonGenerator.multiline_quote_(block.getFieldValue('TEXT'));
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-Blockly.Python['ast_StrDocstring'] = function (block) {
+python.pythonGenerator.forBlock['ast_StrDocstring'] = function (block, generator) {
   // Text value.
   var code = block.getFieldValue('TEXT');
-
   if (code.charAt(0) !== '\n') {
     code = '\n' + code;
   }
-
   if (code.charAt(code.length - 1) !== '\n') {
     code = code + '\n';
   }
-
-  return Blockly.Python.multiline_quote_(code) + "\n";
+  return python.pythonGenerator.multiline_quote_(code) + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
   return text === "\n" || text === "\t";
 };
-
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
   return parent._astname === 'Expr' && parent._parent && ['FunctionDef', 'ClassDef'].indexOf(parent._parent._astname) !== -1 && parent._parent.body[0] === parent;
 };
-
 BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
   return text.split("\n").length <= 2 && text.length <= 40;
 };
-
 BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
   if (!isDocString && text.charAt(0) === "\n") {
     return text;
   }
-
   var split = text.split("\n");
   var indentation = "    ".repeat(levels);
-  var recombined = []; // Are all lines indented?
-
+  var recombined = [];
+  // Are all lines indented?
   for (var i = 0; i < split.length; i++) {
     // This was a blank line, add it unchanged unless its the first line
     if (split[i] === '') {
       if (i !== 0) {
         recombined.push("");
-      } // If it has our ideal indentation, add it without indentation
-
+      }
+      // If it has our ideal indentation, add it without indentation
     } else if (split[i].startsWith(indentation)) {
       var unindentedLine = split[i].substr(indentation.length);
-
       if (unindentedLine !== '' || i !== split.length - 1) {
         recombined.push(unindentedLine);
-      } // If it's the first line, then add it unmodified
-
+      }
+      // If it's the first line, then add it unmodified
     } else if (i === 0) {
-      recombined.push(split[i]); // This whole structure cannot be uniformly dedented, better give up.
+      recombined.push(split[i]);
+      // This whole structure cannot be uniformly dedented, better give up.
     } else {
       return text;
     }
   }
-
   return recombined.join("\n");
-}; // TODO: Handle indentation intelligently
+};
 
-
+// TODO: Handle indentation intelligently
 BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
   var s = node.s;
   var text = Sk.ffi.remapToJs(s);
-  var regex = BlockMirrorTextEditor.REGEX_PATTERNS[this.blockMirror.configuration.imageDetection]; //console.log(text, regex.test(JSON.stringify(text)));
-
+  var regex = BlockMirrorTextEditor.REGEX_PATTERNS[this.blockMirror.configuration.imageDetection];
+  //console.log(text, regex.test(JSON.stringify(text)));
   if (regex.test(JSON.stringify(text))) {
     //if (text.startsWith("http") && text.endsWith(".png")) {
     return BlockMirrorTextToBlocks.create_block("ast_Image", node.lineno, {}, {}, {}, {
@@ -4105,13 +3747,11 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     });
   } else {
     var _dedented = this.dedent(text, this.levelIndex - 1, false);
-
     return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {
       "TEXT": _dedented
     });
   }
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Expr",
   "message0": "do nothing with %1",
@@ -4124,18 +3764,15 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.PYTHON
 });
-
-Blockly.Python['ast_Expr'] = function (block) {
+python.pythonGenerator.forBlock['ast_Expr'] = function (block, generator) {
   // Numeric value.
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank; // TODO: Assemble JavaScript into code variable.
-
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  // TODO: Assemble JavaScript into code variable.
   return value + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, parent) {
   var value = node.value;
   var converted = this.convert(value, node);
-
   if (converted.constructor === Array) {
     return converted[0];
   } else if (this.isTopLevel(parent)) {
@@ -4146,10 +3783,10 @@ BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, parent) {
     });
   }
 };
-
 BlockMirrorTextToBlocks.UNARYOPS = [["+", "UAdd", 'Do nothing to the number'], ["-", "USub", 'Make the number negative'], ["not", "Not", 'Return the logical opposite of the value.'], ["~", "Invert", 'Take the bit inversion of the number']];
 BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
   //Blockly.Constants.Math.TOOLTIPS_BY_OP[unaryop[1]] = unaryop[2];
+
   var fullName = "ast_UnaryOp" + unaryop[1];
   BlockMirrorTextToBlocks.BLOCKS.push({
     "type": fullName,
@@ -4162,16 +3799,14 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
     "output": null,
     "colour": unaryop[1] === 'Not' ? BlockMirrorTextToBlocks.COLOR.LOGIC : BlockMirrorTextToBlocks.COLOR.MATH
   });
-
-  Blockly.Python[fullName] = function (block) {
+  python.pythonGenerator.forBlock[fullName] = function (block) {
     // Basic arithmetic operators, and power.
-    var order = unaryop[1] === 'Not' ? Blockly.Python.ORDER_LOGICAL_NOT : Blockly.Python.ORDER_UNARY_SIGN;
-    var argument1 = Blockly.Python.valueToCode(block, 'VALUE', order) || Blockly.Python.blank;
+    var order = unaryop[1] === 'Not' ? python.pythonGenerator.ORDER_LOGICAL_NOT : python.pythonGenerator.ORDER_UNARY_SIGN;
+    var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
     var code = unaryop[0] + (unaryop[1] === 'Not' ? ' ' : '') + argument1;
     return [code, order];
   };
 });
-
 BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
   var op = node.op.name;
   var operand = node.operand;
@@ -4181,8 +3816,7 @@ BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
     "inline": false
   });
 };
-
-BlockMirrorTextToBlocks.BOOLOPS = [["and", "And", Blockly.Python.ORDER_LOGICAL_AND, 'Return whether the left and right both evaluate to True.'], ["or", "Or", Blockly.Python.ORDER_LOGICAL_OR, 'Return whether either the left or right evaluate to True.']];
+BlockMirrorTextToBlocks.BOOLOPS = [["and", "And", python.pythonGenerator.ORDER_LOGICAL_AND, 'Return whether the left and right both evaluate to True.'], ["or", "Or", python.pythonGenerator.ORDER_LOGICAL_OR, 'Return whether either the left or right evaluate to True.']];
 var BOOLOPS_BLOCKLY_DISPLAY = BlockMirrorTextToBlocks.BOOLOPS.map(function (boolop) {
   return [boolop[0], boolop[1]];
 });
@@ -4208,22 +3842,19 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
-
-Blockly.Python['ast_BoolOp'] = function (block) {
+python.pythonGenerator.forBlock['ast_BoolOp'] = function (block, generator) {
   // Operations 'and', 'or'.
   var operator = block.getFieldValue('OP') === 'And' ? 'and' : 'or';
-  var order = operator === 'and' ? Blockly.Python.ORDER_LOGICAL_AND : Blockly.Python.ORDER_LOGICAL_OR;
-  var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
-  var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
+  var order = operator === 'and' ? python.pythonGenerator.ORDER_LOGICAL_AND : python.pythonGenerator.ORDER_LOGICAL_OR;
+  var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
   var code = argument0 + ' ' + operator + ' ' + argument1;
   return [code, order];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
   var op = node.op;
   var values = node.values;
   var result_block = this.convert(values[0], node);
-
   for (var i = 1; i < values.length; i += 1) {
     result_block = BlockMirrorTextToBlocks.create_block("ast_BoolOp", node.lineno, {
       "OP": op.name
@@ -4234,10 +3865,8 @@ BlockMirrorTextToBlocks.prototype['ast_BoolOp'] = function (node, parent) {
       "inline": "true"
     });
   }
-
   return result_block;
 };
-
 BlockMirrorTextToBlocks.COMPARES = [["==", "Eq", 'Return whether the two values are equal.'], ["!=", "NotEq", 'Return whether the two values are not equal.'], ["<", "Lt", 'Return whether the left value is less than the right value.'], ["<=", "LtE", 'Return whether the left value is less than or equal to the right value.'], [">", "Gt", 'Return whether the left value is greater than the right value.'], [">=", "GtE", 'Return whether the left value is greater than or equal to the right value.'], ["is", "Is", 'Return whether the left value is identical to the right value.'], ["is not", "IsNot", 'Return whether the left value is not identical to the right value.'], ["in", "In", 'Return whether the left value is in the right value.'], ["not in", "NotIn", 'Return whether the left value is not in the right value.']];
 var COMPARES_BLOCKLY_DISPLAY = BlockMirrorTextToBlocks.COMPARES.map(function (boolop) {
   return [boolop[0], boolop[1]];
@@ -4264,24 +3893,21 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
-
-Blockly.Python['ast_Compare'] = function (block) {
+python.pythonGenerator.forBlock['ast_Compare'] = function (block, generator) {
   // Basic arithmetic operators, and power.
   var tuple = COMPARES_BLOCKLY_GENERATE[block.getFieldValue('OP')];
   var operator = ' ' + tuple + ' ';
-  var order = Blockly.Python.ORDER_RELATIONAL;
-  var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
-  var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
+  var order = python.pythonGenerator.ORDER_RELATIONAL;
+  var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
   var code = argument0 + operator + argument1;
   return [code, order];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node, parent) {
   var ops = node.ops;
   var left = node.left;
   var values = node.comparators;
   var result_block = this.convert(left, node);
-
   for (var i = 0; i < values.length; i += 1) {
     result_block = BlockMirrorTextToBlocks.create_block("ast_Compare", node.lineno, {
       "OP": ops[i].name
@@ -4292,10 +3918,8 @@ BlockMirrorTextToBlocks.prototype['ast_Compare'] = function (node, parent) {
       "inline": "true"
     });
   }
-
   return result_block;
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_AssertFull",
   "message0": "assert %1 %2",
@@ -4323,22 +3947,18 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
-
-Blockly.Python['ast_Assert'] = function (block) {
-  var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+python.pythonGenerator.forBlock['ast_Assert'] = function (block, generator) {
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
   return "assert " + test + "\n";
 };
-
-Blockly.Python['ast_AssertFull'] = function (block) {
-  var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
-  var msg = Blockly.Python.valueToCode(block, 'MSG', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+python.pythonGenerator.forBlock['ast_AssertFull'] = function (block, generator) {
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  var msg = python.pythonGenerator.valueToCode(block, 'MSG', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
   return "assert " + test + ", " + msg + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Assert'] = function (node, parent) {
   var test = node.test;
   var msg = node.msg;
-
   if (msg == null) {
     return BlockMirrorTextToBlocks.create_block("ast_Assert", node.lineno, {}, {
       "TEST": this.convert(test, node)
@@ -4350,7 +3970,6 @@ BlockMirrorTextToBlocks.prototype['ast_Assert'] = function (node, parent) {
     });
   }
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_NameConstantNone",
   "message0": "None",
@@ -4369,22 +3988,18 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": "Boolean",
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
-
-Blockly.Python['ast_NameConstantBoolean'] = function (block) {
+python.pythonGenerator.forBlock['ast_NameConstantBoolean'] = function (block, generator) {
   // Boolean values true and false.
   var code = block.getFieldValue('BOOL') == 'TRUE' ? 'True' : 'False';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-Blockly.Python['ast_NameConstantNone'] = function (block) {
+python.pythonGenerator.forBlock['ast_NameConstantNone'] = function (block, generator) {
   // Boolean values true and false.
   var code = 'None';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) {
   var value = node.value;
-
   if (value === Sk.builtin.none.none$) {
     return BlockMirrorTextToBlocks.create_block('ast_NameConstantNone', node.lineno, {});
   } else if (value === Sk.builtin.bool.true$) {
@@ -4397,42 +4012,38 @@ BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) 
     });
   }
 };
-
-Blockly.Blocks['ast_List'] = {
+Blockly.Blocks["ast_List"] = {
   /**
    * Block for creating a list with any number of elements of any type.
    * @this Blockly.Block
    */
   init: function init() {
-    this.setHelpUrl(Blockly.Msg['LISTS_CREATE_WITH_HELPURL']);
+    this.setHelpUrl(Blockly.Msg["LISTS_CREATE_WITH_HELPURL"]);
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'List');
-    this.setMutator(new Blockly.Mutator(['ast_List_create_with_item']));
+    this.setOutput(true, "List");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_List_create_with_item"], this));
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
-
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -4440,159 +4051,140 @@ Blockly.Blocks['ast_List'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_List_create_with_container');
+    var containerBlock = workspace.newBlock("ast_List_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
-
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_List_create_with_item');
+      var itemBlock = workspace.newBlock("ast_List_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
     }
-
     return containerBlock;
   },
-
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
+    // Count number of inputs.
     var connections = [];
-
     while (itemBlock) {
       connections.push(itemBlock.valueConnection_);
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-    } // Disconnect any children that don't belong.
-
-
+    }
+    // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
-
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
     }
-
     this.itemCount_ = connections.length;
-    this.updateShape_(); // Reconnect any child blocks.
-
+    this.updateShape_();
+    // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+      var _connections$i;
+      (_connections$i = connections[i]) === null || _connections$i === void 0 || _connections$i.reconnect(this, "ADD" + i);
     }
   },
-
   /**
    * Store pointers to any connected child blocks.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
-
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
   },
-
   /**
    * Modify this block to have the correct number of inputs.
    * @private
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('create empty list []');
-    } // Add new inputs.
-
-
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("create empty list []");
+    }
+    // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
-
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i == 0) {
-          input.appendField('create list with [');
+          input.appendField("create list with [");
         } else {
-          input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
-    } // Remove deleted inputs.
-
-
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
-      i++;
-    } // Add the trailing "]"
-
-
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
     }
-
+    // Remove deleted inputs.
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
+      i++;
+    }
+    // Add the trailing "]"
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
+    }
     if (this.itemCount_) {
-      this.appendDummyInput('TAIL').appendField(']').setAlign(Blockly.ALIGN_RIGHT);
+      this.appendDummyInput("TAIL").appendField("]").setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_List_create_with_container'] = {
+Blockly.Blocks["ast_List_create_with_container"] = {
   /**
    * Mutator block for list container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
-    this.appendDummyInput().appendField('Add new list elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new list elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_List_create_with_item'] = {
+Blockly.Blocks["ast_List_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-
-Blockly.Python['ast_List'] = function (block) {
+python.pythonGenerator.forBlock["ast_List"] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.itemCount_);
-
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
-  var code = '[' + elements.join(', ') + ']';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = "[" + elements.join(", ") + "]";
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-BlockMirrorTextToBlocks.prototype['ast_List'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_List"] = function (node, parent) {
   var elts = node.elts;
   var ctx = node.ctx;
   return BlockMirrorTextToBlocks.create_block("ast_List", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 3 ? "false" : "true"
+    inline: elts.length > 3 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-
-Blockly.Blocks['ast_Tuple'] = {
+Blockly.Blocks["ast_Tuple"] = {
   /**
    * Block for creating a tuple with any number of elements of any type.
    * @this Blockly.Block
@@ -4601,31 +4193,28 @@ Blockly.Blocks['ast_Tuple'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Tuple');
-    this.setMutator(new Blockly.Mutator(['ast_Tuple_create_with_item']));
+    this.setOutput(true, "Tuple");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Tuple_create_with_item"], this));
   },
-
   /**
    * Create XML to represent tuple inputs.
    * @return {!Element} XML storage element.
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the tuple inputs.
    * @param {!Element} xmlElement XML storage element.
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
-
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -4633,173 +4222,150 @@ Blockly.Blocks['ast_Tuple'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Tuple_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Tuple_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
-
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Tuple_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Tuple_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
     }
-
     return containerBlock;
   },
-
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
+    // Count number of inputs.
     var connections = [];
-
     while (itemBlock) {
       connections.push(itemBlock.valueConnection_);
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-    } // Disconnect any children that don't belong.
-
-
+    }
+    // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
-
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
     }
-
     this.itemCount_ = connections.length;
-    this.updateShape_(); // Reconnect any child blocks.
-
+    this.updateShape_();
+    // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+      var _connections$i2;
+      (_connections$i2 = connections[i]) === null || _connections$i2 === void 0 || _connections$i2.reconnect(this, "ADD" + i);
     }
   },
-
   /**
    * Store pointers to any connected child blocks.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
-
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
   },
-
   /**
    * Modify this block to have the correct number of inputs.
    * @private
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('()');
-    } // Add new inputs.
-
-
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("()");
+    }
+    // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
-
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i === 0) {
-          input.appendField('(').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField("(").setAlign(Blockly.inputs.Align.RIGHT);
         } else {
-          input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
-    } // Remove deleted inputs.
-
-
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
-      i++;
-    } // Add the trailing "]"
-
-
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
     }
-
+    // Remove deleted inputs.
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
+      i++;
+    }
+    // Add the trailing "]"
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
+    }
     if (this.itemCount_) {
-      var tail = this.appendDummyInput('TAIL');
-
+      var tail = this.appendDummyInput("TAIL");
       if (this.itemCount_ === 1) {
-        tail.appendField(',)');
+        tail.appendField(",)");
       } else {
-        tail.appendField(')');
+        tail.appendField(")");
       }
-
-      tail.setAlign(Blockly.ALIGN_RIGHT);
+      tail.setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_Tuple_create_with_container'] = {
+Blockly.Blocks["ast_Tuple_create_with_container"] = {
   /**
    * Mutator block for tuple container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
-    this.appendDummyInput().appendField('Add new tuple elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new tuple elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Tuple_create_with_item'] = {
+Blockly.Blocks["ast_Tuple_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-
-Blockly.Python['ast_Tuple'] = function (block) {
+python.pythonGenerator.forBlock["ast_Tuple"] = function (block, generator) {
   // Create a tuple with any number of elements of any type.
   var elements = new Array(block.itemCount_);
-
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
   var requiredComma = "";
-
   if (block.itemCount_ == 1) {
     requiredComma = ", ";
   }
-
-  var code = '(' + elements.join(', ') + requiredComma + ')';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = "(" + elements.join(", ") + requiredComma + ")";
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-BlockMirrorTextToBlocks.prototype['ast_Tuple'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Tuple"] = function (node, parent) {
   var elts = node.elts;
   var ctx = node.ctx;
   return BlockMirrorTextToBlocks.create_block("ast_Tuple", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 4 ? "false" : "true"
+    inline: elts.length > 4 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-
-Blockly.Blocks['ast_Set'] = {
+Blockly.Blocks["ast_Set"] = {
   /**
    * Block for creating a set with any number of elements of any type.
    * @this Blockly.Block
@@ -4808,31 +4374,28 @@ Blockly.Blocks['ast_Set'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Set');
-    this.setMutator(new Blockly.Mutator(['ast_Set_create_with_item']));
+    this.setOutput(true, "Set");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Set_create_with_item"], this));
   },
-
   /**
    * Create XML to represent set inputs.
    * @return {!Element} XML storage element.
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the set inputs.
    * @param {!Element} xmlElement XML storage element.
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
-
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -4840,162 +4403,142 @@ Blockly.Blocks['ast_Set'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Set_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Set_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
-
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Set_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Set_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
     }
-
     return containerBlock;
   },
-
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
+    // Count number of inputs.
     var connections = [];
-
     while (itemBlock) {
       connections.push(itemBlock.valueConnection_);
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-    } // Disconnect any children that don't belong.
-
-
+    }
+    // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
-
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
       }
     }
-
     this.itemCount_ = connections.length;
-    this.updateShape_(); // Reconnect any child blocks.
-
+    this.updateShape_();
+    // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
+      var _connections$i3;
+      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, "ADD" + i);
     }
   },
-
   /**
    * Store pointers to any connected child blocks.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
-
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
   },
-
   /**
    * Modify this block to have the correct number of inputs.
    * @private
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('create empty set');
-    } // Add new inputs.
-
-
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("create empty set");
+    }
+    // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i);
-
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i);
         if (i === 0) {
-          input.appendField('create set with {').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField("create set with {").setAlign(Blockly.inputs.Align.RIGHT);
         } else {
-          input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
-    } // Remove deleted inputs.
-
-
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
-      i++;
-    } // Add the trailing "]"
-
-
-    if (this.getInput('TAIL')) {
-      this.removeInput('TAIL');
     }
-
+    // Remove deleted inputs.
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
+      i++;
+    }
+    // Add the trailing "]"
+    if (this.getInput("TAIL")) {
+      this.removeInput("TAIL");
+    }
     if (this.itemCount_) {
-      this.appendDummyInput('TAIL').appendField('}').setAlign(Blockly.ALIGN_RIGHT);
+      this.appendDummyInput("TAIL").appendField("}").setAlign(Blockly.inputs.Align.RIGHT);
     }
   }
 };
-Blockly.Blocks['ast_Set_create_with_container'] = {
+Blockly.Blocks["ast_Set_create_with_container"] = {
   /**
    * Mutator block for set container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
-    this.appendDummyInput().appendField('Add new set elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new set elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Set_create_with_item'] = {
+Blockly.Blocks["ast_Set_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-
-Blockly.Python['ast_Set'] = function (block) {
+python.pythonGenerator.forBlock["ast_Set"] = function (block, generator) {
   // Create a set with any number of elements of any type.
   if (block.itemCount_ === 0) {
-    return ['set()', Blockly.Python.ORDER_FUNCTION_CALL];
+    return ["set()", python.pythonGenerator.ORDER_FUNCTION_CALL];
   }
-
   var elements = new Array(block.itemCount_);
-
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = Blockly.Python.valueToCode(block, 'ADD' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
-  var code = '{' + elements.join(', ') + '}';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = "{" + elements.join(", ") + "}";
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-BlockMirrorTextToBlocks.prototype['ast_Set'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Set"] = function (node, parent) {
   var elts = node.elts;
   return BlockMirrorTextToBlocks.create_block("ast_Set", node.lineno, {}, this.convertElements("ADD", elts, node), {
-    "inline": elts.length > 3 ? "false" : "true"
+    inline: elts.length > 3 ? "false" : "true"
   }, {
     "@items": elts.length
   });
 };
-
-Blockly.Blocks['ast_DictItem'] = {
+Blockly.Blocks["ast_DictItem"] = {
   init: function init() {
     this.appendValueInput("KEY").setCheck(null);
     this.appendValueInput("VALUE").setCheck(null).appendField(":");
@@ -5004,7 +4547,7 @@ Blockly.Blocks['ast_DictItem'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
   }
 };
-Blockly.Blocks['ast_Dict'] = {
+Blockly.Blocks["ast_Dict"] = {
   /**
    * Block for creating a dict with any number of elements of any type.
    * @this Blockly.Block
@@ -5013,31 +4556,28 @@ Blockly.Blocks['ast_Dict'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
     this.itemCount_ = 3;
     this.updateShape_();
-    this.setOutput(true, 'Dict');
-    this.setMutator(new Blockly.Mutator(['ast_Dict_create_with_item']));
+    this.setOutput(true, "Dict");
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_Dict_create_with_item"], this));
   },
-
   /**
    * Create XML to represent dict inputs.
    * @return {!Element} XML storage element.
    * @this Blockly.Block
    */
   mutationToDom: function mutationToDom() {
-    var container = document.createElement('mutation');
-    container.setAttribute('items', this.itemCount_);
+    var container = document.createElement("mutation");
+    container.setAttribute("items", this.itemCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the dict inputs.
    * @param {!Element} xmlElement XML storage element.
    * @this Blockly.Block
    */
   domToMutation: function domToMutation(xmlElement) {
-    this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+    this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
     this.updateShape_();
   },
-
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -5045,215 +4585,181 @@ Blockly.Blocks['ast_Dict'] = {
    * @this Blockly.Block
    */
   decompose: function decompose(workspace) {
-    var containerBlock = workspace.newBlock('ast_Dict_create_with_container');
+    var containerBlock = workspace.newBlock("ast_Dict_create_with_container");
     containerBlock.initSvg();
-    var connection = containerBlock.getInput('STACK').connection;
-
+    var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock('ast_Dict_create_with_item');
+      var itemBlock = workspace.newBlock("ast_Dict_create_with_item");
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
     }
-
     return containerBlock;
   },
-
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
+    // Count number of inputs.
     var connections = [];
-
     while (itemBlock) {
       connections.push(itemBlock.valueConnection_);
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-    } // Disconnect any children that don't belong.
-
-
+    }
+    // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
-      var connection = this.getInput('ADD' + i).connection.targetConnection;
-
+      var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         var key = connection.getSourceBlock().getInput("KEY");
-
         if (key.connection.targetConnection) {
           key.connection.targetConnection.getSourceBlock().unplug(true);
         }
-
         var value = connection.getSourceBlock().getInput("VALUE");
-
         if (value.connection.targetConnection) {
           value.connection.targetConnection.getSourceBlock().unplug(true);
         }
-
         connection.disconnect();
         connection.getSourceBlock().dispose();
       }
     }
-
     this.itemCount_ = connections.length;
-    this.updateShape_(); // Reconnect any child blocks.
-
+    this.updateShape_();
+    // Reconnect any child blocks.
     for (var i = 0; i < this.itemCount_; i++) {
-      Blockly.Mutator.reconnect(connections[i], this, 'ADD' + i);
-
+      var _connections$i4;
+      (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, "ADD" + i);
       if (!connections[i]) {
-        var _itemBlock = this.workspace.newBlock('ast_DictItem');
-
+        var _itemBlock = this.workspace.newBlock("ast_DictItem");
         _itemBlock.setDeletable(false);
-
         _itemBlock.setMovable(false);
-
         _itemBlock.initSvg();
-
-        this.getInput('ADD' + i).connection.connect(_itemBlock.outputConnection);
-
-        _itemBlock.render(); //this.get(itemBlock, 'ADD'+i)
-
+        this.getInput("ADD" + i).connection.connect(_itemBlock.outputConnection);
+        _itemBlock.render();
+        //this.get(itemBlock, 'ADD'+i)
       }
     }
   },
-
   /**
    * Store pointers to any connected child blocks.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   saveConnections: function saveConnections(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    var itemBlock = containerBlock.getInputTargetBlock("STACK");
     var i = 0;
-
     while (itemBlock) {
-      var input = this.getInput('ADD' + i);
+      var input = this.getInput("ADD" + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
       i++;
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
   },
-
   /**
    * Modify this block to have the correct number of inputs.
    * @private
    * @this Blockly.Block
    */
   updateShape_: function updateShape_() {
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY');
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField('empty dictionary');
-    } // Add new inputs.
-
-
+    if (this.itemCount_ && this.getInput("EMPTY")) {
+      this.removeInput("EMPTY");
+    } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
+      this.appendDummyInput("EMPTY").appendField("empty dictionary");
+    }
+    // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
-      if (!this.getInput('ADD' + i)) {
-        var input = this.appendValueInput('ADD' + i).setCheck('DictPair');
-
+      if (!this.getInput("ADD" + i)) {
+        var input = this.appendValueInput("ADD" + i).setCheck("DictPair");
         if (i === 0) {
-          input.appendField('create dict with').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField("create dict with").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
-    } // Remove deleted inputs.
-
-
-    while (this.getInput('ADD' + i)) {
-      this.removeInput('ADD' + i);
-      i++;
-    } // Add the trailing "}"
-
-    /*
-    if (this.getInput('TAIL')) {
-        this.removeInput('TAIL');
     }
-    if (this.itemCount_) {
-        let tail = this.appendDummyInput('TAIL')
-            .appendField('}');
-        tail.setAlign(Blockly.ALIGN_RIGHT);
-    }*/
-
+    // Remove deleted inputs.
+    while (this.getInput("ADD" + i)) {
+      this.removeInput("ADD" + i);
+      i++;
+    }
+    // Add the trailing "}"
+    /*
+        if (this.getInput('TAIL')) {
+            this.removeInput('TAIL');
+        }
+        if (this.itemCount_) {
+            let tail = this.appendDummyInput('TAIL')
+                .appendField('}');
+            tail.setAlign(Blockly.inputs.Align.RIGHT);
+        }*/
   }
 };
-Blockly.Blocks['ast_Dict_create_with_container'] = {
+Blockly.Blocks["ast_Dict_create_with_container"] = {
   /**
    * Mutator block for dict container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
-    this.appendDummyInput().appendField('Add new dict elements below');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new dict elements below");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Dict_create_with_item'] = {
+Blockly.Blocks["ast_Dict_create_with_item"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
-    this.appendDummyInput().appendField('Element');
+    this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-
-Blockly.Python['ast_Dict'] = function (block) {
+python.pythonGenerator.forBlock["ast_Dict"] = function (block, generator) {
   // Create a dict with any number of elements of any type.
   var elements = new Array(block.itemCount_);
-
   for (var i = 0; i < block.itemCount_; i++) {
-    var child = block.getInputTargetBlock('ADD' + i);
-
-    if (child === null || child.type != 'ast_DictItem') {
-      elements[i] = Blockly.Python.blank + ": " + Blockly.Python.blank;
+    var child = block.getInputTargetBlock("ADD" + i);
+    if (child === null || child.type != "ast_DictItem") {
+      elements[i] = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       continue;
     }
-
-    var key = Blockly.Python.valueToCode(child, 'KEY', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    var value = Blockly.Python.valueToCode(child, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     elements[i] = key + ": " + value;
   }
-
-  var code = '{' + elements.join(', ') + '}';
-  return [code, Blockly.Python.ORDER_ATOMIC];
+  var code = "{" + elements.join(", ") + "}";
+  return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
-
-BlockMirrorTextToBlocks.prototype['ast_Dict'] = function (node, parent) {
+BlockMirrorTextToBlocks.prototype["ast_Dict"] = function (node, parent) {
   var keys = node.keys;
   var values = node.values;
-
   if (keys === null) {
     return BlockMirrorTextToBlocks.create_block("ast_Dict", node.lineno, {}, {}, {
-      "inline": "false"
+      inline: "false"
     }, {
       "@items": 0
     });
   }
-
   var elements = {};
-
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     var value = values[i];
     elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {}, {
-      "KEY": this.convert(key, node),
-      "VALUE": this.convert(value, node)
+      KEY: this.convert(key, node),
+      VALUE: this.convert(value, node)
     }, this.LOCKED_BLOCK);
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Dict", node.lineno, {}, elements, {
-    "inline": "false"
+    inline: "false"
   }, {
     "@items": keys.length
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": 'ast_Starred',
   "message0": "*%1",
@@ -5265,15 +4771,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES
 });
-
-Blockly.Python['ast_Starred'] = function (block) {
+python.pythonGenerator.forBlock['ast_Starred'] = function (block, generator) {
   // Basic arithmetic operators, and power.
-  var order = Blockly.Python.ORDER_NONE;
-  var argument1 = Blockly.Python.valueToCode(block, 'VALUE', order) || Blockly.Python.blank;
+  var order = python.pythonGenerator.ORDER_NONE;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
   var code = "*" + argument1;
   return [code, order];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Starred'] = function (node, parent) {
   var value = node.value;
   var ctx = node.ctx;
@@ -5283,7 +4787,6 @@ BlockMirrorTextToBlocks.prototype['ast_Starred'] = function (node, parent) {
     "inline": true
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_IfExp",
   "message0": "%1 if %2 else %3",
@@ -5301,14 +4804,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
-
-Blockly.Python['ast_IfExp'] = function (block) {
-  var test = Blockly.Python.valueToCode(block, 'TEST', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-  var body = Blockly.Python.valueToCode(block, 'BODY', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-  var orelse = Blockly.Python.valueToCode(block, 'ORELSE', Blockly.Python.ORDER_CONDITIONAL) || Blockly.Python.blank;
-  return [body + " if " + test + " else " + orelse + "\n", Blockly.Python.ORDER_CONDITIONAL];
+python.pythonGenerator.forBlock['ast_IfExp'] = function (block, generator) {
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+  var orelse = python.pythonGenerator.valueToCode(block, 'ORELSE', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
+  return [body + " if " + test + " else " + orelse + "\n", python.pythonGenerator.ORDER_CONDITIONAL];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
   var test = node.test;
   var body = node.body;
@@ -5319,7 +4820,6 @@ BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
     "ORELSE": this.convert(orelse, node)
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_AttributeFull",
   "lastDummyAlign0": "RIGHT",
@@ -5352,27 +4852,25 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.OO
 });
-
-Blockly.Python['ast_Attribute'] = function (block) {
+python.pythonGenerator.forBlock['ast_Attribute'] = function (block, generator) {
   // Text value.
-  var value = Blockly.Python.variableDB_.getName(block.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+  var value = python.pythonGenerator.getVariableName(block.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
   var attr = block.getFieldValue('ATTR');
   var code = value + "." + attr;
-  return [code, Blockly.Python.ORDER_MEMBER];
+  return [code, python.pythonGenerator.ORDER_MEMBER];
 };
-
-Blockly.Python['ast_AttributeFull'] = function (block) {
+python.pythonGenerator.forBlock['ast_AttributeFull'] = function (block, generator) {
   // Text value.
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   var attr = block.getFieldValue('ATTR');
   var code = value + "." + attr;
-  return [code, Blockly.Python.ORDER_MEMBER];
+  return [code, python.pythonGenerator.ORDER_MEMBER];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {
   var value = node.value;
-  var attr = node.attr; //if (value.constructor)
+  var attr = node.attr;
 
+  //if (value.constructor)
   if (value._astname == "Name") {
     return BlockMirrorTextToBlocks.create_block("ast_Attribute", node.lineno, {
       "VALUE": Sk.ffi.remapToJs(value.id),
@@ -5385,10 +4883,11 @@ BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {
       "VALUE": this.convert(value, node)
     });
   }
-}; // TODO: Support stuff like "append" where the message is after the value input
+};
+
+// TODO: Support stuff like "append" where the message is after the value input
 // TODO: Handle updating function/method definition -> update call
 // TODO: Do a pretraversal to determine if a given function returns
-
 
 Blockly.Blocks['ast_Call'] = {
   /**
@@ -5397,19 +4896,19 @@ Blockly.Blocks['ast_Call'] = {
    */
   init: function init() {
     this.givenColour_ = BlockMirrorTextToBlocks.COLOR.FUNCTIONS;
-    this.setInputsInline(true); // Regular ('NAME') or Keyword (either '**' or '*NAME')
-
+    this.setInputsInline(true);
+    // Regular ('NAME') or Keyword (either '**' or '*NAME')
     this.arguments_ = [];
-    this.argumentVarModels_ = []; // acbart: Added count to keep track of unused parameters
-
+    this.argumentVarModels_ = [];
+    // acbart: Added count to keep track of unused parameters
     this.argumentCount_ = 0;
     this.quarkConnections_ = {};
-    this.quarkIds_ = null; // acbart: Show parameter names, if they exist
-
-    this.showParameterNames_ = false; // acbart: Whether this block returns
-
-    this.returns_ = true; // acbart: added simpleName to handle complex function calls (e.g., chained)
-
+    this.quarkIds_ = null;
+    // acbart: Show parameter names, if they exist
+    this.showParameterNames_ = false;
+    // acbart: Whether this block returns
+    this.returns_ = true;
+    // acbart: added simpleName to handle complex function calls (e.g., chained)
     this.isMethod_ = false;
     this.name_ = null;
     this.message_ = "function";
@@ -5417,7 +4916,6 @@ Blockly.Blocks['ast_Call'] = {
     this.module_ = "";
     this.updateShape_();
   },
-
   /**
    * Returns the name of the procedure this block calls.
    * @return {string} Procedure name.
@@ -5426,7 +4924,6 @@ Blockly.Blocks['ast_Call'] = {
   getProcedureCall: function getProcedureCall() {
     return this.name_;
   },
-
   /**
    * Notification that a procedure is renaming.
    * If the name matches this block's procedure, rename it.
@@ -5441,7 +4938,6 @@ Blockly.Blocks['ast_Call'] = {
       this.updateShape_();
     }
   },
-
   /**
    * Notification that the procedure's parameters have changed.
    * @param {!Array.<string>} paramNames New param names, e.g. ['x', 'y', 'z'].
@@ -5463,60 +4959,50 @@ Blockly.Blocks['ast_Call'] = {
     // which might reappear if a param is reattached in the mutator.
     var defBlock = Blockly.Procedures.getDefinition(this.getProcedureCall(), this.workspace);
     var mutatorOpen = defBlock && defBlock.mutator && defBlock.mutator.isVisible();
-
     if (!mutatorOpen) {
       this.quarkConnections_ = {};
       this.quarkIds_ = null;
     }
-
     if (!paramIds) {
       // Reset the quarks (a mutator is about to open).
       return false;
-    } // Test arguments (arrays of strings) for changes. '\n' is not a valid
+    }
+    // Test arguments (arrays of strings) for changes. '\n' is not a valid
     // argument name character, so it is a valid delimiter here.
-
-
     if (paramNames.join('\n') == this.arguments_.join('\n')) {
       // No change.
       this.quarkIds_ = paramIds;
       return false;
     }
-
     if (paramIds.length !== paramNames.length) {
       throw RangeError('paramNames and paramIds must be the same length.');
     }
-
     this.setCollapsed(false);
-
     if (!this.quarkIds_) {
       // Initialize tracking for this block.
       this.quarkConnections_ = {};
       this.quarkIds_ = [];
-    } // Switch off rendering while the block is rebuilt.
-
-
+    }
+    // Switch off rendering while the block is rebuilt.
     var savedRendered = this.rendered;
-    this.rendered = false; // Update the quarkConnections_ with existing connections.
-
+    this.rendered = false;
+    // Update the quarkConnections_ with existing connections.
     for (var i = 0; i < this.arguments_.length; i++) {
       var input = this.getInput('ARG' + i);
-
       if (input) {
         var connection = input.connection.targetConnection;
         this.quarkConnections_[this.quarkIds_[i]] = connection;
-
         if (mutatorOpen && connection && paramIds.indexOf(this.quarkIds_[i]) === -1) {
           // This connection should no longer be attached to this block.
           connection.disconnect();
           connection.getSourceBlock().bumpNeighbours_();
         }
       }
-    } // Rebuild the block's arguments.
-
-
+    }
+    // Rebuild the block's arguments.
     this.arguments_ = [].concat(paramNames);
-    this.argumentCount_ = this.arguments_.length; // And rebuild the argument model list.
-
+    this.argumentCount_ = this.arguments_.length;
+    // And rebuild the argument model list.
     this.argumentVarModels_ = [];
     /*
     // acbart: Function calls don't create variables, what do they know?
@@ -5530,33 +5016,27 @@ Blockly.Blocks['ast_Call'] = {
     }*/
 
     this.updateShape_();
-    this.quarkIds_ = paramIds; // Reconnect any child blocks.
-
+    this.quarkIds_ = paramIds;
+    // Reconnect any child blocks.
     if (this.quarkIds_) {
       for (var _i4 = 0; _i4 < this.arguments_.length; _i4++) {
         var quarkId = this.quarkIds_[_i4];
-
         if (quarkId in this.quarkConnections_) {
           var _connection = this.quarkConnections_[quarkId];
-
-          if (!Blockly.Mutator.reconnect(_connection, this, 'ARG' + _i4)) {
+          if (!(_connection !== null && _connection !== void 0 && _connection.reconnect(this, 'ARG' + _i4))) {
             // Block no longer exists or has been attached elsewhere.
             delete this.quarkConnections_[quarkId];
           }
         }
       }
-    } // Restore rendering and show the changes.
-
-
+    }
+    // Restore rendering and show the changes.
     this.rendered = savedRendered;
-
     if (this.rendered) {
       this.render();
     }
-
     return true;
   },
-
   /**
    * Modify this block to have the correct number of arguments.
    * @private
@@ -5565,49 +5045,42 @@ Blockly.Blocks['ast_Call'] = {
   updateShape_: function updateShape_() {
     // If it's a method, add in the caller
     if (this.isMethod_ && !this.getInput('FUNC')) {
-      var func = this.appendValueInput('FUNC'); // If there's a premessage, add it in
-
+      var func = this.appendValueInput('FUNC');
+      // If there's a premessage, add it in
       if (this.premessage_ !== "") {
         func.appendField(this.premessage_);
       }
     } else if (!this.isMethod_ && this.getInput('FUNC')) {
       this.removeInput('FUNC');
     }
-
     var drawnArgumentCount = this.getDrawnArgumentCount_();
-    var message = this.getInput('MESSAGE_AREA'); // Zero arguments, just do {message()}
-
+    var message = this.getInput('MESSAGE_AREA');
+    // Zero arguments, just do {message()}
     if (drawnArgumentCount === 0) {
       if (message) {
         message.removeField('MESSAGE');
       } else {
-        message = this.appendDummyInput('MESSAGE_AREA').setAlign(Blockly.ALIGN_RIGHT);
+        message = this.appendDummyInput('MESSAGE_AREA').setAlign(Blockly.inputs.Align.RIGHT);
       }
-
-      message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE'); // One argument, no MESSAGE_AREA
+      message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE');
+      // One argument, no MESSAGE_AREA
     } else if (message) {
       this.removeInput('MESSAGE_AREA');
-    } // Process arguments
-
-
+    }
+    // Process arguments
     var i;
-
     for (i = 0; i < drawnArgumentCount; i++) {
       var argument = this.arguments_[i];
       var argumentName = this.parseArgument_(argument);
-
       if (i === 0) {
         argumentName = this.message_ + "\ (" + argumentName;
       }
-
       var field = this.getField('ARGNAME' + i);
-
       if (field) {
         // Ensure argument name is up to date.
         // The argument name field is deterministic based on the mutation,
         // no need to fire a change event.
         Blockly.Events.disable();
-
         try {
           field.setValue(argumentName);
         } finally {
@@ -5616,49 +5089,44 @@ Blockly.Blocks['ast_Call'] = {
       } else {
         // Add new input.
         field = new Blockly.FieldLabel(argumentName);
-        this.appendValueInput('ARG' + i).setAlign(Blockly.ALIGN_RIGHT).appendField(field, 'ARGNAME' + i).init();
+        this.appendValueInput('ARG' + i).setAlign(Blockly.inputs.Align.RIGHT).appendField(field, 'ARGNAME' + i).init();
       }
-
       if (argumentName) {
         field.setVisible(true);
       } else {
         field.setVisible(false);
       }
-    } // Closing parentheses
+    }
 
-
+    // Closing parentheses
     if (!this.getInput('CLOSE_PAREN')) {
-      this.appendDummyInput('CLOSE_PAREN').setAlign(Blockly.ALIGN_RIGHT).appendField(new Blockly.FieldLabel(")"));
-    } // Move everything into place
+      this.appendDummyInput('CLOSE_PAREN').setAlign(Blockly.inputs.Align.RIGHT).appendField(new Blockly.FieldLabel(")"));
+    }
 
-
+    // Move everything into place
     if (drawnArgumentCount === 0) {
       if (this.isMethod_) {
         this.moveInputBefore('FUNC', 'MESSAGE_AREA');
       }
-
       this.moveInputBefore('MESSAGE_AREA', 'CLOSE_PAREN');
     } else {
       if (this.isMethod_) {
         this.moveInputBefore('FUNC', 'CLOSE_PAREN');
       }
     }
-
     for (var j = 0; j < i; j++) {
       this.moveInputBefore('ARG' + j, 'CLOSE_PAREN');
-    } // Set return state
+    }
 
-
-    this.setReturn_(this.returns_, false); // Remove deleted inputs.
-
+    // Set return state
+    this.setReturn_(this.returns_, false);
+    // Remove deleted inputs.
     while (this.getInput('ARG' + i)) {
       this.removeInput('ARG' + i);
       i++;
     }
-
     this.setColour(this.givenColour_);
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -5676,16 +5144,13 @@ Blockly.Blocks['ast_Call'] = {
     container.setAttribute('premessage', this.premessage_);
     container.setAttribute('module', this.module_);
     container.setAttribute('colour', this.givenColour_);
-
     for (var i = 0; i < this.arguments_.length; i++) {
       var parameter = document.createElement('arg');
       parameter.setAttribute('name', this.arguments_[i]);
       container.appendChild(parameter);
     }
-
     return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -5704,25 +5169,20 @@ Blockly.Blocks['ast_Call'] = {
     this.givenColour_ = parseInt(xmlElement.getAttribute('colour'), 10);
     var args = [];
     var paramIds = [];
-
     for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
       if (childNode.nodeName.toLowerCase() === 'arg') {
         args.push(childNode.getAttribute('name'));
         paramIds.push(childNode.getAttribute('paramId'));
       }
     }
-
     var result = this.setProcedureParameters_(args, paramIds);
-
     if (!result) {
       this.updateShape_();
     }
-
     if (this.name_ !== null) {
       this.renameProcedure(this.getProcedureCall(), this.name_);
     }
   },
-
   /**
    * Return all variables referenced by this block.
    * @return {!Array.<!Blockly.VariableModel>} List of variable models.
@@ -5731,7 +5191,6 @@ Blockly.Blocks['ast_Call'] = {
   getVarModels: function getVarModels() {
     return this.argumentVarModels_;
   },
-
   /**
    * Add menu option to find the definition block for this call.
    * @param {!Array} options List of menu options to add to.
@@ -5743,27 +5202,25 @@ Blockly.Blocks['ast_Call'] = {
       // loose blocks at the edges of the workspace.
       return;
     }
-
     var workspace = this.workspace;
-    var block = this; // Highlight Definition
+    var block = this;
 
+    // Highlight Definition
     var option = {
       enabled: true
     };
     option.text = Blockly.Msg['PROCEDURES_HIGHLIGHT_DEF'];
     var name = this.getProcedureCall();
-
     option.callback = function () {
       var def = Blockly.Procedures.getDefinition(name, workspace);
-
       if (def) {
         workspace.centerOnBlock(def.id);
         def.select();
       }
     };
+    options.push(option);
 
-    options.push(option); // Show Parameter Names
-
+    // Show Parameter Names
     options.push({
       enabled: true,
       text: "Show/Hide parameters",
@@ -5772,8 +5229,9 @@ Blockly.Blocks['ast_Call'] = {
         block.updateShape_();
         block.render();
       }
-    }); // Change Return Type
+    });
 
+    // Change Return Type
     options.push({
       enabled: true,
       text: this.returns_ ? "Make statement" : "Make expression",
@@ -5783,7 +5241,6 @@ Blockly.Blocks['ast_Call'] = {
       }
     });
   },
-
   /**
    * Notification that the procedure's return state has changed.
    * @param {boolean} returnState New return state
@@ -5792,7 +5249,6 @@ Blockly.Blocks['ast_Call'] = {
    */
   setReturn_: function setReturn_(returnState, forceRerender) {
     this.unplug(true);
-
     if (returnState) {
       this.setPreviousStatement(false);
       this.setNextStatement(false);
@@ -5802,7 +5258,6 @@ Blockly.Blocks['ast_Call'] = {
       this.setPreviousStatement(true);
       this.setNextStatement(true);
     }
-
     if (forceRerender) {
       if (this.rendered) {
         this.render();
@@ -5823,36 +5278,29 @@ Blockly.Blocks['ast_Call'] = {
         }
       }
     }
-
     return "";
   },
   getDrawnArgumentCount_: function getDrawnArgumentCount_() {
     return Math.min(this.argumentCount_, this.arguments_.length);
   }
 };
-
-Blockly.Python['ast_Call'] = function (block) {
+python.pythonGenerator.forBlock['ast_Call'] = function (block, generator) {
   // TODO: Handle import
   if (block.module_) {
-    Blockly.Python.definitions_["import_" + block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
-  } // Blockly.Python.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
-  // Get the caller
-
-
-  var funcName = "";
-
-  if (block.isMethod_) {
-    funcName = Blockly.Python.valueToCode(block, 'FUNC', Blockly.Python.ORDER_FUNCTION_CALL) || Blockly.Python.blank;
+    python.pythonGenerator.definitions_["import_" + block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
   }
-
-  funcName += this.name_; // Build the arguments
-
+  // python.pythonGenerator.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
+  // Get the caller
+  var funcName = "";
+  if (block.isMethod_) {
+    funcName = python.pythonGenerator.valueToCode(block, 'FUNC', python.pythonGenerator.ORDER_FUNCTION_CALL) || python.pythonGenerator.blank;
+  }
+  funcName += this.name_;
+  // Build the arguments
   var args = [];
-
   for (var i = 0; i < block.arguments_.length; i++) {
-    var value = Blockly.Python.valueToCode(block, 'ARG' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    var value = python.pythonGenerator.valueToCode(block, 'ARG' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     var argument = block.arguments_[i];
-
     if (argument.startsWith('KWARGS:')) {
       args[i] = "**" + value;
     } else if (argument.startsWith('KEYWORD:')) {
@@ -5860,41 +5308,39 @@ Blockly.Python['ast_Call'] = function (block) {
     } else {
       args[i] = value;
     }
-  } // Return the result
-
-
+  }
+  // Return the result
   var code = funcName + '(' + args.join(', ') + ')';
-
   if (block.returns_) {
-    return [code, Blockly.Python.ORDER_FUNCTION_CALL];
+    return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
   } else {
     return code + "\n";
   }
 };
-
 BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
   if (node._astname === 'Name') {
     return Sk.ffi.remapToJs(node.id);
   } else if (node._astname === 'Attribute') {
     var origin = this.getAsModule(node.value);
-
     if (origin !== null) {
       return origin + '.' + Sk.ffi.remapToJs(node.attr);
     }
   } else {
     return null;
   }
-}; //                              messageBefore, message, name
+};
+
+//                              messageBefore, message, name
 // function call: print() -> "print" ([message]) ; print
 // Module function: plt.show() -> "show plot" ([plot]) ; plt.show
 // Method call: "test".title() -> "make" [str] "title case" () ; .title ; isMethod = true
 
-
 BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
   var func = node.func;
   var args = node.args;
-  var keywords = node.keywords; // Can we make any guesses about this based on its name?
+  var keywords = node.keywords;
 
+  // Can we make any guesses about this based on its name?
   var signature = null;
   var isMethod = false;
   var module = null;
@@ -5903,10 +5349,8 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
   var name = "";
   var caller = null;
   var colour = BlockMirrorTextToBlocks.COLOR.FUNCTIONS;
-
   if (func._astname === 'Name') {
     message = name = Sk.ffi.remapToJs(func.id);
-
     if (name in this.FUNCTION_SIGNATURES) {
       signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
     }
@@ -5916,7 +5360,6 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     var potentialModule = this.getAsModule(caller);
     var attributeName = Sk.ffi.remapToJs(func.attr);
     message = "." + attributeName;
-
     if (potentialModule in this.MODULE_FUNCTION_SIGNATURES) {
       signature = this.MODULE_FUNCTION_SIGNATURES[potentialModule][attributeName];
       module = potentialModule;
@@ -5932,40 +5375,35 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     isMethod = true;
     message = "";
     name = "";
-    caller = func; // (lambda x: x)()
+    caller = func;
+    // (lambda x: x)()
   }
-
   var returns = true;
-
   if (signature !== null && signature !== undefined) {
     if (signature.custom) {
       try {
         return signature.custom(node, parent, this);
       } catch (e) {
-        console.error(e); // We tried to be fancy and failed, better fall back to default behavior!
+        console.error(e);
+        // We tried to be fancy and failed, better fall back to default behavior!
       }
     }
-
     if ('returns' in signature) {
       returns = signature.returns;
     }
-
     if ('message' in signature) {
       message = signature.message;
     }
-
     if ('premessage' in signature) {
       premessage = signature.premessage;
     }
-
     if ('colour' in signature) {
       colour = signature.colour;
     }
   }
-
   returns = returns || parent._astname !== 'Expr';
-  var argumentsNormal = {}; // TODO: do I need to be limiting only the *args* length, not keywords?
-
+  var argumentsNormal = {};
+  // TODO: do I need to be limiting only the *args* length, not keywords?
   var argumentsMutation = {
     "@arguments": (args !== null ? args.length : 0) + (keywords !== null ? keywords.length : 0),
     "@returns": returns,
@@ -5976,23 +5414,20 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     "@premessage": premessage,
     "@colour": colour,
     "@module": module || ""
-  }; // Handle arguments
-
+  };
+  // Handle arguments
   var overallI = 0;
-
   if (args !== null) {
     for (var i = 0; i < args.length; i += 1, overallI += 1) {
       argumentsNormal["ARG" + overallI] = this.convert(args[i], node);
       argumentsMutation["UNKNOWN_ARG:" + overallI] = null;
     }
   }
-
   if (keywords !== null) {
     for (var _i5 = 0; _i5 < keywords.length; _i5 += 1, overallI += 1) {
       var keyword = keywords[_i5];
       var arg = keyword.arg;
       var value = keyword.value;
-
       if (arg === null) {
         argumentsNormal["ARG" + overallI] = this.convert(value, node);
         argumentsMutation["KWARGS:" + overallI] = null;
@@ -6001,11 +5436,9 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         argumentsMutation["KEYWORD:" + Sk.ffi.remapToJs(arg)] = null;
       }
     }
-  } // Build actual block
-
-
+  }
+  // Build actual block
   var newBlock;
-
   if (isMethod) {
     argumentsNormal['FUNC'] = this.convert(caller, node);
     newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {}, argumentsNormal, {
@@ -6015,16 +5448,14 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {}, argumentsNormal, {
       inline: true
     }, argumentsMutation);
-  } // Return as either statement or expression
-
-
+  }
+  // Return as either statement or expression
   if (returns) {
     return newBlock;
   } else {
     return [newBlock];
   }
 };
-
 Blockly.Blocks['ast_Raise'] = {
   init: function init() {
     this.setInputsInline(true);
@@ -6042,18 +5473,15 @@ Blockly.Blocks['ast_Raise'] = {
     } else if (!this.exc_ && this.getInput('EXC')) {
       this.removeInput('EXC');
     }
-
     if (this.cause_ && !this.getInput('CAUSE')) {
       this.appendValueInput("CAUSE").setCheck(null).appendField("from");
     } else if (!this.cause_ && this.getInput('CAUSE')) {
       this.removeInput('CAUSE');
     }
-
     if (this.cause_ && this.exc_) {
       this.moveInputBefore('EXC', 'CAUSE');
     }
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -6065,7 +5493,6 @@ Blockly.Blocks['ast_Raise'] = {
     container.setAttribute('cause', this.cause_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -6077,13 +5504,11 @@ Blockly.Blocks['ast_Raise'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Raise'] = function (block) {
+python.pythonGenerator.forBlock['ast_Raise'] = function (block, generator) {
   if (this.exc_) {
-    var exc = Blockly.Python.valueToCode(block, 'EXC', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-
+    var exc = python.pythonGenerator.valueToCode(block, 'EXC', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     if (this.cause_) {
-      var cause = Blockly.Python.valueToCode(block, 'CAUSE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+      var cause = python.pythonGenerator.valueToCode(block, 'CAUSE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
       return "raise " + exc + " from " + cause + "\n";
     } else {
       return "raise " + exc + "\n";
@@ -6092,30 +5517,25 @@ Blockly.Python['ast_Raise'] = function (block) {
     return "raise" + "\n";
   }
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Raise'] = function (node, parent) {
   var exc = node.exc;
   var cause = node.cause;
   var values = {};
   var hasExc = false,
-      hasCause = false;
-
+    hasCause = false;
   if (exc !== null) {
     values['EXC'] = this.convert(exc, node);
     hasExc = true;
   }
-
   if (cause !== null) {
     values['CAUSE'] = this.convert(cause, node);
     hasCause = true;
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Raise", node.lineno, {}, values, {}, {
     '@exc': hasExc,
     '@cause': hasCause
   });
 };
-
 Blockly.Blocks['ast_Delete'] = {
   init: function init() {
     this.setInputsInline(true);
@@ -6131,20 +5551,17 @@ Blockly.Blocks['ast_Delete'] = {
     for (var i = 0; i < this.targetCount_; i++) {
       if (!this.getInput('TARGET' + i)) {
         var input = this.appendValueInput('TARGET' + i);
-
         if (i !== 0) {
-          input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
-    } // Remove deleted inputs.
-
-
+    }
+    // Remove deleted inputs.
     while (this.getInput('TARGET' + i)) {
       this.removeInput('TARGET' + i);
       i++;
     }
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -6155,7 +5572,6 @@ Blockly.Blocks['ast_Delete'] = {
     container.setAttribute('targets', this.targetCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -6166,19 +5582,15 @@ Blockly.Blocks['ast_Delete'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Delete'] = function (block) {
+python.pythonGenerator.forBlock['ast_Delete'] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.targetCount_);
-
   for (var i = 0; i < block.targetCount_; i++) {
-    elements[i] = Blockly.Python.valueToCode(block, 'TARGET' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
   }
-
   var code = 'del ' + elements.join(', ') + "\n";
   return code;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Delete'] = function (node, parent) {
   var targets = node.targets;
   return BlockMirrorTextToBlocks.create_block("ast_Delete", node.lineno, {}, this.convertElements("TARGET", targets, node), {
@@ -6187,7 +5599,6 @@ BlockMirrorTextToBlocks.prototype['ast_Delete'] = function (node, parent) {
     "@targets": targets.length
   });
 };
-
 Blockly.Blocks['ast_Subscript'] = {
   init: function init() {
     this.setInputsInline(true);
@@ -6209,36 +5620,30 @@ Blockly.Blocks['ast_Subscript'] = {
     } else if (!exist && this.getInput(label)) {
       this.removeInput(label);
     }
-
     return null;
   },
   createSlice_: function createSlice_(i, kind) {
     // ,
     var input = this.setExistence('COMMA' + i, i !== 0, true);
-
     if (input) {
       input.appendField(",");
-    } // Single index
-
-
+    }
+    // Single index
     var isIndex = kind.charAt(0) === 'I';
-    input = this.setExistence('INDEX' + i, isIndex, false); // First index
-
-    input = this.setExistence('SLICELOWER' + i, !isIndex && "1" === kind.charAt(1), false); // First colon
-
+    input = this.setExistence('INDEX' + i, isIndex, false);
+    // First index
+    input = this.setExistence('SLICELOWER' + i, !isIndex && "1" === kind.charAt(1), false);
+    // First colon
     input = this.setExistence('SLICECOLON' + i, !isIndex, true);
-
     if (input) {
-      input.appendField(':').setAlign(Blockly.ALIGN_RIGHT);
-    } // Second index
-
-
-    input = this.setExistence('SLICEUPPER' + i, !isIndex && "1" === kind.charAt(2), false); // Second colon and third index
-
+      input.appendField(':').setAlign(Blockly.inputs.Align.RIGHT);
+    }
+    // Second index
+    input = this.setExistence('SLICEUPPER' + i, !isIndex && "1" === kind.charAt(2), false);
+    // Second colon and third index
     input = this.setExistence('SLICESTEP' + i, !isIndex && "1" === kind.charAt(3), false);
-
     if (input) {
-      input.appendField(':').setAlign(Blockly.ALIGN_RIGHT);
+      input.appendField(':').setAlign(Blockly.inputs.Align.RIGHT);
     }
   },
   updateShape_: function updateShape_() {
@@ -6246,37 +5651,30 @@ Blockly.Blocks['ast_Subscript'] = {
     for (var i = 0; i < this.sliceKinds_.length; i++) {
       this.createSlice_(i, this.sliceKinds_[i]);
     }
-
     for (var j = 0; j < i; j++) {
       if (j !== 0) {
         this.moveInputBefore('COMMA' + j, 'CLOSE_BRACKET');
       }
-
       var kind = this.sliceKinds_[j];
-
       if (kind.charAt(0) === "I") {
         this.moveInputBefore('INDEX' + j, 'CLOSE_BRACKET');
       } else {
         if (kind.charAt(1) === "1") {
           this.moveInputBefore("SLICELOWER" + j, 'CLOSE_BRACKET');
         }
-
         this.moveInputBefore("SLICECOLON" + j, 'CLOSE_BRACKET');
-
         if (kind.charAt(2) === "1") {
           this.moveInputBefore("SLICEUPPER" + j, 'CLOSE_BRACKET');
         }
-
         if (kind.charAt(3) === "1") {
           this.moveInputBefore("SLICESTEP" + j, 'CLOSE_BRACKET');
         }
       }
-    } // Remove deleted inputs.
+    }
 
-
+    // Remove deleted inputs.
     while (this.getInput('TARGET' + i) || this.getInput('SLICECOLON')) {
       this.removeInput('COMMA' + i, true);
-
       if (this.getInput('INDEX' + i)) {
         this.removeInput('INDEX' + i);
       } else {
@@ -6285,11 +5683,9 @@ Blockly.Blocks['ast_Subscript'] = {
         this.removeInput('SLICEUPPER' + i, true);
         this.removeInput('SLICESTEP' + i, true);
       }
-
       i++;
     }
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -6297,16 +5693,13 @@ Blockly.Blocks['ast_Subscript'] = {
    */
   mutationToDom: function mutationToDom() {
     var container = document.createElement('mutation');
-
     for (var i = 0; i < this.sliceKinds_.length; i++) {
       var parameter = document.createElement('arg');
       parameter.setAttribute('name', this.sliceKinds_[i]);
       container.appendChild(parameter);
     }
-
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -6314,84 +5707,66 @@ Blockly.Blocks['ast_Subscript'] = {
    */
   domToMutation: function domToMutation(xmlElement) {
     this.sliceKinds_ = [];
-
     for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
       if (childNode.nodeName.toLowerCase() === 'arg') {
         this.sliceKinds_.push(childNode.getAttribute('name'));
       }
     }
-
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Subscript'] = function (block) {
+python.pythonGenerator.forBlock['ast_Subscript'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
   var slices = new Array(block.sliceKinds_.length);
-
   for (var i = 0; i < block.sliceKinds_.length; i++) {
     var kind = block.sliceKinds_[i];
-
     if (kind.charAt(0) === 'I') {
-      slices[i] = Blockly.Python.valueToCode(block, 'INDEX' + i, Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+      slices[i] = python.pythonGenerator.valueToCode(block, 'INDEX' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
     } else {
       slices[i] = "";
-
       if (kind.charAt(1) === '1') {
-        slices[i] += Blockly.Python.valueToCode(block, 'SLICELOWER' + i, Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICELOWER' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
       }
-
       slices[i] += ":";
-
       if (kind.charAt(2) === '1') {
-        slices[i] += Blockly.Python.valueToCode(block, 'SLICEUPPER' + i, Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICEUPPER' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
       }
-
       if (kind.charAt(3) === '1') {
-        slices[i] += ":" + Blockly.Python.valueToCode(block, 'SLICESTEP' + i, Blockly.Python.ORDER_MEMBER) || Blockly.Python.blank;
+        slices[i] += ":" + python.pythonGenerator.valueToCode(block, 'SLICESTEP' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
       }
     }
   }
-
   var code = value + '[' + slices.join(', ') + "]";
-  return [code, Blockly.Python.ORDER_MEMBER];
+  return [code, python.pythonGenerator.ORDER_MEMBER];
 };
-
 var isWeirdSliceCase = function isWeirdSliceCase(slice) {
   return slice.lower == null && slice.upper == null && slice.step !== null && slice.step._astname === 'NameConstant' && slice.step.value === Sk.builtin.none.none$;
 };
-
 BlockMirrorTextToBlocks.prototype.addSliceDim = function (slice, i, values, mutations, node) {
   var sliceKind = slice._astname;
-
   if (sliceKind === "Index") {
     values['INDEX' + i] = this.convert(slice.value, node);
     mutations.push("I");
   } else if (sliceKind === "Slice") {
     var L = "0",
-        U = "0",
-        S = "0";
-
+      U = "0",
+      S = "0";
     if (slice.lower !== null) {
       values['SLICELOWER' + i] = this.convert(slice.lower, node);
       L = "1";
     }
-
     if (slice.upper !== null) {
       values['SLICEUPPER' + i] = this.convert(slice.upper, node);
       U = "1";
     }
-
     if (slice.step !== null && !isWeirdSliceCase(slice)) {
       values['SLICESTEP' + i] = this.convert(slice.step, node);
       S = "1";
     }
-
     mutations.push("S" + L + U + S);
   }
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node, parent) {
   var value = node.value;
   var slice = node.slice;
@@ -6401,7 +5776,6 @@ BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node, parent) {
   };
   var mutations = [];
   var sliceKind = slice._astname;
-
   if (sliceKind === "ExtSlice") {
     for (var i = 0; i < slice.dims.length; i += 1) {
       var dim = slice.dims[i];
@@ -6410,143 +5784,136 @@ BlockMirrorTextToBlocks.prototype['ast_Subscript'] = function (node, parent) {
   } else {
     this.addSliceDim(slice, 0, values, mutations, node);
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Subscript", node.lineno, {}, values, {
     "inline": "true"
   }, {
     "arg": mutations
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_comprehensionFor",
-  "message0": "for %1 in %2",
-  "args0": [{
-    "type": "input_value",
-    "name": "TARGET"
+  type: "ast_comprehensionFor",
+  message0: "for %1 in %2",
+  args0: [{
+    type: "input_value",
+    name: "TARGET"
   }, {
-    "type": "input_value",
-    "name": "ITER"
+    type: "input_value",
+    name: "ITER"
   }],
-  "inputsInline": true,
-  "output": "ComprehensionFor",
-  "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
+  inputsInline: true,
+  output: "ComprehensionFor",
+  colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_comprehensionIf",
-  "message0": "if %1",
-  "args0": [{
-    "type": "input_value",
-    "name": "TEST"
+  type: "ast_comprehensionIf",
+  message0: "if %1",
+  args0: [{
+    type: "input_value",
+    name: "TEST"
   }],
-  "inputsInline": true,
-  "output": "ComprehensionIf",
-  "colour": BlockMirrorTextToBlocks.COLOR.SEQUENCES
+  inputsInline: true,
+  output: "ComprehensionIf",
+  colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
 });
-Blockly.Blocks['ast_Comp_create_with_container'] = {
+Blockly.Blocks["ast_Comp_create_with_container"] = {
   /**
    * Mutator block for dict container.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('Add new comprehensions below');
-    this.appendDummyInput().appendField('   For clause');
-    this.appendStatementInput('STACK');
+    this.appendDummyInput().appendField("Add new comprehensions below");
+    this.appendDummyInput().appendField("   For clause");
+    this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Comp_create_with_for'] = {
+Blockly.Blocks["ast_Comp_create_with_for"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('For clause');
+    this.appendDummyInput().appendField("For clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
-Blockly.Blocks['ast_Comp_create_with_if'] = {
+Blockly.Blocks["ast_Comp_create_with_if"] = {
   /**
    * Mutator block for adding items.
    * @this Blockly.Block
    */
   init: function init() {
     this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
-    this.appendDummyInput().appendField('If clause');
+    this.appendDummyInput().appendField("If clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.contextMenu = false;
   }
 };
 BlockMirrorTextToBlocks.COMP_SETTINGS = {
-  'ListComp': {
-    start: '[',
-    end: ']',
+  ListComp: {
+    start: "[",
+    end: "]",
     color: BlockMirrorTextToBlocks.COLOR.LIST
   },
-  'SetComp': {
-    start: '{',
-    end: '}',
+  SetComp: {
+    start: "{",
+    end: "}",
     color: BlockMirrorTextToBlocks.COLOR.SET
   },
-  'GeneratorExp': {
-    start: '(',
-    end: ')',
+  GeneratorExp: {
+    start: "(",
+    end: ")",
     color: BlockMirrorTextToBlocks.COLOR.SEQUENCES
   },
-  'DictComp': {
-    start: '{',
-    end: '}',
+  DictComp: {
+    start: "{",
+    end: "}",
     color: BlockMirrorTextToBlocks.COLOR.DICTIONARY
   }
 };
-['ListComp', 'SetComp', 'GeneratorExp', 'DictComp'].forEach(function (kind) {
-  Blockly.Blocks['ast_' + kind] = {
+["ListComp", "SetComp", "GeneratorExp", "DictComp"].forEach(function (kind) {
+  Blockly.Blocks["ast_" + kind] = {
     /**
      * Block for creating a dict with any number of elements of any type.
      * @this Blockly.Block
      */
     init: function init() {
-      this.setStyle('loop_blocks');
+      this.setStyle("loop_blocks");
       this.setColour(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color);
       this.itemCount_ = 3;
       var input = this.appendValueInput("ELT").appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start);
-
-      if (kind === 'DictComp') {
-        input.setCheck('DictPair');
+      if (kind === "DictComp") {
+        input.setCheck("DictPair");
       }
-
       this.appendDummyInput("END_BRACKET").appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end);
       this.updateShape_();
       this.setOutput(true);
-      this.setMutator(new Blockly.Mutator(['ast_Comp_create_with_for', 'ast_Comp_create_with_if']));
+      this.setMutator(new Blockly.icons.MutatorIcon(["ast_Comp_create_with_for", "ast_Comp_create_with_if"], this));
     },
-
     /**
      * Create XML to represent dict inputs.
      * @return {!Element} XML storage element.
      * @this Blockly.Block
      */
     mutationToDom: function mutationToDom() {
-      var container = document.createElement('mutation');
-      container.setAttribute('items', this.itemCount_);
+      var container = document.createElement("mutation");
+      container.setAttribute("items", this.itemCount_);
       return container;
     },
-
     /**
      * Parse XML to restore the dict inputs.
      * @param {!Element} xmlElement XML storage element.
      * @this Blockly.Block
      */
     domToMutation: function domToMutation(xmlElement) {
-      this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+      this.itemCount_ = parseInt(xmlElement.getAttribute("items"), 10);
       this.updateShape_();
     },
-
     /**
      * Populate the mutator's dialog with this block's components.
      * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -6554,135 +5921,111 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      * @this Blockly.Block
      */
     decompose: function decompose(workspace) {
-      var containerBlock = workspace.newBlock('ast_Comp_create_with_container');
+      var containerBlock = workspace.newBlock("ast_Comp_create_with_container");
       containerBlock.initSvg();
-      var connection = containerBlock.getInput('STACK').connection;
+      var connection = containerBlock.getInput("STACK").connection;
       var generators = [];
-
       for (var i = 1; i < this.itemCount_; i++) {
-        var generator = this.getInput('GENERATOR' + i).connection;
+        var generator = this.getInput("GENERATOR" + i).connection;
         var createName = void 0;
-
-        if (generator.targetConnection.getSourceBlock().type === 'ast_comprehensionIf') {
-          createName = 'ast_Comp_create_with_if';
-        } else if (generator.targetConnection.getSourceBlock().type === 'ast_comprehensionFor') {
-          createName = 'ast_Comp_create_with_for';
+        if (generator.targetConnection.getSourceBlock().type === "ast_comprehensionIf") {
+          createName = "ast_Comp_create_with_if";
+        } else if (generator.targetConnection.getSourceBlock().type === "ast_comprehensionFor") {
+          createName = "ast_Comp_create_with_for";
         } else {
           throw Error("Unknown block type: " + generator.targetConnection.getSourceBlock().type);
         }
-
         var itemBlock = workspace.newBlock(createName);
         itemBlock.initSvg();
         connection.connect(itemBlock.previousConnection);
         connection = itemBlock.nextConnection;
         generators.push(itemBlock);
       }
-
       return containerBlock;
     },
-
     /**
      * Reconfigure this block based on the mutator dialog's components.
      * @param {!Blockly.Block} containerBlock Root block in mutator.
      * @this Blockly.Block
      */
     compose: function compose(containerBlock) {
-      var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+      var itemBlock = containerBlock.getInputTargetBlock("STACK");
+      // Count number of inputs.
       var connections = [containerBlock.valueConnection_];
-      var blockTypes = ['ast_Comp_create_with_for'];
-
+      var blockTypes = ["ast_Comp_create_with_for"];
       while (itemBlock) {
         connections.push(itemBlock.valueConnection_);
         blockTypes.push(itemBlock.type);
         itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-      } // Disconnect any children that don't belong.
-
-
+      }
+      // Disconnect any children that don't belong.
       for (var i = 1; i < this.itemCount_; i++) {
-        var connection = this.getInput('GENERATOR' + i).connection.targetConnection;
-
+        var connection = this.getInput("GENERATOR" + i).connection.targetConnection;
         if (connection && connections.indexOf(connection) === -1) {
           var connectedBlock = connection.getSourceBlock();
-
-          if (connectedBlock.type === 'ast_comprehensionIf') {
-            var testField = connectedBlock.getInput('TEST');
-
+          if (connectedBlock.type === "ast_comprehensionIf") {
+            var testField = connectedBlock.getInput("TEST");
             if (testField.connection.targetConnection) {
               testField.connection.targetConnection.getSourceBlock().unplug(true);
             }
-          } else if (connectedBlock.type === 'ast_comprehensionFor') {
-            var iterField = connectedBlock.getInput('ITER');
-
+          } else if (connectedBlock.type === "ast_comprehensionFor") {
+            var iterField = connectedBlock.getInput("ITER");
             if (iterField.connection.targetConnection) {
               iterField.connection.targetConnection.getSourceBlock().unplug(true);
             }
-
-            var targetField = connectedBlock.getInput('TARGET');
-
+            var targetField = connectedBlock.getInput("TARGET");
             if (targetField.connection.targetConnection) {
               targetField.connection.targetConnection.getSourceBlock().unplug(true);
             }
           } else {
             throw Error("Unknown block type: " + connectedBlock.type);
           }
-
           connection.disconnect();
           connection.getSourceBlock().dispose();
         }
       }
-
       this.itemCount_ = connections.length;
-      this.updateShape_(); // Reconnect any child blocks.
-
+      this.updateShape_();
+      // Reconnect any child blocks.
       for (var i = 1; i < this.itemCount_; i++) {
-        Blockly.Mutator.reconnect(connections[i], this, 'GENERATOR' + i); // TODO: glitch when inserting into middle, deletes children values
-
+        var _connections$i5;
+        (_connections$i5 = connections[i]) === null || _connections$i5 === void 0 || _connections$i5.reconnect(this, "GENERATOR" + i);
+        // TODO: glitch when inserting into middle, deletes children values
         if (!connections[i]) {
           var createName = void 0;
-
-          if (blockTypes[i] === 'ast_Comp_create_with_if') {
-            createName = 'ast_comprehensionIf';
-          } else if (blockTypes[i] === 'ast_Comp_create_with_for') {
-            createName = 'ast_comprehensionFor';
+          if (blockTypes[i] === "ast_Comp_create_with_if") {
+            createName = "ast_comprehensionIf";
+          } else if (blockTypes[i] === "ast_Comp_create_with_for") {
+            createName = "ast_comprehensionFor";
           } else {
             throw Error("Unknown block type: " + blockTypes[i]);
           }
-
           var _itemBlock2 = this.workspace.newBlock(createName);
-
           _itemBlock2.setDeletable(false);
-
           _itemBlock2.setMovable(false);
-
           _itemBlock2.initSvg();
-
-          this.getInput('GENERATOR' + i).connection.connect(_itemBlock2.outputConnection);
-
-          _itemBlock2.render(); //this.get(itemBlock, 'ADD'+i)
-
+          this.getInput("GENERATOR" + i).connection.connect(_itemBlock2.outputConnection);
+          _itemBlock2.render();
+          //this.get(itemBlock, 'ADD'+i)
         }
       }
     },
-
     /**
      * Store pointers to any connected child blocks.
      * @param {!Blockly.Block} containerBlock Root block in mutator.
      * @this Blockly.Block
      */
     saveConnections: function saveConnections(containerBlock) {
-      containerBlock.valueConnection_ = this.getInput('GENERATOR0').connection.targetConnection;
-      var itemBlock = containerBlock.getInputTargetBlock('STACK');
+      containerBlock.valueConnection_ = this.getInput("GENERATOR0").connection.targetConnection;
+      var itemBlock = containerBlock.getInputTargetBlock("STACK");
       var i = 1;
-
       while (itemBlock) {
-        var input = this.getInput('GENERATOR' + i);
+        var input = this.getInput("GENERATOR" + i);
         itemBlock.valueConnection_ = input && input.connection.targetConnection;
         i++;
         itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
       }
     },
-
     /**
      * Modify this block to have the correct number of inputs.
      * @private
@@ -6691,128 +6034,114 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
     updateShape_: function updateShape_() {
       // Add new inputs.
       for (var i = 0; i < this.itemCount_; i++) {
-        if (!this.getInput('GENERATOR' + i)) {
-          var input = this.appendValueInput('GENERATOR' + i);
-
+        if (!this.getInput("GENERATOR" + i)) {
+          var input = this.appendValueInput("GENERATOR" + i);
           if (i === 0) {
             input.setCheck("ComprehensionFor");
           } else {
             input.setCheck(["ComprehensionFor", "ComprehensionIf"]);
           }
-
-          this.moveInputBefore('GENERATOR' + i, 'END_BRACKET');
+          this.moveInputBefore("GENERATOR" + i, "END_BRACKET");
         }
-      } // Remove deleted inputs.
-
-
-      while (this.getInput('GENERATOR' + i)) {
-        this.removeInput('GENERATOR' + i);
+      }
+      // Remove deleted inputs.
+      while (this.getInput("GENERATOR" + i)) {
+        this.removeInput("GENERATOR" + i);
         i++;
       }
     }
   };
-
-  Blockly.Python['ast_' + kind] = function (block) {
+  python.pythonGenerator.forBlock["ast_" + kind] = function (block) {
     // elt
     var elt;
-
-    if (kind === 'DictComp') {
-      var child = block.getInputTargetBlock('ELT');
-
-      if (child === null || child.type !== 'ast_DictItem') {
-        elt = Blockly.Python.blank + ": " + Blockly.Python.blank;
+    if (kind === "DictComp") {
+      var child = block.getInputTargetBlock("ELT");
+      if (child === null || child.type !== "ast_DictItem") {
+        elt = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       } else {
-        var key = Blockly.Python.valueToCode(child, 'KEY', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-        var value = Blockly.Python.valueToCode(child, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elt = key + ": " + value;
       }
     } else {
-      elt = Blockly.Python.valueToCode(block, 'ELT', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    } // generators
-
-
+      elt = python.pythonGenerator.valueToCode(block, "ELT", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    }
+    // generators
     var elements = new Array(block.itemCount_);
-    var BAD_DEFAULT = elt + " for " + Blockly.Python.blank + " in" + Blockly.Python.blank;
-
+    var BAD_DEFAULT = elt + " for " + python.pythonGenerator.blank + " in" + python.pythonGenerator.blank;
     for (var i = 0; i < block.itemCount_; i++) {
-      var _child = block.getInputTargetBlock('GENERATOR' + i);
-
+      var _child = block.getInputTargetBlock("GENERATOR" + i);
       if (_child === null) {
         elements[i] = BAD_DEFAULT;
-      } else if (_child.type === 'ast_comprehensionIf') {
-        var test = Blockly.Python.valueToCode(_child, 'TEST', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+      } else if (_child.type === "ast_comprehensionIf") {
+        var test = python.pythonGenerator.valueToCode(_child, "TEST", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elements[i] = "if " + test;
-      } else if (_child.type === 'ast_comprehensionFor') {
-        var target = Blockly.Python.valueToCode(_child, 'TARGET', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-        var iter = Blockly.Python.valueToCode(_child, 'ITER', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+      } else if (_child.type === "ast_comprehensionFor") {
+        var target = python.pythonGenerator.valueToCode(_child, "TARGET", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var iter = python.pythonGenerator.valueToCode(_child, "ITER", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
         elements[i] = "for " + target + " in " + iter;
       } else {
         elements[i] = BAD_DEFAULT;
       }
-    } // Put it all together
-
-
-    var code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start + elt + " " + elements.join(' ') + BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    }
+    // Put it all together
+    var code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start + elt + " " + elements.join(" ") + BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
   };
-
-  BlockMirrorTextToBlocks.prototype['ast_' + kind] = function (node, parent) {
+  BlockMirrorTextToBlocks.prototype["ast_" + kind] = function (node, parent) {
     var generators = node.generators;
     var elements = {};
-
-    if (kind === 'DictComp') {
+    if (kind === "DictComp") {
       var key = node.key;
       var value = node.value;
       elements["ELT"] = BlockMirrorTextToBlocks.create_block("ast_DictItem", node.lineno, {}, {
-        "KEY": this.convert(key, node),
-        "VALUE": this.convert(value, node)
+        KEY: this.convert(key, node),
+        VALUE: this.convert(value, node)
       }, {
-        "inline": "true",
-        'deletable': "false",
-        "movable": "false"
+        inline: "true",
+        deletable: "false",
+        movable: "false"
       });
     } else {
       var elt = node.elt;
       elements["ELT"] = this.convert(elt, node);
     }
-
     var DEFAULT_SETTINGS = {
-      "inline": "true",
-      'deletable': "false",
-      "movable": "false"
+      inline: "true",
+      deletable: "false",
+      movable: "false"
     };
     var g = 0;
-
     for (var i = 0; i < generators.length; i++) {
       var target = generators[i].target;
       var iter = generators[i].iter;
       var ifs = generators[i].ifs;
       var is_async = generators[i].is_async;
       elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionFor", node.lineno, {}, {
-        "ITER": this.convert(iter, node),
-        "TARGET": this.convert(target, node)
+        ITER: this.convert(iter, node),
+        TARGET: this.convert(target, node)
       }, DEFAULT_SETTINGS);
       g += 1;
-
       if (ifs) {
         for (var j = 0; j < ifs.length; j++) {
           elements["GENERATOR" + g] = BlockMirrorTextToBlocks.create_block("ast_comprehensionIf", node.lineno, {}, {
-            "TEST": this.convert(ifs[j], node)
+            TEST: this.convert(ifs[j], node)
           }, DEFAULT_SETTINGS);
           g += 1;
         }
       }
     }
-
     return BlockMirrorTextToBlocks.create_block("ast_" + kind, node.lineno, {}, elements, {
-      "inline": "false"
+      inline: "false"
     }, {
       "@items": g
     });
   };
-}); // TODO: what if a user deletes a parameter through the context menu?
-// The mutator container
+});
 
+// TODO: what if a user deletes a parameter through the context menu?
+
+// The mutator container
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_FunctionHeaderMutator",
   "message0": "Setup parameters below: %1 %2 returns %3",
@@ -6830,14 +6159,15 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   }],
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS,
   "enableContextMenu": false
-}); // The elements you can put into the mutator
+});
 
+// The elements you can put into the mutator
 [['Parameter', 'Parameter', '', false, false], ['ParameterType', 'Parameter with type', '', true, false], ['ParameterDefault', 'Parameter with default value', '', false, true], ['ParameterDefaultType', 'Parameter with type and default value', '', true, true], ['ParameterVararg', 'Variable length parameter', '*', false, false], ['ParameterVarargType', 'Variable length parameter with type', '*', true, false], ['ParameterKwarg', 'Keyworded Variable length parameter', '**', false], ['ParameterKwargType', 'Keyworded Variable length parameter with type', '**', true, false]].forEach(function (parameterTypeTuple) {
   var parameterType = parameterTypeTuple[0],
-      parameterDescription = parameterTypeTuple[1],
-      parameterPrefix = parameterTypeTuple[2],
-      parameterTyped = parameterTypeTuple[3],
-      parameterDefault = parameterTypeTuple[4];
+    parameterDescription = parameterTypeTuple[1],
+    parameterPrefix = parameterTypeTuple[2],
+    parameterTyped = parameterTypeTuple[3],
+    parameterDefault = parameterTypeTuple[4];
   BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_FunctionMutant" + parameterType,
     "message0": parameterDescription,
@@ -6859,7 +6189,6 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "enableContextMenu": false,
     "inputsInline": parameterTyped && parameterDefault
   };
-
   if (parameterTyped) {
     realParameterBlock['message0'] += " : %2";
     realParameterBlock['args0'].push({
@@ -6867,7 +6196,6 @@ BlockMirrorTextToBlocks.BLOCKS.push({
       "name": "TYPE"
     });
   }
-
   if (parameterDefault) {
     realParameterBlock['message0'] += " = %" + (parameterTyped ? 3 : 2);
     realParameterBlock['args0'].push({
@@ -6875,26 +6203,22 @@ BlockMirrorTextToBlocks.BLOCKS.push({
       "name": "DEFAULT"
     });
   }
-
   BlockMirrorTextToBlocks.BLOCKS.push(realParameterBlock);
-
-  Blockly.Python["ast_Function" + parameterType] = function (block) {
-    var name = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
+  python.pythonGenerator.forBlock["ast_Function" + parameterType] = function (block) {
+    var name = python.pythonGenerator.getVariableName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
     var typed = "";
-
     if (parameterTyped) {
-      typed = ": " + (Blockly.Python.valueToCode(block, 'TYPE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank);
+      typed = ": " + (python.pythonGenerator.valueToCode(block, 'TYPE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
     }
-
     var defaulted = "";
-
     if (parameterDefault) {
-      defaulted = "=" + (Blockly.Python.valueToCode(block, 'DEFAULT', Blockly.Python.ORDER_NONE) || Blockly.Python.blank);
+      defaulted = "=" + (python.pythonGenerator.valueToCode(block, 'DEFAULT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
     }
-
-    return [parameterPrefix + name + typed + defaulted, Blockly.Python.ORDER_ATOMIC];
+    return [parameterPrefix + name + typed + defaulted, python.pythonGenerator.ORDER_ATOMIC];
   };
-}); // TODO: Figure out an elegant "complexity" flag feature to allow different levels of Mutators
+});
+
+// TODO: Figure out an elegant "complexity" flag feature to allow different levels of Mutators
 
 Blockly.Blocks['ast_FunctionDef'] = {
   init: function init() {
@@ -6909,9 +6233,8 @@ Blockly.Blocks['ast_FunctionDef'] = {
     this.setNextStatement(true, null);
     this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
     this.updateShape_();
-    this.setMutator(new Blockly.Mutator(['ast_FunctionMutantParameter', 'ast_FunctionMutantParameterType']));
+    this.setMutator(new Blockly.icons.MutatorIcon(['ast_FunctionMutantParameter', 'ast_FunctionMutantParameterType'], this));
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -6924,7 +6247,6 @@ Blockly.Blocks['ast_FunctionDef'] = {
     container.setAttribute('returns', this.hasReturn_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -6938,17 +6260,14 @@ Blockly.Blocks['ast_FunctionDef'] = {
   },
   setReturnAnnotation_: function setReturnAnnotation_(status) {
     var currentReturn = this.getInput('RETURNS');
-
     if (status) {
       if (!currentReturn) {
-        this.appendValueInput("RETURNS").setCheck(null).setAlign(Blockly.ALIGN_RIGHT).appendField("returns");
+        this.appendValueInput("RETURNS").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField("returns");
       }
-
       this.moveInputBefore('RETURNS', 'BODY');
     } else if (!status && currentReturn) {
       this.removeInput('RETURNS');
     }
-
     this.hasReturn_ = status;
   },
   updateShape_: function updateShape_() {
@@ -6957,32 +6276,27 @@ Blockly.Blocks['ast_FunctionDef'] = {
     var position = 1;
     [['DECORATOR', 'decoratorsCount_', null, 'decorated by'], ['PARAMETER', 'parametersCount_', 'Parameter', 'parameters:']].forEach(function (childTypeTuple) {
       var childTypeName = childTypeTuple[0],
-          countVariable = childTypeTuple[1],
-          inputCheck = childTypeTuple[2],
-          childTypeMessage = childTypeTuple[3];
-
+        countVariable = childTypeTuple[1],
+        inputCheck = childTypeTuple[2],
+        childTypeMessage = childTypeTuple[3];
       for (var i = 0; i < block[countVariable]; i++) {
         if (!block.getInput(childTypeName + i)) {
-          var input = block.appendValueInput(childTypeName + i).setCheck(inputCheck).setAlign(Blockly.ALIGN_RIGHT);
-
+          var input = block.appendValueInput(childTypeName + i).setCheck(inputCheck).setAlign(Blockly.inputs.Align.RIGHT);
           if (i === 0) {
             input.appendField(childTypeMessage);
           }
         }
-
         block.moveInputBefore(childTypeName + i, 'BODY');
-      } // Remove deleted inputs.
-
-
+      }
+      // Remove deleted inputs.
       while (block.getInput(childTypeName + i)) {
         block.removeInput(childTypeName + i);
         i++;
       }
-    }); // Set up optional Returns annotation
-
+    });
+    // Set up optional Returns annotation
     this.setReturnAnnotation_(this.hasReturn_);
   },
-
   /**
    * Populate the mutator's dialog with this block's components.
    * @param {!Blockly.Workspace} workspace Mutator's workspace.
@@ -6991,18 +6305,19 @@ Blockly.Blocks['ast_FunctionDef'] = {
    */
   decompose: function decompose(workspace) {
     var containerBlock = workspace.newBlock('ast_FunctionHeaderMutator');
-    containerBlock.initSvg(); // Check/uncheck the allow statement box.
+    containerBlock.initSvg();
 
+    // Check/uncheck the allow statement box.
     if (this.getInput('RETURNS')) {
       containerBlock.setFieldValue(this.hasReturn_ ? 'TRUE' : 'FALSE', 'RETURNS');
-    } else {// TODO: set up "canReturns" for lambda mode
+    } else {
+      // TODO: set up "canReturns" for lambda mode
       //containerBlock.getField('RETURNS').setVisible(false);
-    } // Set up parameters
+    }
 
-
+    // Set up parameters
     var connection = containerBlock.getInput('STACK').connection;
     var parameters = [];
-
     for (var i = 0; i < this.parametersCount_; i++) {
       var parameter = this.getInput('PARAMETER' + i).connection;
       var sourceType = parameter.targetConnection.getSourceBlock().type;
@@ -7013,99 +6328,79 @@ Blockly.Blocks['ast_FunctionDef'] = {
       connection = itemBlock.nextConnection;
       parameters.push(itemBlock);
     }
-
     return containerBlock;
   },
-
   /**
    * Reconfigure this block based on the mutator dialog's components.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
    * @this Blockly.Block
    */
   compose: function compose(containerBlock) {
-    var itemBlock = containerBlock.getInputTargetBlock('STACK'); // Count number of inputs.
-
+    var itemBlock = containerBlock.getInputTargetBlock('STACK');
+    // Count number of inputs.
     var connections = [];
     var blockTypes = [];
-
     while (itemBlock) {
       connections.push(itemBlock.valueConnection_);
       blockTypes.push(itemBlock.type);
       itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
-    } // Disconnect any children that don't belong.
-
-
+    }
+    // Disconnect any children that don't belong.
     for (var i = 0; i < this.parametersCount_; i++) {
       var connection = this.getInput('PARAMETER' + i).connection.targetConnection;
-
       if (connection && connections.indexOf(connection) === -1) {
         // Disconnect all children of this block
         var connectedBlock = connection.getSourceBlock();
-
         for (var j = 0; j < connectedBlock.inputList.length; j++) {
           var field = connectedBlock.inputList[j].connection;
-
           if (field && field.targetConnection) {
             field.targetConnection.getSourceBlock().unplug(true);
           }
         }
-
         connection.disconnect();
         connection.getSourceBlock().dispose();
       }
     }
-
     this.parametersCount_ = connections.length;
-    this.updateShape_(); // Reconnect any child blocks.
-
+    this.updateShape_();
+    // Reconnect any child blocks.
     for (var _i6 = 0; _i6 < this.parametersCount_; _i6++) {
-      Blockly.Mutator.reconnect(connections[_i6], this, 'PARAMETER' + _i6);
-
+      var _connections$_i;
+      (_connections$_i = connections[_i6]) === null || _connections$_i === void 0 || _connections$_i.reconnect(this, 'PARAMETER' + _i6);
       if (!connections[_i6]) {
         var createName = 'ast_Function' + blockTypes[_i6].substring('ast_FunctionMutant'.length);
-
         var _itemBlock3 = this.workspace.newBlock(createName);
-
         _itemBlock3.setDeletable(false);
-
         _itemBlock3.setMovable(false);
-
         _itemBlock3.initSvg();
-
         this.getInput('PARAMETER' + _i6).connection.connect(_itemBlock3.outputConnection);
-
-        _itemBlock3.render(); //this.get(itemBlock, 'ADD'+i)
-
+        _itemBlock3.render();
+        //this.get(itemBlock, 'ADD'+i)
       }
-    } // Show/hide the returns annotation
-
-
+    }
+    // Show/hide the returns annotation
     var hasReturns = containerBlock.getFieldValue('RETURNS');
-
     if (hasReturns !== null) {
       hasReturns = hasReturns === 'TRUE';
-
       if (this.hasReturn_ != hasReturns) {
         if (hasReturns) {
+          var _this$returnConnectio;
           this.setReturnAnnotation_(true);
-          Blockly.Mutator.reconnect(this.returnConnection_, this, 'RETURNS');
+          (_this$returnConnectio = this.returnConnection_) === null || _this$returnConnectio === void 0 || _this$returnConnectio.reconnect(this, 'RETURNS');
           this.returnConnection_ = null;
         } else {
           var returnConnection = this.getInput('RETURNS').connection;
           this.returnConnection_ = returnConnection.targetConnection;
-
           if (this.returnConnection_) {
             var returnBlock = returnConnection.targetBlock();
             returnBlock.unplug();
             returnBlock.bumpNeighbours_();
           }
-
           this.setReturnAnnotation_(false);
         }
       }
     }
   },
-
   /**
    * Store pointers to any connected child blocks.
    * @param {!Blockly.Block} containerBlock Root block in mutator.
@@ -7114,7 +6409,6 @@ Blockly.Blocks['ast_FunctionDef'] = {
   saveConnections: function saveConnections(containerBlock) {
     var itemBlock = containerBlock.getInputTargetBlock('STACK');
     var i = 0;
-
     while (itemBlock) {
       var input = this.getInput('PARAMETER' + i);
       itemBlock.valueConnection_ = input && input.connection.targetConnection;
@@ -7123,43 +6417,34 @@ Blockly.Blocks['ast_FunctionDef'] = {
     }
   }
 };
-
-Blockly.Python['ast_FunctionDef'] = function (block) {
+python.pythonGenerator.forBlock['ast_FunctionDef'] = function (block, generator) {
   // Name
-  var name = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE); // Decorators
-
+  var name = python.pythonGenerator.getVariableName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
+  // Decorators
   var decorators = new Array(block.decoratorsCount_);
-
   for (var i = 0; i < block.decoratorsCount_; i++) {
-    var decorator = Blockly.Python.valueToCode(block, 'DECORATOR' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     decorators[i] = "@" + decorator + "\n";
-  } // Parameters
-
-
+  }
+  // Parameters
   var parameters = new Array(block.parametersCount_);
-
   for (var _i7 = 0; _i7 < block.parametersCount_; _i7++) {
-    parameters[_i7] = Blockly.Python.valueToCode(block, 'PARAMETER' + _i7, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  } // Return annotation
-
-
+    parameters[_i7] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + _i7, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  }
+  // Return annotation
   var returns = "";
-
   if (this.hasReturn_) {
-    returns = " -> " + Blockly.Python.valueToCode(block, 'RETURNS', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  } // Body
-
-
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    returns = " -> " + python.pythonGenerator.valueToCode(block, 'RETURNS', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  }
+  // Body
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   return decorators.join('') + "def " + name + "(" + parameters.join(', ') + ")" + returns + ":\n" + body;
 };
-
 BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values, node) {
   var settings = {
     "movable": false,
     "deletable": false
   };
-
   if (arg.annotation === null) {
     return BlockMirrorTextToBlocks.create_block(type, lineno, {
       'NAME': Sk.ffi.remapToJs(arg.arg)
@@ -7171,65 +6456,54 @@ BlockMirrorTextToBlocks.prototype.parseArg = function (arg, type, lineno, values
     }, values, settings);
   }
 };
-
 BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno, node) {
   var positional = args.args,
-      vararg = args.vararg,
-      kwonlyargs = args.kwonlyargs,
-      kwarg = args.kwarg,
-      defaults = args.defaults,
-      kw_defaults = args.kw_defaults;
-  var totalArgs = 0; // args (positional)
-
+    vararg = args.vararg,
+    kwonlyargs = args.kwonlyargs,
+    kwarg = args.kwarg,
+    defaults = args.defaults,
+    kw_defaults = args.kw_defaults;
+  var totalArgs = 0;
+  // args (positional)
   if (positional !== null) {
     // "If there are fewer defaults, they correspond to the last n arguments."
     var defaultOffset = defaults ? defaults.length - positional.length : 0;
-
     for (var i = 0; i < positional.length; i++) {
       var childValues = {};
       var type = 'ast_FunctionParameter';
-
       if (defaults[defaultOffset + i]) {
         childValues['DEFAULT'] = this.convert(defaults[defaultOffset + i], node);
         type += "Default";
       }
-
       values['PARAMETER' + totalArgs] = this.parseArg(positional[i], type, lineno, childValues, node);
       totalArgs += 1;
     }
-  } // *arg
-
-
+  }
+  // *arg
   if (vararg !== null) {
     values['PARAMETER' + totalArgs] = this.parseArg(vararg, 'ast_FunctionParameterVararg', lineno, {}, node);
     totalArgs += 1;
-  } // keyword arguments that must be referenced by name
-
-
+  }
+  // keyword arguments that must be referenced by name
   if (kwonlyargs !== null) {
     for (var _i8 = 0; _i8 < kwonlyargs.length; _i8++) {
       var _childValues = {};
       var _type = 'ast_FunctionParameter';
-
       if (kw_defaults[_i8]) {
         _childValues['DEFAULT'] = this.convert(kw_defaults[_i8], node);
         _type += "Default";
       }
-
       values['PARAMETER' + totalArgs] = this.parseArg(kwonlyargs[_i8], _type, lineno, _childValues, node);
       totalArgs += 1;
     }
-  } // **kwarg
-
-
+  }
+  // **kwarg
   if (kwarg) {
     values['PARAMETER' + totalArgs] = this.parseArg(kwarg, 'ast_FunctionParameterKwarg', lineno, {}, node);
     totalArgs += 1;
   }
-
   return totalArgs;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
   var name = node.name;
   var args = node.args;
@@ -7237,25 +6511,19 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
   var decorator_list = node.decorator_list;
   var returns = node.returns;
   var values = {};
-
   if (decorator_list !== null) {
     for (var i = 0; i < decorator_list.length; i++) {
       values['DECORATOR' + i] = this.convert(decorator_list[i], node);
     }
   }
-
   var parsedArgs = 0;
-
   if (args !== null) {
     parsedArgs = this.parseArgs(args, values, node.lineno, node);
   }
-
   var hasReturn = returns !== null && (returns._astname !== 'NameConstant' || returns.value !== Sk.builtin.none.none$);
-
   if (hasReturn) {
     values['RETURNS'] = this.convert(returns, node);
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_FunctionDef", node.lineno, {
     'NAME': Sk.ffi.remapToJs(name)
   }, values, {
@@ -7268,14 +6536,13 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
     'BODY': this.convertBody(body, node)
   });
 };
-
 Blockly.Blocks['ast_Lambda'] = {
   init: function init() {
-    this.appendDummyInput().appendField("lambda").setAlign(Blockly.ALIGN_RIGHT);
+    this.appendDummyInput().appendField("lambda").setAlign(Blockly.inputs.Align.RIGHT);
     this.decoratorsCount_ = 0;
     this.parametersCount_ = 0;
     this.hasReturn_ = false;
-    this.appendValueInput("BODY").appendField("body").setAlign(Blockly.ALIGN_RIGHT).setCheck(null);
+    this.appendValueInput("BODY").appendField("body").setAlign(Blockly.inputs.Align.RIGHT).setCheck(null);
     this.setInputsInline(false);
     this.setOutput(true);
     this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
@@ -7286,20 +6553,16 @@ Blockly.Blocks['ast_Lambda'] = {
   updateShape_: Blockly.Blocks['ast_FunctionDef'].updateShape_,
   setReturnAnnotation_: Blockly.Blocks['ast_FunctionDef'].setReturnAnnotation_
 };
-
-Blockly.Python['ast_Lambda'] = function (block) {
+python.pythonGenerator.forBlock['ast_Lambda'] = function (block, generator) {
   // Parameters
   var parameters = new Array(block.parametersCount_);
-
   for (var i = 0; i < block.parametersCount_; i++) {
-    parameters[i] = Blockly.Python.valueToCode(block, 'PARAMETER' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  } // Body
-
-
-  var body = Blockly.Python.valueToCode(block, 'BODY', Blockly.Python.ORDER_LAMBDA) || Blockly.Python.PASS;
-  return ["lambda " + parameters.join(', ') + ": " + body, Blockly.Python.ORDER_LAMBDA];
+    parameters[i] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  }
+  // Body
+  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.PASS;
+  return ["lambda " + parameters.join(', ') + ": " + body, python.pythonGenerator.ORDER_LAMBDA];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
   var args = node.args;
   var body = node.body;
@@ -7307,11 +6570,9 @@ BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
     'BODY': this.convert(body, node)
   };
   var parsedArgs = 0;
-
   if (args !== null) {
     parsedArgs = this.parseArgs(args, values, node.lineno);
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Lambda", node.lineno, {}, values, {
     "inline": "false"
   }, {
@@ -7320,19 +6581,28 @@ BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
     "@returns": false
   });
 };
+Blockly.Blocks['ast_ReturnFull'] = {
+  init: function init() {
+    this.appendValueInput('VALUE').appendField('return');
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+  }
+};
+// Blockly.common.defineBlocks({ast_ReturnFull: ast_ReturnFull});
 
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_ReturnFull",
-  "message0": "return %1",
-  "args0": [{
-    "type": "input_value",
-    "name": "VALUE"
-  }],
-  "inputsInline": true,
-  "previousStatement": null,
-  "nextStatement": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
-});
+// BlockMirrorTextToBlocks.BLOCKS.push({
+//     "message0": "return %1",
+//     "args0": [
+//         {"type": "input_value", "name": "VALUE"}
+//     ],
+//     "inputsInline": true,
+//     "previousStatement": null,
+//     "nextStatement": null,
+//     "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
+// });
+
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Return",
   "message0": "return",
@@ -7341,19 +6611,15 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
 });
-
-Blockly.Python['ast_Return'] = function (block) {
+python.pythonGenerator.forBlock['ast_Return'] = function (block, generator) {
   return "return\n";
 };
-
-Blockly.Python['ast_ReturnFull'] = function (block) {
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+python.pythonGenerator.forBlock['ast_ReturnFull'] = function (block, generator) {
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
   return "return " + value + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Return'] = function (node, parent) {
   var value = node.value;
-
   if (value == null) {
     return BlockMirrorTextToBlocks.create_block("ast_Return", node.lineno);
   } else {
@@ -7362,7 +6628,6 @@ BlockMirrorTextToBlocks.prototype['ast_Return'] = function (node, parent) {
     });
   }
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_YieldFull",
   "message0": "yield %1",
@@ -7381,19 +6646,15 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
 });
-
-Blockly.Python['ast_Yield'] = function (block) {
-  return ["yield", Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_Yield'] = function (block, generator) {
+  return ["yield", python.pythonGenerator.ORDER_LAMBDA];
 };
-
-Blockly.Python['ast_YieldFull'] = function (block) {
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_LAMBDA) || Blockly.Python.blank;
-  return ["yield " + value, Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_YieldFull'] = function (block, generator) {
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
+  return ["yield " + value, python.pythonGenerator.ORDER_LAMBDA];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {
   var value = node.value;
-
   if (value == null) {
     return BlockMirrorTextToBlocks.create_block("ast_Yield", node.lineno);
   } else {
@@ -7402,7 +6663,6 @@ BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {
     });
   }
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_YieldFrom",
   "message0": "yield from %1",
@@ -7414,19 +6674,16 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "output": null,
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
 });
-
-Blockly.Python['ast_YieldFrom'] = function (block) {
-  var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_LAMBDA) || Blockly.Python.blank;
-  return ["yield from " + value, Blockly.Python.ORDER_LAMBDA];
+python.pythonGenerator.forBlock['ast_YieldFrom'] = function (block, generator) {
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
+  return ["yield from " + value, python.pythonGenerator.ORDER_LAMBDA];
 };
-
 BlockMirrorTextToBlocks.prototype['ast_YieldFrom'] = function (node, parent) {
   var value = node.value;
   return BlockMirrorTextToBlocks.create_block("ast_YieldFrom", node.lineno, {}, {
     "VALUE": this.convert(value, node)
   });
 };
-
 Blockly.Blocks['ast_Global'] = {
   init: function init() {
     this.setInputsInline(true);
@@ -7438,37 +6695,31 @@ Blockly.Blocks['ast_Global'] = {
     this.updateShape_();
   },
   updateShape_: function updateShape_() {
-    var input = this.getInput("GLOBAL"); // Update pluralization
-
+    var input = this.getInput("GLOBAL");
+    // Update pluralization
     if (this.getField('START_GLOBALS')) {
       this.setFieldValue(this.nameCount_ > 1 ? "make globals" : "make global", "START_GLOBALS");
-    } // Update fields
-
-
+    }
+    // Update fields
     for (var i = 0; i < this.nameCount_; i++) {
       if (!this.getField('NAME' + i)) {
         if (i !== 0) {
-          input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+          input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
         }
-
         input.appendField(new Blockly.FieldVariable("variable"), 'NAME' + i);
       }
-    } // Remove deleted fields.
-
-
+    }
+    // Remove deleted fields.
     while (this.getField('NAME' + i)) {
       input.removeField('NAME' + i);
       i++;
-    } // Delete and re-add ending field
-
-
+    }
+    // Delete and re-add ending field
     if (this.getField("END_GLOBALS")) {
       input.removeField("END_GLOBALS");
     }
-
     input.appendField("available", "END_GLOBALS");
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -7479,7 +6730,6 @@ Blockly.Blocks['ast_Global'] = {
     container.setAttribute('names', this.nameCount_);
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -7490,33 +6740,26 @@ Blockly.Blocks['ast_Global'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Global'] = function (block) {
+python.pythonGenerator.forBlock['ast_Global'] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.nameCount_);
-
   for (var i = 0; i < block.nameCount_; i++) {
-    elements[i] = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
+    elements[i] = python.pythonGenerator.getVariableName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
   }
-
   return 'global ' + elements.join(', ') + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Global'] = function (node, parent) {
   var names = node.names;
   var fields = {};
-
   for (var i = 0; i < names.length; i++) {
     fields["NAME" + i] = Sk.ffi.remapToJs(names[i]);
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Global", node.lineno, fields, {}, {
     "inline": "true"
   }, {
     "@names": names.length
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Break",
   "message0": "break",
@@ -7525,15 +6768,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL
 });
-
-Blockly.Python['ast_Break'] = function (block) {
+python.pythonGenerator.forBlock['ast_Break'] = function (block, generator) {
   return "break\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Break'] = function (node, parent) {
   return BlockMirrorTextToBlocks.create_block("ast_Break", node.lineno);
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Continue",
   "message0": "continue",
@@ -7542,15 +6782,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL
 });
-
-Blockly.Python['ast_Continue'] = function (block) {
+python.pythonGenerator.forBlock['ast_Continue'] = function (block, generator) {
   return "continue\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Continue'] = function (node, parent) {
   return BlockMirrorTextToBlocks.create_block("ast_Continue", node.lineno);
 };
-
 BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL = 0;
 BlockMirrorTextToBlocks.HANDLERS_NO_AS = 1;
 BlockMirrorTextToBlocks.HANDLERS_COMPLETE = 3;
@@ -7561,7 +6798,7 @@ Blockly.Blocks['ast_Try'] = {
     this.hasElse_ = false;
     this.hasFinally_ = false;
     this.appendDummyInput().appendField("try:");
-    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.ALIGN_RIGHT);
+    this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -7575,26 +6812,21 @@ Blockly.Blocks['ast_Try'] = {
         this.appendDummyInput().appendField('except');
       } else {
         this.appendValueInput("TYPE" + i).setCheck(null).appendField("except");
-
         if (this.handlers_[i] === BlockMirrorTextToBlocks.HANDLERS_COMPLETE) {
           this.appendDummyInput().appendField("as").appendField(new Blockly.FieldVariable("item"), "NAME" + i);
         }
       }
-
       this.appendStatementInput("HANDLER" + i).setCheck(null);
     }
-
     if (this.hasElse_) {
       this.appendDummyInput().appendField("else:");
       this.appendStatementInput("ORELSE").setCheck(null);
     }
-
     if (this.hasFinally_) {
       this.appendDummyInput().appendField("finally:");
       this.appendStatementInput("FINALBODY").setCheck(null);
     }
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -7605,16 +6837,13 @@ Blockly.Blocks['ast_Try'] = {
     container.setAttribute('orelse', this.hasElse_);
     container.setAttribute('finalbody', this.hasFinally_);
     container.setAttribute('handlers', this.handlersCount_);
-
     for (var i = 0; i < this.handlersCount_; i++) {
       var parameter = document.createElement('arg');
       parameter.setAttribute('name', this.handlers_[i]);
       container.appendChild(parameter);
     }
-
     return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -7625,56 +6854,43 @@ Blockly.Blocks['ast_Try'] = {
     this.hasFinally_ = "true" === xmlElement.getAttribute('finalbody');
     this.handlersCount_ = parseInt(xmlElement.getAttribute('handlers'), 10);
     this.handlers_ = [];
-
     for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
       if (childNode.nodeName.toLowerCase() === 'arg') {
         this.handlers_.push(parseInt(childNode.getAttribute('name'), 10));
       }
     }
-
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Try'] = function (block) {
+python.pythonGenerator.forBlock['ast_Try'] = function (block, generator) {
   // Try:
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS; // Except clauses
-
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
+  // Except clauses
   var handlers = new Array(block.handlersCount_);
-
   for (var i = 0; i < block.handlersCount_; i++) {
     var level = block.handlers_[i];
     var clause = "except";
-
     if (level !== BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL) {
-      clause += " " + Blockly.Python.valueToCode(block, 'TYPE' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-
+      clause += " " + python.pythonGenerator.valueToCode(block, 'TYPE' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
       if (level === BlockMirrorTextToBlocks.HANDLERS_COMPLETE) {
-        clause += " as " + Blockly.Python.variableDB_.getName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
+        clause += " as " + python.pythonGenerator.getVariableName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
       }
     }
-
-    clause += ":\n" + (Blockly.Python.statementToCode(block, 'HANDLER' + i) || Blockly.Python.PASS);
+    clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'HANDLER' + i) || python.pythonGenerator.PASS);
     handlers[i] = clause;
-  } // Orelse:
-
-
-  var orelse = "";
-
-  if (this.hasElse_) {
-    orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSE') || Blockly.Python.PASS);
-  } // Finally:
-
-
-  var finalbody = "";
-
-  if (this.hasFinally_) {
-    finalbody = "finally:\n" + (Blockly.Python.statementToCode(block, 'FINALBODY') || Blockly.Python.PASS);
   }
-
+  // Orelse:
+  var orelse = "";
+  if (this.hasElse_) {
+    orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSE') || python.pythonGenerator.PASS);
+  }
+  // Finally:
+  var finalbody = "";
+  if (this.hasFinally_) {
+    finalbody = "finally:\n" + (python.pythonGenerator.statementToCode(block, 'FINALBODY') || python.pythonGenerator.PASS);
+  }
   return "try:\n" + body + handlers.join("") + orelse + finalbody;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node, parent) {
   var body = node.body;
   var handlers = node.handlers;
@@ -7690,26 +6906,20 @@ BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node, parent) {
   var statements = {
     "BODY": this.convertBody(body, node)
   };
-
   if (orelse !== null) {
     statements['ORELSE'] = this.convertBody(orelse, node);
   }
-
   if (finalbody !== null && finalbody.length) {
     statements['FINALBODY'] = this.convertBody(finalbody, node);
   }
-
   var handledLevels = [];
-
   for (var i = 0; i < handlers.length; i++) {
     var handler = handlers[i];
     statements["HANDLER" + i] = this.convertBody(handler.body, node);
-
     if (handler.type === null) {
       handledLevels.push(BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL);
     } else {
       values["TYPE" + i] = this.convert(handler.type, node);
-
       if (handler.name === null) {
         handledLevels.push(BlockMirrorTextToBlocks.HANDLERS_NO_AS);
       } else {
@@ -7718,11 +6928,9 @@ BlockMirrorTextToBlocks.prototype['ast_Try'] = function (node, parent) {
       }
     }
   }
-
   mutations["ARG"] = handledLevels;
   return BlockMirrorTextToBlocks.create_block("ast_Try", node.lineno, fields, values, {}, mutations, statements);
 };
-
 Blockly.Blocks['ast_ClassDef'] = {
   init: function init() {
     this.decorators_ = 0;
@@ -7739,31 +6947,24 @@ Blockly.Blocks['ast_ClassDef'] = {
   // TODO: Not mutable currently
   updateShape_: function updateShape_() {
     for (var i = 0; i < this.decorators_; i++) {
-      var input = this.appendValueInput("DECORATOR" + i).setCheck(null).setAlign(Blockly.ALIGN_RIGHT);
-
+      var input = this.appendValueInput("DECORATOR" + i).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
       if (i === 0) {
         input.appendField("decorated by");
       }
-
       this.moveInputBefore('DECORATOR' + i, 'BODY');
     }
-
     for (var _i9 = 0; _i9 < this.bases_; _i9++) {
-      var _input = this.appendValueInput("BASE" + _i9).setCheck(null).setAlign(Blockly.ALIGN_RIGHT);
-
+      var _input = this.appendValueInput("BASE" + _i9).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
       if (_i9 === 0) {
         _input.appendField("inherits from");
       }
-
       this.moveInputBefore('BASE' + _i9, 'BODY');
     }
-
     for (var _i10 = 0; _i10 < this.keywords_; _i10++) {
-      this.appendValueInput("KEYWORDVALUE" + _i10).setCheck(null).setAlign(Blockly.ALIGN_RIGHT).appendField(new Blockly.FieldTextInput("metaclass"), "KEYWORDNAME" + _i10).appendField("=");
+      this.appendValueInput("KEYWORDVALUE" + _i10).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField(new Blockly.FieldTextInput("metaclass"), "KEYWORDNAME" + _i10).appendField("=");
       this.moveInputBefore('KEYWORDVALUE' + _i10, 'BODY');
     }
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -7776,7 +6977,6 @@ Blockly.Blocks['ast_ClassDef'] = {
     container.setAttribute('keywords', this.keywords_);
     return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -7789,48 +6989,38 @@ Blockly.Blocks['ast_ClassDef'] = {
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_ClassDef'] = function (block) {
+python.pythonGenerator.forBlock['ast_ClassDef'] = function (block, generator) {
   // Name
-  var name = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE); // Decorators
-
+  var name = python.pythonGenerator.getVariableName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
+  // Decorators
   var decorators = new Array(block.decorators_);
-
   for (var i = 0; i < block.decorators_; i++) {
-    var decorator = Blockly.Python.valueToCode(block, 'DECORATOR' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     decorators[i] = "@" + decorator + "\n";
-  } // Bases
-
-
+  }
+  // Bases
   var bases = new Array(block.bases_);
-
   for (var _i11 = 0; _i11 < block.bases_; _i11++) {
-    bases[_i11] = Blockly.Python.valueToCode(block, 'BASE' + _i11, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  } // Keywords
-
-
+    bases[_i11] = python.pythonGenerator.valueToCode(block, 'BASE' + _i11, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  }
+  // Keywords
   var keywords = new Array(block.keywords_);
-
   for (var _i12 = 0; _i12 < block.keywords_; _i12++) {
     var _name = block.getFieldValue('KEYWORDNAME' + _i12);
-
-    var value = Blockly.Python.valueToCode(block, 'KEYWORDVALUE' + _i12, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-
+    var value = python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + _i12, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     if (_name == '**') {
       keywords[_i12] = '**' + value;
     } else {
       keywords[_i12] = _name + '=' + value;
     }
-  } // Body:
-
-
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS; // Put it together
-
+  }
+  // Body:
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
+  // Put it together
   var args = bases.concat(keywords);
   args = args.length === 0 ? "" : "(" + args.join(', ') + ")";
   return decorators.join('') + "class " + name + args + ":\n" + body;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
   var name = node.name;
   var bases = node.bases;
@@ -7841,24 +7031,20 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
   var fields = {
     'NAME': Sk.ffi.remapToJs(name)
   };
-
   if (decorator_list !== null) {
     for (var i = 0; i < decorator_list.length; i++) {
       values['DECORATOR' + i] = this.convert(decorator_list[i], node);
     }
   }
-
   if (bases !== null) {
     for (var _i13 = 0; _i13 < bases.length; _i13++) {
       values['BASE' + _i13] = this.convert(bases[_i13], node);
     }
   }
-
   if (keywords !== null) {
     for (var _i14 = 0; _i14 < keywords.length; _i14++) {
       values['KEYWORDVALUE' + _i14] = this.convert(keywords[_i14].value, node);
       var arg = keywords[_i14].arg;
-
       if (arg === null) {
         fields['KEYWORDNAME' + _i14] = "**";
       } else {
@@ -7866,7 +7052,6 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
       }
     }
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_ClassDef", node.lineno, fields, values, {
     "inline": "false"
   }, {
@@ -7876,13 +7061,13 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
   }, {
     'BODY': this.convertBody(body, node)
   });
-}; // TODO: direct imports are not variables, because you can do stuff like:
+};
+
+// TODO: direct imports are not variables, because you can do stuff like:
 //         import os.path
 //       What should the variable be? Blockly will mangle it, but we should really be
 //       doing something more complicated here with namespaces (probably make `os` the
 //       variable and have some kind of list of attributes. But that's in the fading zone.
-
-
 Blockly.Blocks['ast_Import'] = {
   init: function init() {
     this.nameCount_ = 1;
@@ -7898,49 +7083,40 @@ Blockly.Blocks['ast_Import'] = {
   updateShape_: function updateShape_() {
     // Possible FROM part
     if (this.from_ && !this.getInput('FROM')) {
-      this.appendDummyInput('FROM').setAlign(Blockly.ALIGN_RIGHT).appendField('from').appendField(new Blockly.FieldTextInput("module"), "MODULE");
+      this.appendDummyInput('FROM').setAlign(Blockly.inputs.Align.RIGHT).appendField('from').appendField(new Blockly.FieldTextInput("module"), "MODULE");
     } else if (!this.from_ && this.getInput('FROM')) {
       this.removeInput('FROM');
-    } // Import clauses
-
-
+    }
+    // Import clauses
     for (var i = 0; i < this.nameCount_; i++) {
       var input = this.getInput('CLAUSE' + i);
-
       if (!input) {
-        input = this.appendDummyInput('CLAUSE' + i).setAlign(Blockly.ALIGN_RIGHT);
-
+        input = this.appendDummyInput('CLAUSE' + i).setAlign(Blockly.inputs.Align.RIGHT);
         if (i === 0) {
           input.appendField("import");
         }
-
         input.appendField(new Blockly.FieldTextInput("default"), "NAME" + i);
       }
-
       if (this.regulars_[i] && this.getField('AS' + i)) {
         input.removeField('AS' + i);
         input.removeField('ASNAME' + i);
       } else if (!this.regulars_[i] && !this.getField('AS' + i)) {
         input.appendField("as", 'AS' + i).appendField(new Blockly.FieldVariable("alias"), "ASNAME" + i);
       }
-    } // Remove deleted inputs.
-
-
+    }
+    // Remove deleted inputs.
     while (this.getInput('CLAUSE' + i)) {
       this.removeInput('CLAUSE' + i);
       i++;
-    } // Reposition everything
-
-
+    }
+    // Reposition everything
     if (this.from_ && this.nameCount_ > 0) {
       this.moveInputBefore('FROM', 'CLAUSE0');
     }
-
     for (i = 0; i + 1 < this.nameCount_; i++) {
       this.moveInputBefore('CLAUSE' + i, 'CLAUSE' + (i + 1));
     }
   },
-
   /**
    * Create XML to represent the (non-editable) name and arguments.
    * @return {!Element} XML storage element.
@@ -7950,16 +7126,13 @@ Blockly.Blocks['ast_Import'] = {
     var container = document.createElement('mutation');
     container.setAttribute('names', this.nameCount_);
     container.setAttribute('from', this.from_);
-
     for (var i = 0; i < this.nameCount_; i++) {
       var parameter = document.createElement('regular');
       parameter.setAttribute('name', this.regulars_[i]);
       container.appendChild(parameter);
     }
-
     return container;
   },
-
   /**
    * Parse XML to restore the (non-editable) name and parameters.
    * @param {!Element} xmlElement XML storage element.
@@ -7969,47 +7142,37 @@ Blockly.Blocks['ast_Import'] = {
     this.nameCount_ = parseInt(xmlElement.getAttribute('names'), 10);
     this.from_ = "true" === xmlElement.getAttribute('from');
     this.regulars_ = [];
-
     for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
       if (childNode.nodeName.toLowerCase() === 'regular') {
         this.regulars_.push("true" === childNode.getAttribute('name'));
       }
     }
-
     this.updateShape_();
   }
 };
-
-Blockly.Python['ast_Import'] = function (block) {
+python.pythonGenerator.forBlock['ast_Import'] = function (block, generator) {
   // Optional from part
   var from = "";
-
   if (this.from_) {
     var moduleName = block.getFieldValue('MODULE');
     from = "from " + moduleName + " ";
-    Blockly.Python.imported_["import_" + moduleName] = moduleName;
-  } // Create a list with any number of elements of any type.
-
-
+    python.pythonGenerator.imported_["import_" + moduleName] = moduleName;
+  }
+  // Create a list with any number of elements of any type.
   var elements = new Array(block.nameCount_);
-
   for (var i = 0; i < block.nameCount_; i++) {
     var name = block.getFieldValue('NAME' + i);
     elements[i] = name;
-
     if (!this.regulars_[i]) {
-      name = Blockly.Python.variableDB_.getName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
+      name = python.pythonGenerator.getVariableName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
       elements[i] += " as " + name;
     }
-
     if (!from) {
-      Blockly.Python.imported_["import_" + name] = name;
+      python.pythonGenerator.imported_["import_" + name] = name;
     }
   }
-
   return from + 'import ' + elements.join(', ') + "\n";
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
   var names = node.names;
   var fields = {};
@@ -8018,27 +7181,21 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
   };
   var regulars = [];
   var simpleName = "";
-
   for (var i = 0; i < names.length; i++) {
     fields["NAME" + i] = Sk.ffi.remapToJs(names[i].name);
     var isRegular = names[i].asname === null;
-
     if (!isRegular) {
       fields["ASNAME" + i] = Sk.ffi.remapToJs(names[i].asname);
       simpleName = fields["ASNAME" + i];
     } else {
       simpleName = fields["NAME" + i];
     }
-
     regulars.push(isRegular);
   }
-
   mutations['regular'] = regulars;
-
   if (this.hiddenImports.indexOf(simpleName) !== -1) {
     return null;
   }
-
   if (node._astname === 'ImportFrom') {
     // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt
     mutations['@from'] = true;
@@ -8046,13 +7203,12 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
   } else {
     mutations['@from'] = false;
   }
-
   return BlockMirrorTextToBlocks.create_block("ast_Import", node.lineno, fields, {}, {
     "inline": true
   }, mutations);
-}; // Alias ImportFrom because of big overlap
+};
 
-
+// Alias ImportFrom because of big overlap
 BlockMirrorTextToBlocks.prototype['ast_ImportFrom'] = BlockMirrorTextToBlocks.prototype['ast_Import'];
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_WithItem",
@@ -8066,12 +7222,10 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
   "inputsInline": false
 });
-
-Blockly.Python["ast_WithItem"] = function (block) {
-  var context = Blockly.Python.valueToCode(block, 'CONTEXT', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  return [context, Blockly.Python.ORDER_NONE];
+python.pythonGenerator.forBlock["ast_WithItem"] = function (block) {
+  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  return [context, python.pythonGenerator.ORDER_NONE];
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_WithItemAs",
   "output": "WithItem",
@@ -8087,13 +7241,11 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
   "inputsInline": true
 });
-
-Blockly.Python["ast_WithItemAs"] = function (block) {
-  var context = Blockly.Python.valueToCode(block, 'CONTEXT', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  var as = Blockly.Python.valueToCode(block, 'AS', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  return [context + " as " + as, Blockly.Python.ORDER_NONE];
+python.pythonGenerator.forBlock["ast_WithItemAs"] = function (block) {
+  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  var as = python.pythonGenerator.valueToCode(block, 'AS', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  return [context + " as " + as, python.pythonGenerator.ORDER_NONE];
 };
-
 Blockly.Blocks['ast_With'] = {
   init: function init() {
     this.appendValueInput('ITEM0').appendField("with");
@@ -8106,7 +7258,6 @@ Blockly.Blocks['ast_With'] = {
     this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
     this.updateShape_();
   },
-
   /**
    * Create XML to represent list inputs.
    * @return {!Element} XML storage element.
@@ -8115,16 +7266,13 @@ Blockly.Blocks['ast_With'] = {
   mutationToDom: function mutationToDom() {
     var container = document.createElement('mutation');
     container.setAttribute('items', this.itemCount_);
-
     for (var i = 0; i < this.itemCount_; i++) {
       var parameter = document.createElement('as');
       parameter.setAttribute('name', this.renames_[i]);
       container.appendChild(parameter);
     }
-
     return container;
   },
-
   /**
    * Parse XML to restore the list inputs.
    * @param {!Element} xmlElement XML storage element.
@@ -8133,51 +7281,42 @@ Blockly.Blocks['ast_With'] = {
   domToMutation: function domToMutation(xmlElement) {
     this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
     this.renames_ = [];
-
     for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
       if (childNode.nodeName.toLowerCase() === 'as') {
         this.renames_.push("true" === childNode.getAttribute('name'));
       }
     }
-
     this.updateShape_();
   },
   updateShape_: function updateShape_() {
     // With clauses
     for (var i = 1; i < this.itemCount_; i++) {
       var input = this.getInput('ITEM' + i);
-
       if (!input) {
         input = this.appendValueInput('ITEM' + i);
       }
-    } // Remove deleted inputs.
-
-
+    }
+    // Remove deleted inputs.
     while (this.getInput('ITEM' + i)) {
       this.removeInput('ITEM' + i);
       i++;
-    } // Reposition everything
-
-
+    }
+    // Reposition everything
     for (i = 0; i < this.itemCount_; i++) {
       this.moveInputBefore('ITEM' + i, 'BODY');
     }
   }
 };
-
-Blockly.Python['ast_With'] = function (block) {
+python.pythonGenerator.forBlock['ast_With'] = function (block, generator) {
   // Contexts
   var items = new Array(block.itemCount_);
-
   for (var i = 0; i < block.itemCount_; i++) {
-    items[i] = Blockly.Python.valueToCode(block, 'ITEM' + i, Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-  } // Body
-
-
-  var body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    items[i] = python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  }
+  // Body
+  var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   return "with " + items.join(', ') + ":\n" + body;
 };
-
 BlockMirrorTextToBlocks.prototype['ast_With'] = function (node, parent) {
   var items = node.items;
   var body = node.body;
@@ -8186,14 +7325,12 @@ BlockMirrorTextToBlocks.prototype['ast_With'] = function (node, parent) {
     "@items": items.length
   };
   var renamedItems = [];
-
   for (var i = 0; i < items.length; i++) {
     var hasRename = items[i].optional_vars;
     renamedItems.push(hasRename);
     var innerValues = {
       'CONTEXT': this.convert(items[i].context_expr, node)
     };
-
     if (hasRename) {
       innerValues['AS'] = this.convert(items[i].optional_vars, node);
       values['ITEM' + i] = BlockMirrorTextToBlocks.create_block("ast_WithItemAs", node.lineno, {}, innerValues, this.LOCKED_BLOCK);
@@ -8201,7 +7338,6 @@ BlockMirrorTextToBlocks.prototype['ast_With'] = function (node, parent) {
       values['ITEM' + i] = BlockMirrorTextToBlocks.create_block("ast_WithItem", node.lineno, {}, innerValues, this.LOCKED_BLOCK);
     }
   }
-
   mutations['as'] = renamedItems;
   return BlockMirrorTextToBlocks.create_block("ast_With", node.lineno, {}, values, {
     "inline": "false"
@@ -8209,7 +7345,6 @@ BlockMirrorTextToBlocks.prototype['ast_With'] = function (node, parent) {
     'BODY': this.convertBody(body, node)
   });
 };
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Comment",
   "message0": "# Comment: %1",
@@ -8223,39 +7358,46 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.PYTHON
 });
-
-Blockly.Python['ast_Comment'] = function (block) {
+python.pythonGenerator.forBlock['ast_Comment'] = function (block) {
   var text_body = block.getFieldValue('BODY');
   return '#' + text_body + '\n';
 };
-
 BlockMirrorTextToBlocks.prototype['ast_Comment'] = function (txt, lineno) {
   var commentText = txt.slice(1);
   /*if (commentText.length && commentText[0] === " ") {
       commentText = commentText.substring(1);
   }*/
-
   return BlockMirrorTextToBlocks.create_block("ast_Comment", lineno, {
     "BODY": commentText
   });
 };
-
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Raw",
-  "message0": "Code Block: %1 %2",
-  "args0": [{
-    "type": "input_dummy"
-  }, {
-    "type": "field_multilinetext",
-    "name": "TEXT",
-    "value": ''
-  }],
-  "colour": BlockMirrorTextToBlocks.COLOR.PYTHON,
-  "previousStatement": null,
-  "nextStatement": null
-});
-
-Blockly.Python['ast_Raw'] = function (block) {
+{
+  var _multiline_input_type = "field_multilinetext";
+  if (!Blockly.registry.hasItem(Blockly.registry.Type.FIELD, _multiline_input_type)) {
+    if (typeof registerFieldMultilineInput === "function") {
+      // Register if the field-multilineinput plugin is available
+      registerFieldMultilineInput();
+    } else {
+      // Fallback in case plugin @blockly/field-multilineinput is not available
+      _multiline_input_type = "field_input";
+    }
+  }
+  BlockMirrorTextToBlocks.BLOCKS.push({
+    "type": "ast_Raw",
+    "message0": "Code Block: %1 %2",
+    "args0": [{
+      "type": "input_dummy"
+    }, {
+      "type": _multiline_input_type,
+      "name": "TEXT",
+      "value": ''
+    }],
+    "colour": BlockMirrorTextToBlocks.COLOR.PYTHON,
+    "previousStatement": null,
+    "nextStatement": null
+  });
+}
+python.pythonGenerator.forBlock['ast_Raw'] = function (block, generator) {
   var code = block.getFieldValue('TEXT') + "\n";
   return code;
 };

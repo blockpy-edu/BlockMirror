@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Update random settings for pycharm">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/BlockMirror.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BlockMirror.iml" afterDir="false" />
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Minor changes to try locally">
+      <change afterPath="$PROJECT_DIR$/test/simple_prod.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/skulpt_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/skulpt_parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,17 +30,17 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDOC3zjM86K_Hky",
-        "number": 60
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOC3zjM86K_Hky&quot;,
+        &quot;number&quot;: 60
       },
-      "lastSeen": 1743089414436
+      &quot;lastSeen&quot;: 1743089414436
     }
   ]
-}]]></component>
+}</component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -74,14 +70,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "git-widget-placeholder": "#60 on fork/blauwefant/master",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "npm.devbuild.executor": "Run",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PyCharm 2023.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;git-widget-placeholder&quot;: &quot;#60 on fork/blauwefant/master&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;npm.devbuild.executor&quot;: &quot;Run&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\PyCharm 2023.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\docs" />
@@ -380,7 +376,15 @@
       <option name="project" value="LOCAL" />
       <updated>1647296834752</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Minor changes to try locally">
+      <option name="closed" value="true" />
+      <created>1743092509337</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1743092509337</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -418,7 +422,8 @@
     <MESSAGE value="MIssing matplotlibg functions" />
     <MESSAGE value="Clean some code in unaryop" />
     <MESSAGE value="Update random settings for pycharm" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update random settings for pycharm" />
+    <MESSAGE value="Minor changes to try locally" />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to try locally" />
   </component>
   <component name="masterDetails">
     <states>
