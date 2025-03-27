@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Produce a simple prod version for evaluation purposes">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Restore existing multiline string behavior (bugs and all)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -392,7 +390,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743093215328</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Restore existing multiline string behavior (bugs and all)">
+      <option name="closed" value="true" />
+      <created>1743094883987</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1743094883987</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -432,7 +438,8 @@
     <MESSAGE value="Update random settings for pycharm" />
     <MESSAGE value="Minor changes to try locally" />
     <MESSAGE value="Produce a simple prod version for evaluation purposes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Produce a simple prod version for evaluation purposes" />
+    <MESSAGE value="Restore existing multiline string behavior (bugs and all)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Restore existing multiline string behavior (bugs and all)" />
   </component>
   <component name="masterDetails">
     <states>
