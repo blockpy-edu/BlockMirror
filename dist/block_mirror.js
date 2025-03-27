@@ -759,7 +759,7 @@ function BlockMirrorBlockEditor(blockMirror) {
   this.outOfDate_ = null;
 
   // Have to call BEFORE we inject, or Blockly will delete the css string!
-  this.loadBlocklyCSS();
+  // this.loadBlocklyCSS();
 
   // Inject Blockly
   var blocklyOptions = {
@@ -1022,7 +1022,9 @@ BlockMirrorBlockEditor.prototype.BLOCKLY_LOADED_CSS = null;
 BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function () {
   if (this.BLOCKLY_LOADED_CSS === null) {
     var result = [".blocklyDraggable {}"];
-    result = result.concat(Blockly.Css.CONTENT);
+    var blocklyCommonStyle = document.getElementById('blockly-common-style').getHTML();
+    var thrasosStyle = document.getElementById('blockly-renderer-style-Thrasos-classic').getHTML();
+    result = result.concat(blocklyCommonStyle, thrasosStyle);
     if (Blockly.FieldDate) {
       result = result.concat(Blockly.FieldDate.CSS);
     }
@@ -1064,7 +1066,9 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
       var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox();
       // Create the XML representation of the SVG
       var xml = new XMLSerializer().serializeToString(blocks);
-      xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' + bbox.width + '" height="' + bbox.height + '" viewBox="0 0 ' + bbox.width + " " + bbox.height + '"><rect width="100%" height="100%" fill="white"></rect>' + xml + "</svg>";
+      var classes = 'class="Thrasos-renderer classic-theme" ';
+      xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' + classes + ' width="' + bbox.width + '" height="' + bbox.height + '" viewBox="0 0 ' + bbox.width + " " + bbox.height + '"><rect width="100%" height="100%" fill="white"></rect>' + xml + "</svg>";
+      console.log(xml);
       // create a file blob of our SVG.
       // Unfortunately, this crashes modern chrome for unknown reasons.
       //var blob = new Blob([ this.DOCTYPE + xml], { type: 'image/svg+xml' });
@@ -3672,7 +3676,7 @@ var multiline_quote = function multiline_quote(string) {
 };
 python.pythonGenerator.forBlock['ast_StrMultiline'] = function (block, generator) {
   // Text value
-  var code = python.pythonGenerator.multiline_quote_(block.getFieldValue('TEXT'));
+  var code = multiline_quote(block.getFieldValue('TEXT'));
   return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 python.pythonGenerator.forBlock['ast_StrDocstring'] = function (block, generator) {
@@ -3684,7 +3688,7 @@ python.pythonGenerator.forBlock['ast_StrDocstring'] = function (block, generator
   if (code.charAt(code.length - 1) !== '\n') {
     code = code + '\n';
   }
-  return python.pythonGenerator.multiline_quote_(code) + "\n";
+  return multiline_quote(code) + "\n";
 };
 BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
   return text === "\n" || text === "\t";
@@ -3696,6 +3700,7 @@ BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
   return text.split("\n").length <= 2 && text.length <= 40;
 };
 BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
+  console.log(text, levels, isDocString);
   if (!isDocString && text.charAt(0) === "\n") {
     return text;
   }
@@ -3752,6 +3757,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
     });
   } else {
     var _dedented = this.dedent(text, this.levelIndex - 1, false);
+    console.log("DD", _dedented);
     return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {
       "TEXT": _dedented
     });
