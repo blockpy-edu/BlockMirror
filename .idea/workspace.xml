@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Minor changes to try locally">
-      <change afterPath="$PROJECT_DIR$/test/simple_prod.html" afterDir="false" />
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Produce a simple prod version for evaluation purposes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -384,7 +384,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743092509337</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Produce a simple prod version for evaluation purposes">
+      <option name="closed" value="true" />
+      <created>1743093215328</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1743093215328</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -423,7 +431,8 @@
     <MESSAGE value="Clean some code in unaryop" />
     <MESSAGE value="Update random settings for pycharm" />
     <MESSAGE value="Minor changes to try locally" />
-    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to try locally" />
+    <MESSAGE value="Produce a simple prod version for evaluation purposes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Produce a simple prod version for evaluation purposes" />
   </component>
   <component name="masterDetails">
     <states>

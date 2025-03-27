@@ -3665,6 +3665,11 @@ python.pythonGenerator.forBlock['ast_Image'] = function (block, generator) {
   var code = python.pythonGenerator.quote_(block.src_);
   return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
 };
+var multiline_quote = function multiline_quote(string) {
+  // Can't use goog.string.quote since % must also be escaped.
+  string = string.replace(/'''/g, '\\\'\\\'\\\'');
+  return '\'\'\'' + string + '\'\'\'';
+};
 python.pythonGenerator.forBlock['ast_StrMultiline'] = function (block, generator) {
   // Text value
   var code = python.pythonGenerator.multiline_quote_(block.getFieldValue('TEXT'));

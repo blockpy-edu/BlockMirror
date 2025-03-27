@@ -124,9 +124,15 @@ python.pythonGenerator.forBlock['ast_Image'] = function(block, generator) {
     return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
 };
 
+const multiline_quote = function (string) {
+    // Can't use goog.string.quote since % must also be escaped.
+  string = string.replace(/'''/g, '\\\'\\\'\\\'');
+  return '\'\'\'' + string + '\'\'\'';
+}
+
 python.pythonGenerator.forBlock['ast_StrMultiline'] = function(block, generator) {
     // Text value
-    let code = python.pythonGenerator.multiline_quote_(block.getFieldValue('TEXT'));
+    let code = multiline_quote(block.getFieldValue('TEXT'));
     return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
@@ -139,7 +145,7 @@ python.pythonGenerator.forBlock['ast_StrDocstring'] = function(block, generator)
     if (code.charAt(code.length-1) !== '\n') {
         code = code + '\n';
     }
-    return python.pythonGenerator.multiline_quote_(code)+"\n";
+    return multiline_quote(code)+"\n";
 };
 
 BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
@@ -158,6 +164,7 @@ BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
 };
 
 BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
+    console.log(text, levels, isDocString);
     if (!isDocString && text.charAt(0) === "\n") {
         return text;
     }
@@ -207,6 +214,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
         return BlockMirrorTextToBlocks.create_block("ast_Str", node.lineno, {"TEXT": text});
     } else {
         let dedented = this.dedent(text, this.levelIndex - 1, false);
+        console.log("DD", dedented);
         return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {"TEXT": dedented});
     }
 };
