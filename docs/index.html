@@ -8,11 +8,20 @@
             integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
             crossorigin="anonymous"></script>
 
-    <!-- Blockly -->
-    <script src="../lib/blockly/blockly_compressed.js" type="text/javascript"></script>
-    <script src="../lib/blockly/blocks_compressed.js" type="text/javascript"></script>
-    <script src="../lib/blockly/msg/js/en.js" type="text/javascript"></script>
-    <script src="../lib/blockly/python_compressed.js" type="text/javascript"></script>
+<!--    &lt;!&ndash; Blockly &ndash;&gt;-->
+<!--    <script src="../lib/blockly/blockly_compressed.js" type="text/javascript"></script>-->
+<!--    <script src="../lib/blockly/blocks_compressed.js" type="text/javascript"></script>-->
+<!--    <script src="../lib/blockly/msg/js/en.js" type="text/javascript"></script>-->
+<!--    <script src="../lib/blockly/python_compressed.js" type="text/javascript"></script>-->
+    <!-- Load Blockly core -->
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <!-- Load the default blocks -->
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <!-- Load a generator -->
+    <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+    <!-- Load a message file -->
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    <script src="https://unpkg.com/@blockly/field-multilineinput@5.0.13/dist/index.js"></script>
 
     <!-- CodeMirror -->
     <link rel="stylesheet" href="../lib/codemirror/codemirror.css">
