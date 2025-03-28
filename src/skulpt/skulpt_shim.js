@@ -48,6 +48,9 @@ Sk.builtin.int_.threshold$ = Infinity;
 Sk.builtin.str.prototype.sq$concat = function(other) {
     return new Sk.builtin.str(this.v + other.v);
 };
+Sk.builtin.str.prototype.$jsstr = function() {
+    return this.v;
+}
 Sk.__future__ = {
     print_function: true,
     division: true,
