@@ -29,6 +29,7 @@ const JS_SKULPT_FILES = [
 
 // Skulpt Parser
 const JS_SKULPT_PARSER_FILES = [
+    path.resolve(__dirname, 'src/skulpt/Unicode.js'),
     path.resolve(__dirname, 'src/skulpt/skulpt_shim.js'),
     path.resolve(__dirname, 'src/skulpt/astnodes.js'),
     path.resolve(__dirname, 'src/skulpt/token.js'),
@@ -69,6 +70,7 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/ast/ast_Set.js'),
     path.resolve(__dirname, 'src/ast/ast_Dict.js'),
     path.resolve(__dirname, 'src/ast/ast_Starred.js'),
+    path.resolve(__dirname, 'src/ast/ast_JoinedStr.js'),
     path.resolve(__dirname, 'src/ast/ast_IfExp.js'),
     path.resolve(__dirname, 'src/ast/ast_Attribute.js'),
     path.resolve(__dirname, 'src/ast/ast_Call.js'),
