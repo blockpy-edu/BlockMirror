@@ -75,6 +75,7 @@
     <script src="../src/ast/ast_Yield.js" type="text/javascript"></script>
     <script src="../src/ast/ast_YieldFrom.js" type="text/javascript"></script>
     <script src="../src/ast/ast_Global.js" type="text/javascript"></script>
+    <script src="../src/ast/ast_JoinedStr.js" type="text/javascript"></script>
     <!--<script src="../src/ast/ast_Nonlocal.js" type="text/javascript"></script>-->
     <script src="../src/ast/ast_Break.js" type="text/javascript"></script>
     <script src="../src/ast/ast_Continue.js" type="text/javascript"></script>
@@ -118,7 +119,7 @@
     editor.addChangeListener(function (event) {
         console.log('Change! Better save:', event)
     });
-    editor.setCode('class X:\n    """Hello world"""\ndef add(self, a, b):\n        a = 0\n        return a\n\nx = X()\nx.add(5,3)');
+    editor.setCode('x = f\'Hello {name} how are you {day!r}\'\nclass X:\n    """Hello world"""\ndef add(self, a, b):\n        a = 0\n        return a\n\nx = X()\nx.add(5,3)');
 
     Sk.configure({
         __future__: Sk.python3,
@@ -147,6 +148,7 @@
     });
 
     var TESTS = [
+        "x = f'Hello {name} how are you {day!r}'",
         "'''Hello there!\nHow are you?'''",
         /// "if True:\n    '''\n    This line is indented and also starts on the second line.\n    '''",
         "if True:\n    '''Hi there!\n    This should be indented.'''\n",

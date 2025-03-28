@@ -169,7 +169,7 @@ BlockMirrorBlockEditor.prototype.getToolbarWidth = function () {
     if (this.blockMirror.configuration.readOnly) {
         return 0;
     } else {
-        return this.workspace.toolbox_.width;
+        return this.workspace.toolbox.width_;
     }
 };
 

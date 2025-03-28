@@ -13,11 +13,14 @@ Sk.exportSymbol = (name, module) => {
 };
 Sk.configure = (options) => {};
 Sk.builtin = {
-    SyntaxError: function(message, filename, lineno, position) {
+    SyntaxError: function(message, filename, text, lineno, offset, end_lineno, end_offset) {
         this.message = message;
         this.filename = filename;
+        this.text = text;
         this.lineno = lineno;
-        this.position = position;
+        this.offset = offset;
+        this.end_lineno = end_lineno;
+        this.end_offset = end_offset;
     },
     str: function(x) {
         if (x instanceof Sk.builtin.str) {
@@ -26,6 +29,7 @@ Sk.builtin = {
         if (!(this instanceof Sk.builtin.str)) {
             return new Sk.builtin.str(x);
         }
+        // TODO: Should we handle more casting situations?
         this.v = x;
     },
     int_: function(n) {

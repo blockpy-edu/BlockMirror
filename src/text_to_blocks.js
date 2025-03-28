@@ -52,9 +52,11 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
         } catch (e) {
             //console.error(e);
             error = e;
-            if (e.position && e.position.length && e.position[0].lineno &&
-                e.position[0][0] < previousLine) {
-                previousLine = e.position[0][0] - 1;
+            // if (e.position && e.position.length && e.position[0].lineno &&
+            //     e.position[0][0] < previousLine) {
+            //     previousLine = e.position[0][0] - 1;
+            if (e.lineno && e.lineno < previousLine) {
+                previousLine = e.lineno - 1;
                 badChunks = badChunks.concat(this.source.slice(previousLine));
                 startLine += previousLine;
                 this.source = this.source.slice(0, previousLine);
