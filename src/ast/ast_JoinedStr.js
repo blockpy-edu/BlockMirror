@@ -6,8 +6,6 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ],
     "output": "FormattedValueStr",
     "inputsInline": false,
-    "previousStatement": null,
-    "nextStatement": null,
     "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
 });
 
@@ -346,17 +344,18 @@ BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
     let elements = {};
     values.forEach((v, i) => {
         if (v._astname === "FormattedValue") {
-            if (v.conversion == -1 && !v.format_spec) {
+            console.log(v);
+            if (!v.conversion && !v.format_spec) {
                 elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_FormattedValue", v.lineno, {}, {
                     "VALUE": this.convert(v.value, node)
                 },
                 this.LOCKED_BLOCK);
             } else {
-                const format_spec = v.format_spec ? v.format_spec.values[0].s : "";
+                const format_spec = v.format_spec ? chompExclamation(v.format_spec.values[0].s.v) : "";
                 // Can there ever be a non-1 length format_spec?
                 elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_FormattedValueFull", v.lineno, {
                     "FORMAT_SPEC": format_spec,
-                    "CONVERSION": formattedValueConversion(v.conversion)
+                    "CONVERSION": v.conversion
                 }, {
                     "VALUE": this.convert(v.value, node)
                 },
@@ -373,6 +372,11 @@ BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
     return BlockMirrorTextToBlocks.create_block("ast_JoinedStr", node.lineno, {}, elements, { inline: values.length > 3 ? "false" : "true"}, {
         "@items": values.length
     });
+}
+
+function chompExclamation(text) {
+    // Remove any text starting with an exclamation mark in the text
+    return text.replace(/!.*$/, "");
 }
 
 function formattedValueConversion(conversion) {

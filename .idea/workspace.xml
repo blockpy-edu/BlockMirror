@@ -4,22 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Produce new version">
-      <change afterPath="$PROJECT_DIR$/src/ast/ast_JoinedStr.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/skulpt/Unicode.js" afterDir="false" />
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Add in support for JoinedStr">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/skulpt_parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/skulpt_parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/ast.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/ast.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/parse_tables.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/parse_tables.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/parser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/parser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/skulpt_shim.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/skulpt_shim.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/token.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/skulpt/tokenize.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/skulpt/tokenize.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_to_blocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_to_blocks.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/simple_dev.html" beforeDir="false" afterPath="$PROJECT_DIR$/test/simple_dev.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_JoinedStr.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_JoinedStr.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -427,7 +415,23 @@
       <option name="project" value="LOCAL" />
       <updated>1743095649201</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Update skulpt parser">
+      <option name="closed" value="true" />
+      <created>1743184193292</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1743184193292</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Add in support for JoinedStr">
+      <option name="closed" value="true" />
+      <created>1743184207226</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1743184207226</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,8 +449,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Basics of packaging, bug fixes, better updating" />
-    <MESSAGE value="Image URL support in editor" />
     <MESSAGE value="Skulpt Barebones Parser files" />
     <MESSAGE value="Minimal skulpt support now directly provided in a smaller package. Minor cleanup of code." />
     <MESSAGE value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
@@ -470,7 +472,9 @@
     <MESSAGE value="Restore existing multiline string behavior (bugs and all)" />
     <MESSAGE value="Fix image renderer's CSS" />
     <MESSAGE value="Produce new version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Produce new version" />
+    <MESSAGE value="Update skulpt parser" />
+    <MESSAGE value="Add in support for JoinedStr" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add in support for JoinedStr" />
   </component>
   <component name="masterDetails">
     <states>

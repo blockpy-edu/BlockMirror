@@ -4803,20 +4803,18 @@ BlockMirrorTextToBlocks.prototype['ast_Starred'] = function (node, parent) {
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_FormattedValue",
-  "message0": "",
+  "message0": "%1",
   "args0": [{
     "type": "input_value",
     "name": "VALUE"
   }],
   "output": "FormattedValueStr",
   "inputsInline": false,
-  "previousStatement": null,
-  "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_JoinedStrStr",
-  "message0": "",
+  "message0": "%1",
   "args0": [{
     "type": "field_input",
     "name": "TEXT",
@@ -4824,8 +4822,6 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   }],
   "output": "FormattedValueStr",
   "inputsInline": false,
-  "previousStatement": null,
-  "nextStatement": null,
   "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
 BlockMirrorTextToBlocks.BLOCKS.push({
@@ -4849,7 +4845,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "name": "NAME"
   }],
   "output": "FormattedValueStr",
-  "colour": 225
+  "colour": BlockMirrorTextToBlocks.COLOR.TEXT
 });
 Blockly.Blocks["ast_JoinedStr"] = {
   /**
@@ -4861,7 +4857,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
     this.updateShape_();
     this.setInputsInline(true);
     this.setOutput(true, "String");
-    this.setMutator(new Blockly.icons.MutatorIcon(["ast_JoinedStr"], this));
+    this.setMutator(new Blockly.icons.MutatorIcon(["ast_JoinedStr_create_with_item_S", "ast_JoinedStr_create_with_item_FV", "ast_JoinedStr_create_with_item_FVF"], this));
   },
   /**
   * Create XML to represent dict inputs.
@@ -4893,7 +4889,11 @@ Blockly.Blocks["ast_JoinedStr"] = {
     containerBlock.initSvg();
     var connection = containerBlock.getInput("STACK").connection;
     for (var i = 0; i < this.itemCount_; i++) {
-      var itemBlock = workspace.newBlock("ast_JoinedStr_create_with_item");
+      var piece = this.getInput("ADD" + i).connection;
+      var pieceType = piece.targetConnection.getSourceBlock().type;
+      console.log(piece, pieceType);
+      var createName = pieceType === "ast_JoinedStrStr" ? "ast_JoinedStr_create_with_item_S" : pieceType === "ast_FormattedValueFull" ? "ast_JoinedStr_create_with_item_FVF" : "ast_JoinedStr_create_with_item_FV";
+      var itemBlock = workspace.newBlock(createName);
       itemBlock.initSvg();
       connection.connect(itemBlock.previousConnection);
       connection = itemBlock.nextConnection;
@@ -4976,7 +4976,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
       if (!this.getInput("ADD" + i)) {
         var input = this.appendValueInput("ADD" + i).setCheck("FormattedValueStr");
         if (i === 0) {
-          input.appendField("create string with").setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField("Join:").setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
@@ -5060,18 +5060,19 @@ python.pythonGenerator.forBlock["ast_JoinedStr"] = function (block, generator) {
       continue;
     }
     if (child.type === "ast_JoinedStrStr") {
-      var value = generator.valueToCode(child, "TEXT", generator.ORDER_NONE) || generator.blank;
+      var value = child.getFieldValue("TEXT") || generator.blank;
       elements[i] = value;
       indices.push(i);
       strings.push(value);
     } else if (child.type === "ast_FormattedValue") {
       var _value = generator.valueToCode(child, "VALUE", generator.ORDER_NONE) || generator.blank;
-      elements[i] = "f\"{".concat(_value, "}\"");
+      elements[i] = "{".concat(_value, "}");
     } else if (child.type === "ast_FormattedValueFull") {
       var _value2 = generator.valueToCode(child, "VALUE", generator.ORDER_NONE) || generator.blank;
       var formatSpec = child.getFieldValue("FORMAT_SPEC");
+      formatSpec = formatSpec ? ":".concat(formatSpec) : "";
       var conversion = child.getFieldValue("CONVERSION");
-      elements[i] = "f\"{".concat(_value2, ":").concat(formatSpec).concat(conversion === "-1" ? "" : "!".concat(conversion), "}\"");
+      elements[i] = "{".concat(_value2).concat(formatSpec).concat(conversion === "-1" ? "" : "!".concat(conversion), "}");
     }
   }
   var code;
@@ -5103,38 +5104,42 @@ python.pythonGenerator.forBlock["ast_JoinedStr"] = function (block, generator) {
 };
 BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
   var _this7 = this;
-  console.log(node);
   var values = node.values;
   var elements = {};
   values.forEach(function (v, i) {
     if (v._astname === "FormattedValue") {
-      if (v.conversion == -1 && !v.format_spec) {
+      console.log(v);
+      if (!v.conversion && !v.format_spec) {
         elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_FormattedValue", v.lineno, {}, {
           "VALUE": _this7.convert(v.value, node)
-        });
+        }, _this7.LOCKED_BLOCK);
       } else {
+        var format_spec = v.format_spec ? chompExclamation(v.format_spec.values[0].s.v) : "";
         // Can there ever be a non-1 length format_spec?
         elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_FormattedValueFull", v.lineno, {
-          "FORMAT_SPEC": v.format_spec.values[0].s,
-          "CONVERSION": formattedValueConversion(v.conversion)
+          "FORMAT_SPEC": format_spec,
+          "CONVERSION": v.conversion
         }, {
           "VALUE": _this7.convert(v.value, node)
-        });
+        }, _this7.LOCKED_BLOCK);
       }
     } else if (v._astname === "Str") {
       var text = Sk.ffi.remapToJs(v.s);
       elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_JoinedStrStr", v.lineno, {
         "TEXT": text
-      });
+      }, {}, _this7.LOCKED_BLOCK);
     }
   });
-  console.log(values, elements);
   return BlockMirrorTextToBlocks.create_block("ast_JoinedStr", node.lineno, {}, elements, {
     inline: values.length > 3 ? "false" : "true"
   }, {
     "@items": values.length
   });
 };
+function chompExclamation(text) {
+  // Remove any text starting with an exclamation mark in the text
+  return text.replace(/!.*$/, "");
+}
 function formattedValueConversion(conversion) {
   switch (conversion) {
     case -1:
