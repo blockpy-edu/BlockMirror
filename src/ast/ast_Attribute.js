@@ -23,21 +23,21 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.OO,
 });
 
-Blockly.Python['ast_Attribute'] = function (block) {
+python.pythonGenerator.forBlock['ast_Attribute'] = function(block, generator) {
     // Text value.
-    var value = Blockly.Python.variableDB_.getName(block.getFieldValue('VALUE'),
+    var value = python.pythonGenerator.getVariableName(block.getFieldValue('VALUE'),
         Blockly.Variables.NAME_TYPE);
     var attr = block.getFieldValue('ATTR');
     let code = value + "." + attr;
-    return [code, Blockly.Python.ORDER_MEMBER];
+    return [code, python.pythonGenerator.ORDER_MEMBER];
 };
 
-Blockly.Python['ast_AttributeFull'] = function (block) {
+python.pythonGenerator.forBlock['ast_AttributeFull'] = function(block, generator) {
     // Text value.
-    var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     var attr = block.getFieldValue('ATTR');
     let code = value + "." + attr;
-    return [code, Blockly.Python.ORDER_MEMBER];
+    return [code, python.pythonGenerator.ORDER_MEMBER];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {

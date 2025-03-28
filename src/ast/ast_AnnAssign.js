@@ -37,7 +37,7 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
         if (this.initialized_ && !this.getInput('VALUE')) {
             this.appendValueInput('VALUE')
                 .appendField('=')
-                .setAlign(Blockly.ALIGN_RIGHT);
+                .setAlign(Blockly.inputs.Align.RIGHT);
         }
         if (!this.initialized_ && this.getInput('VALUE')) {
             this.removeInput('VALUE');
@@ -101,7 +101,7 @@ Blockly.Blocks['ast_AnnAssign'] = {
         if (this.initialized_ && !this.getInput('VALUE')) {
             this.appendValueInput('VALUE')
                 .appendField('=')
-                .setAlign(Blockly.ALIGN_RIGHT);
+                .setAlign(Blockly.inputs.Align.RIGHT);
         }
         if (!this.initialized_ && this.getInput('VALUE')) {
             this.removeInput('VALUE');
@@ -109,32 +109,32 @@ Blockly.Blocks['ast_AnnAssign'] = {
     }
 };
 
-Blockly.Python['ast_AnnAssignFull'] = function (block) {
+python.pythonGenerator.forBlock['ast_AnnAssignFull'] = function(block, generator) {
     // Create a list with any number of elements of any type.
-    let target = Blockly.Python.valueToCode(block, 'TARGET',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    let annotation = Blockly.Python.valueToCode(block, 'ANNOTATION',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    let target = python.pythonGenerator.valueToCode(block, 'TARGET',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    let annotation = python.pythonGenerator.valueToCode(block, 'ANNOTATION',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     let value = "";
     if (this.initialized_) {
-        value = " = " + Blockly.Python.valueToCode(block, 'VALUE',
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE',
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     return target + ": " + annotation + value + "\n";
 };
 
-Blockly.Python['ast_AnnAssign'] = function (block) {
+python.pythonGenerator.forBlock['ast_AnnAssign'] = function(block, generator) {
     // Create a list with any number of elements of any type.
-    var target = Blockly.Python.variableDB_.getName(block.getFieldValue('TARGET'),
+    var target = python.pythonGenerator.getVariableName(block.getFieldValue('TARGET'),
         Blockly.Variables.NAME_TYPE);
     let annotation = block.getFieldValue('ANNOTATION');
     if (block.strAnnotations_) {
-        annotation = Blockly.Python.quote_(annotation);
+        annotation = python.pythonGenerator.quote_(annotation);
     }
     let value = "";
     if (this.initialized_) {
-        value = " = " + Blockly.Python.valueToCode(block, 'VALUE',
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE',
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     return target + ": " + annotation + value + "\n";
 };
@@ -177,7 +177,7 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
 
     let builtinAnnotation = this.getBuiltinAnnotation(annotation);
 
-    if (target._astname === 'Name' && target.id.v !== Blockly.Python.blank && builtinAnnotation !== false) {
+    if (target._astname === 'Name' && target.id.v !== python.pythonGenerator.blank && builtinAnnotation !== false) {
         mutations['@str'] = annotation._astname === 'Str'
         return BlockMirrorTextToBlocks.create_block("ast_AnnAssign", node.lineno, {
                 'TARGET': target.id.v,

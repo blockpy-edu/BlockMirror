@@ -30,17 +30,21 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 })
 
-Blockly.Python['ast_For'] = function(block) {
+python.pythonGenerator.forBlock['ast_For'] = function(block, generator) {
   // For each loop.
-  var argument0 = Blockly.Python.valueToCode(block, 'TARGET',
-      Blockly.Python.ORDER_RELATIONAL) || Blockly.Python.blank;
-  var argument1 = Blockly.Python.valueToCode(block, 'ITER',
-      Blockly.Python.ORDER_RELATIONAL) || Blockly.Python.blank;
-  var branchBody = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
-  var branchElse = Blockly.Python.statementToCode(block, 'ELSE');
+  var argument0 = python.pythonGenerator.valueToCode(block, 'TARGET',
+      python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'ITER',
+      python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+  var branchBody = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   var code = 'for ' + argument0 + ' in ' + argument1 + ':\n' + branchBody;
-  if (branchElse) {
-      code += 'else:\n' + branchElse;
+
+  if (block.getInputTargetBlock('ELSE')) {
+      var branchElse = python.pythonGenerator.statementToCode(block, 'ELSE');
+
+      if (branchElse) {
+        code += 'else:\n' + branchElse;
+      }
   }
   return code;
 };
@@ -66,5 +70,5 @@ BlockMirrorTextToBlocks.prototype['ast_For'] = function (node, parent) {
     }, {}, {}, bodies);
 }
 
-Blockly.Python['ast_ForElse'] = Blockly.Python['ast_For'];
+python.pythonGenerator.forBlock['ast_ForElse'] = python.pythonGenerator.forBlock['ast_For']
 BlockMirrorTextToBlocks.prototype['ast_ForElse'] = BlockMirrorTextToBlocks.prototype['ast_For'];

@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Update random settings for pycharm">
+    <list default="true" id="fe00182d-05fa-4529-8d2b-92bd952d65d2" name="Default Changelist" comment="Add in support for JoinedStr">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/codemirror/python.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/codemirror/python.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ast/ast_Str.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_Str.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/block_mirror.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/block_mirror.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/text_editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/text_editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/toolbars.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/toolbars.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ast/ast_JoinedStr.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/ast/ast_JoinedStr.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,8 +22,24 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOC3zjM86K_Hky&quot;,
+        &quot;number&quot;: 60
+      },
+      &quot;lastSeen&quot;: 1743089414436
+    }
+  ]
+}</component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -35,12 +47,6 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
-  </component>
-  <component name="JsFlowSettings">
-    <service-enabled>true</service-enabled>
-    <exe-path />
-    <other-services-enabled>true</other-services-enabled>
-    <auto-save>true</auto-save>
   </component>
   <component name="JsbtTreeLayoutManager">
     <layout place="tools.popupnpm">
@@ -63,27 +69,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="full.screen.before.presentation.mode" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="10.16.0" />
-    <property name="javascript.nodejs.core.library.typings.version" value="10.17.28" />
-    <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../pedal-edu/pedal" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
-    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\WebStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/test/minimal_skulpt.html" />
-  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;git-widget-placeholder&quot;: &quot;#60 on fork/blauwefant/master&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;npm.devbuild.executor&quot;: &quot;Run&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\PyCharm 2023.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
+  }
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\acbart\Projects\blockpy-edu\BlockMirror\docs" />
@@ -382,7 +375,63 @@
       <option name="project" value="LOCAL" />
       <updated>1647296834752</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Minor changes to try locally">
+      <option name="closed" value="true" />
+      <created>1743092509337</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1743092509337</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Produce a simple prod version for evaluation purposes">
+      <option name="closed" value="true" />
+      <created>1743093215328</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1743093215328</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Restore existing multiline string behavior (bugs and all)">
+      <option name="closed" value="true" />
+      <created>1743094883987</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1743094883987</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Fix image renderer's CSS">
+      <option name="closed" value="true" />
+      <created>1743095638924</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1743095638924</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Produce new version">
+      <option name="closed" value="true" />
+      <created>1743095649201</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1743095649201</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Update skulpt parser">
+      <option name="closed" value="true" />
+      <created>1743184193292</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1743184193292</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Add in support for JoinedStr">
+      <option name="closed" value="true" />
+      <created>1743184207226</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1743184207226</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -400,8 +449,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Basics of packaging, bug fixes, better updating" />
-    <MESSAGE value="Image URL support in editor" />
     <MESSAGE value="Skulpt Barebones Parser files" />
     <MESSAGE value="Minimal skulpt support now directly provided in a smaller package. Minor cleanup of code." />
     <MESSAGE value="Fixed newline support in string literals; minor cleanups to match linter. Experimented with non-editable variable list." />
@@ -420,7 +467,14 @@
     <MESSAGE value="MIssing matplotlibg functions" />
     <MESSAGE value="Clean some code in unaryop" />
     <MESSAGE value="Update random settings for pycharm" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update random settings for pycharm" />
+    <MESSAGE value="Minor changes to try locally" />
+    <MESSAGE value="Produce a simple prod version for evaluation purposes" />
+    <MESSAGE value="Restore existing multiline string behavior (bugs and all)" />
+    <MESSAGE value="Fix image renderer's CSS" />
+    <MESSAGE value="Produce new version" />
+    <MESSAGE value="Update skulpt parser" />
+    <MESSAGE value="Add in support for JoinedStr" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add in support for JoinedStr" />
   </component>
   <component name="masterDetails">
     <states>

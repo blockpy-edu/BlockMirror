@@ -15,7 +15,7 @@ function BlockMirrorBlockEditor(blockMirror) {
     this.outOfDate_ = null;
 
     // Have to call BEFORE we inject, or Blockly will delete the css string!
-    this.loadBlocklyCSS();
+    // this.loadBlocklyCSS();
 
     // Inject Blockly
     let blocklyOptions = {
@@ -27,7 +27,8 @@ function BlockMirrorBlockEditor(blockMirror) {
         oneBasedIndex: false,
         readOnly: blockMirror.configuration.readOnly,
         scrollbars: true,
-        toolbox: this.makeToolbox()
+        toolbox: this.makeToolbox(),
+        renderer: blockMirror.configuration.renderer
     };
     this.workspace = Blockly.inject(blockMirror.tags.blockEditor,
         blocklyOptions);
@@ -168,7 +169,7 @@ BlockMirrorBlockEditor.prototype.getToolbarWidth = function () {
     if (this.blockMirror.configuration.readOnly) {
         return 0;
     } else {
-        return this.workspace.toolbox_.width;
+        return this.workspace.toolbox.width_;
     }
 };
 
@@ -234,7 +235,7 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
  * percolating.
  */
 BlockMirrorBlockEditor.prototype.getCode = function () {
-    return Blockly.Python.workspaceToCode(this.workspace);
+    return python.pythonGenerator.workspaceToCode(this.workspace);
 };
 
 /**
@@ -249,14 +250,15 @@ BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
             Blockly.Events.disable();
         }
         try {
-            let xml_code = Blockly.Xml.textToDom(result.xml);
-            this.workspace.clear();
-            Blockly.Xml.domToWorkspace(xml_code, this.workspace);
-            if (this.blockMirror.isParsons()) {
-                this.workspace.shuffle();
-            } else {
-                this.workspace.cleanUp();
+            let xml_code = Blockly.utils.xml.textToDom(result.xml);
+
+            // Convert line numbers to y coordinates, to ensure proper ordering
+            for (let i = 0, xmlChild; (xmlChild = xml_code.childNodes[i]); i++) {
+                xmlChild.setAttribute('y', (xmlChild.getAttribute('line_number') ?? 1) * 100);
             }
+
+            Blockly.Xml.clearWorkspaceAndLoadFromXml(xml_code, this.workspace);
+            this.workspace.cleanUp();
         } catch (error) {
             console.error(error);
         }
@@ -294,7 +296,9 @@ BlockMirrorBlockEditor.prototype.BLOCKLY_LOADED_CSS = null;
 BlockMirrorBlockEditor.prototype.loadBlocklyCSS = function() {
     if (this.BLOCKLY_LOADED_CSS === null) {
         let result = [".blocklyDraggable {}"];
-        result = result.concat(Blockly.Css.CONTENT);
+        const blocklyCommonStyle = document.getElementById('blockly-common-style').getHTML();
+        const thrasosStyle = document.getElementById('blockly-renderer-style-Thrasos-classic').getHTML();
+        result = result.concat(blocklyCommonStyle, thrasosStyle);
         if (Blockly.FieldDate) {
             result = result.concat(Blockly.FieldDate.CSS);
         }
@@ -336,7 +340,9 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function(callback) {
             var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox();
             // Create the XML representation of the SVG
             var xml = new XMLSerializer().serializeToString(blocks);
-            xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+bbox.width+'" height="'+bbox.height+'" viewBox="0 0 '+bbox.width+" "+bbox.height+'"><rect width="100%" height="100%" fill="white"></rect>'+xml+"</svg>";
+            const classes = 'class="Thrasos-renderer classic-theme" ';
+            xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '+classes+' width="'+bbox.width+'" height="'+bbox.height+'" viewBox="0 0 '+bbox.width+" "+bbox.height+'"><rect width="100%" height="100%" fill="white"></rect>'+xml+"</svg>";
+            console.log(xml);
             // create a file blob of our SVG.
             // Unfortunately, this crashes modern chrome for unknown reasons.
             //var blob = new Blob([ this.DOCTYPE + xml], { type: 'image/svg+xml' });

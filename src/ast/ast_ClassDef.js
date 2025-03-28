@@ -19,7 +19,7 @@ Blockly.Blocks['ast_ClassDef'] = {
         for (let i = 0; i < this.decorators_; i++) {
             let input = this.appendValueInput("DECORATOR" + i)
                 .setCheck(null)
-                .setAlign(Blockly.ALIGN_RIGHT);
+                .setAlign(Blockly.inputs.Align.RIGHT);
             if (i === 0) {
                 input.appendField("decorated by");
             }
@@ -28,7 +28,7 @@ Blockly.Blocks['ast_ClassDef'] = {
         for (let i = 0; i < this.bases_; i++) {
             let input = this.appendValueInput("BASE" + i)
                 .setCheck(null)
-                .setAlign(Blockly.ALIGN_RIGHT);
+                .setAlign(Blockly.inputs.Align.RIGHT);
             if (i === 0) {
                 input.appendField("inherits from");
             }
@@ -38,7 +38,7 @@ Blockly.Blocks['ast_ClassDef'] = {
         for (let i = 0; i < this.keywords_; i++) {
             this.appendValueInput("KEYWORDVALUE" + i)
                 .setCheck(null)
-                .setAlign(Blockly.ALIGN_RIGHT)
+                .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField(new Blockly.FieldTextInput("metaclass"), "KEYWORDNAME" + i)
                 .appendField("=");
             this.moveInputBefore('KEYWORDVALUE' + i, 'BODY');
@@ -69,28 +69,28 @@ Blockly.Blocks['ast_ClassDef'] = {
     },
 };
 
-Blockly.Python['ast_ClassDef'] = function (block) {
+python.pythonGenerator.forBlock['ast_ClassDef'] = function(block, generator) {
     // Name
-    let name = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
+    let name = python.pythonGenerator.getVariableName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
     // Decorators
     let decorators = new Array(block.decorators_);
     for (let i = 0; i < block.decorators_; i++) {
-        let decorator = (Blockly.Python.valueToCode(block, 'DECORATOR' + i, Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank);
+        let decorator = (python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank);
         decorators[i] = "@" + decorator + "\n";
     }
     // Bases
     let bases = new Array(block.bases_);
     for (let i = 0; i < block.bases_; i++) {
-        bases[i] = (Blockly.Python.valueToCode(block, 'BASE' + i, Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank);
+        bases[i] = (python.pythonGenerator.valueToCode(block, 'BASE' + i, python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank);
     }
     // Keywords
     let keywords = new Array(block.keywords_);
     for (let i = 0; i < block.keywords_; i++) {
         let name = block.getFieldValue('KEYWORDNAME' + i);
-        let value = (Blockly.Python.valueToCode(block, 'KEYWORDVALUE' + i, Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank);
+        let value = (python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + i, python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank);
         if (name == '**') {
             keywords[i] = '**' + value;
         } else {
@@ -98,7 +98,7 @@ Blockly.Python['ast_ClassDef'] = function (block) {
         }
     }
     // Body:
-    let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Put it together
     let args = (bases.concat(keywords));
     args = (args.length === 0) ? "" : "(" + args.join(', ') + ")";

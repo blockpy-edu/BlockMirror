@@ -5,10 +5,11 @@ const babel = require("@babel/core");
 
 // Blockly
 const JS_BLOCKLY_FILES = [
-    path.resolve(__dirname, '../blockly/blockly_compressed.js'),
-    path.resolve(__dirname, '../blockly/blocks_compressed.js'),
-    path.resolve(__dirname, '../blockly/msg/js/en.js'),
-    path.resolve(__dirname, '../blockly/python_compressed.js')
+    path.resolve(__dirname, 'node_modules/blockly/blockly_compressed.js'),
+    path.resolve(__dirname, 'node_modules/blockly/blocks_compressed.js'),
+    path.resolve(__dirname, 'node_modules/blockly/msg/js/en.js'),
+    path.resolve(__dirname, 'node_modules/blockly/python_compressed.js'),
+    path.resolve(__dirname, 'node_modules/@blockly/field-multilineinput/dist/index.js')
 ];
 
 // CodeMirror
@@ -28,6 +29,7 @@ const JS_SKULPT_FILES = [
 
 // Skulpt Parser
 const JS_SKULPT_PARSER_FILES = [
+    path.resolve(__dirname, 'src/skulpt/Unicode.js'),
     path.resolve(__dirname, 'src/skulpt/skulpt_shim.js'),
     path.resolve(__dirname, 'src/skulpt/astnodes.js'),
     path.resolve(__dirname, 'src/skulpt/token.js'),
@@ -68,6 +70,7 @@ const JS_BLOCKMIRROR_FILES = [
     path.resolve(__dirname, 'src/ast/ast_Set.js'),
     path.resolve(__dirname, 'src/ast/ast_Dict.js'),
     path.resolve(__dirname, 'src/ast/ast_Starred.js'),
+    path.resolve(__dirname, 'src/ast/ast_JoinedStr.js'),
     path.resolve(__dirname, 'src/ast/ast_IfExp.js'),
     path.resolve(__dirname, 'src/ast/ast_Attribute.js'),
     path.resolve(__dirname, 'src/ast/ast_Call.js'),
@@ -106,7 +109,7 @@ const config = {
     ],
     output: {
         path: __dirname + '/dist',
-        filename: 'block_mirror.js',
+        filename: 'block_mirror_unbundled.js',
         library: 'BlockMirror'
     },
     module: {

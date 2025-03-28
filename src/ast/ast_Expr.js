@@ -10,9 +10,9 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.PYTHON,
 });
 
-Blockly.Python['ast_Expr'] = function (block) {
+python.pythonGenerator.forBlock['ast_Expr'] = function(block, generator) {
     // Numeric value.
-    var value = Blockly.Python.valueToCode(block, 'VALUE', Blockly.Python.ORDER_ATOMIC) || Blockly.Python.blank;
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
     // TODO: Assemble JavaScript into code variable.
     return value+"\n";
 };

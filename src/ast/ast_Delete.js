@@ -16,7 +16,7 @@ Blockly.Blocks['ast_Delete'] = {
             if (!this.getInput('TARGET' + i)) {
                 var input = this.appendValueInput('TARGET' + i);
                 if (i !== 0) {
-                    input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
                 }
             }
         }
@@ -47,12 +47,12 @@ Blockly.Blocks['ast_Delete'] = {
     },
 };
 
-Blockly.Python['ast_Delete'] = function (block) {
+python.pythonGenerator.forBlock['ast_Delete'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     var elements = new Array(block.targetCount_);
     for (var i = 0; i < block.targetCount_; i++) {
-        elements[i] = Blockly.Python.valueToCode(block, 'TARGET' + i,
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        elements[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i,
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
     var code = 'del ' + elements.join(', ') + "\n";
     return code;

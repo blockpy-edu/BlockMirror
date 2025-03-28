@@ -8,7 +8,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.PYTHON,
 });
 
-Blockly.Python['ast_Comment'] = function(block) {
+python.pythonGenerator.forBlock['ast_Comment'] = function(block) {
     var text_body = block.getFieldValue('BODY');
     return '#'+text_body+'\n';
 };

@@ -1,25 +1,25 @@
 BlockMirrorTextToBlocks.BINOPS = [
-    ["+", "Add", Blockly.Python.ORDER_ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'],
-    ["-", "Sub", Blockly.Python.ORDER_ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'],
-    ["*", "Mult", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'],
-    ["/", "Div", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'],
-    ["%", "Mod", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.',
+    ["+", "Add", python.pythonGenerator.ORDER_ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'],
+    ["-", "Sub", python.pythonGenerator.ORDER_ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'],
+    ["*", "Mult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'],
+    ["/", "Div", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'],
+    ["%", "Mod", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.',
     'modulo', 'by'],
-    ["**", "Pow", Blockly.Python.ORDER_EXPONENTIATION, 'Return the first number raised to the power of the second number.',
+    ["**", "Pow", python.pythonGenerator.ORDER_EXPONENTIATION, 'Return the first number raised to the power of the second number.',
     'raise', 'to'],
-    ["//", "FloorDiv", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.',
+    ["//", "FloorDiv", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.',
     'floor divide', 'by'],
-    ["<<", "LShift", Blockly.Python.ORDER_BITWISE_SHIFT, 'Return the left number left shifted by the right number.',
+    ["<<", "LShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number left shifted by the right number.',
     'left shift', 'by'],
-    [">>", "RShift", Blockly.Python.ORDER_BITWISE_SHIFT, 'Return the left number right shifted by the right number.',
+    [">>", "RShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number right shifted by the right number.',
     'right shift', 'by'],
-    ["|", "BitOr", Blockly.Python.ORDER_BITWISE_OR, 'Returns the bitwise OR of the two values.',
+    ["|", "BitOr", python.pythonGenerator.ORDER_BITWISE_OR, 'Returns the bitwise OR of the two values.',
     'bitwise OR', 'using'],
-    ["^", "BitXor", Blockly.Python.ORDER_BITWISE_XOR, 'Returns the bitwise XOR of the two values.',
+    ["^", "BitXor", python.pythonGenerator.ORDER_BITWISE_XOR, 'Returns the bitwise XOR of the two values.',
     'bitwise XOR', 'using'],
-    ["&", "BitAnd", Blockly.Python.ORDER_BITWISE_AND, 'Returns the bitwise AND of the two values.',
+    ["&", "BitAnd", python.pythonGenerator.ORDER_BITWISE_AND, 'Returns the bitwise AND of the two values.',
     'bitwise AND', 'using'],
-    ["@", "MatMult", Blockly.Python.ORDER_MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.',
+    ["@", "MatMult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.',
     'matrix multiply', 'by']
 ];
 var BINOPS_SIMPLE = ['Add', 'Sub', 'Mult', 'Div', 'Mod', 'Pow'];
@@ -72,13 +72,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     //"extensions": ["math_op_tooltip"]
 });
 
-Blockly.Python['ast_BinOp'] = function (block) {
+python.pythonGenerator.forBlock['ast_BinOp'] = function(block, generator) {
     // Basic arithmetic operators, and power.
     var tuple = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP')];
     var operator = tuple[0]+" ";
     var order = tuple[1];
-    var argument0 = Blockly.Python.valueToCode(block, 'A', order) || Blockly.Python.blank;
-    var argument1 = Blockly.Python.valueToCode(block, 'B', order) || Blockly.Python.blank;
+    var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
+    var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
     var code = argument0 + operator + argument1;
     return [code, order];
 };
@@ -100,5 +100,5 @@ BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node, parent) {
     });
 }
 
-Blockly.Python['ast_BinOpFull'] = Blockly.Python['ast_BinOp'];
+python.pythonGenerator.forBlock['ast_BinOpFull'] = python.pythonGenerator.forBlock['ast_BinOp'];
 BlockMirrorTextToBlocks.prototype['ast_BinOpFull'] = BlockMirrorTextToBlocks.prototype['ast_BinOp'];

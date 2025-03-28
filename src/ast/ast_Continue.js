@@ -7,7 +7,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 });
 
-Blockly.Python['ast_Continue'] = function (block) {
+python.pythonGenerator.forBlock['ast_Continue'] = function(block, generator) {
     return "continue\n";
 };
 

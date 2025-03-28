@@ -7,7 +7,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
 });
 
-Blockly.Python['ast_Break'] = function (block) {
+python.pythonGenerator.forBlock['ast_Break'] = function(block, generator) {
     return "break\n";
 };
 

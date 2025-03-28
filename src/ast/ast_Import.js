@@ -19,7 +19,7 @@ Blockly.Blocks['ast_Import'] = {
         // Possible FROM part
         if (this.from_ && !this.getInput('FROM')) {
             this.appendDummyInput('FROM')
-                .setAlign(Blockly.ALIGN_RIGHT)
+                .setAlign(Blockly.inputs.Align.RIGHT)
                 .appendField('from')
                 .appendField(new Blockly.FieldTextInput("module"), "MODULE");
         } else if (!this.from_ && this.getInput('FROM')) {
@@ -30,7 +30,7 @@ Blockly.Blocks['ast_Import'] = {
             let input = this.getInput('CLAUSE' + i);
             if (!input) {
                 input = this.appendDummyInput('CLAUSE' + i)
-                    .setAlign(Blockly.ALIGN_RIGHT);
+                    .setAlign(Blockly.inputs.Align.RIGHT);
                 if (i === 0) {
                     input.appendField("import");
                 }
@@ -91,13 +91,13 @@ Blockly.Blocks['ast_Import'] = {
     },
 };
 
-Blockly.Python['ast_Import'] = function (block) {
+python.pythonGenerator.forBlock['ast_Import'] = function(block, generator) {
     // Optional from part
     let from = "";
     if (this.from_) {
         let moduleName = block.getFieldValue('MODULE');
         from = "from "+moduleName + " ";
-        Blockly.Python.imported_["import_" + moduleName] = moduleName;
+        python.pythonGenerator.imported_["import_" + moduleName] = moduleName;
     }
     // Create a list with any number of elements of any type.
     let elements = new Array(block.nameCount_);
@@ -105,11 +105,11 @@ Blockly.Python['ast_Import'] = function (block) {
         let name = block.getFieldValue('NAME' + i);
         elements[i] = name;
         if (!this.regulars_[i]) {
-            name = Blockly.Python.variableDB_.getName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
+            name = python.pythonGenerator.getVariableName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
             elements[i] += " as " + name;
         }
         if (!from) {
-            Blockly.Python.imported_["import_" + name] = name;
+            python.pythonGenerator.imported_["import_" + name] = name;
         }
     }
     return from + 'import ' + elements.join(', ') + "\n";

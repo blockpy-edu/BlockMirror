@@ -183,10 +183,10 @@ BlockMirrorTextEditor.prototype.updateImages = function(cm, from, to) {
 };
 
 //'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
-const FULL_IMAGE_URL = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg|mp4)+$/;
+const FULL_IMAGE_URL = /^(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)$/;
 //const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
 //const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
-const STRING_IMAGE_URL = /((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.?[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}))\2)/g;
+const STRING_IMAGE_URL = /((["'])(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)|(?:blob:null\/[A-Fa-f0-9-]+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2})\2)/g;
 //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
 const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
 BlockMirrorTextEditor.REGEX_PATTERNS = {
@@ -341,18 +341,22 @@ BlockMirrorTextEditor.prototype.setHighlightedLines = function (lines, style) {
     this.highlightedHandles = this.highlightedHandles.concat(handles);
 };
 
-BlockMirrorTextEditor.prototype.clearHighlightedLines = function () {
+BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
     if (this.highlightedHandles) {
+        const kept = [];
         let removed = this.highlightedHandles.map((h) => {
-            this.codeMirror.doc.removeLineClass(h.handle, "background", h.style);
+            this.codeMirror.doc.removeLineClass(h.handle, "background", style || h.style);
             var info = this.codeMirror.doc.lineInfo(h.handle);
             if (info) {
+                if (info.style) {
+                    kept.push(h);
+                }
                 return info.line + 1;
             } else {
                 return info;
             }
         });
-        this.highlightedHandles = [];
+        this.highlightedHandles = kept;
         return removed;
     }
 };

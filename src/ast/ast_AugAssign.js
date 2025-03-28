@@ -15,7 +15,7 @@ Blockly.Blocks['ast_AugAssign'] = {
             }), "OP_NAME")
             .appendField(" ");
         this.appendDummyInput('PREPOSITION_ANCHOR')
-            .setAlign(Blockly.ALIGN_RIGHT)
+            .setAlign(Blockly.inputs.Align.RIGHT)
             .appendField("by", 'PREPOSITION');
         this.appendValueInput('VALUE');
         this.setInputsInline(true);
@@ -78,21 +78,21 @@ Blockly.Blocks['ast_AugAssign'] = {
     }
 };
 
-Blockly.Python['ast_AugAssign'] = function (block) {
+python.pythonGenerator.forBlock['ast_AugAssign'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     let target;
     if (block.simpleTarget_) {
-        target = Blockly.Python.variableDB_.getName(block.getFieldValue('VAR'),
+        target = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'),
             Blockly.Variables.NAME_TYPE);
     } else {
-        target = Blockly.Python.valueToCode(block, 'TARGET',
-            Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+        target = python.pythonGenerator.valueToCode(block, 'TARGET',
+            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     }
 
     let operator = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP_NAME')][0];
 
-    let value = Blockly.Python.valueToCode(block, 'VALUE',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+    let value = python.pythonGenerator.valueToCode(block, 'VALUE',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
     return target + operator + "= " + value + "\n";
 };
 

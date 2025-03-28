@@ -7,10 +7,10 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
     "inputsInline": false,
 });
-Blockly.Python["ast_WithItem"] = function (block) {
-    let context = Blockly.Python.valueToCode(block, 'CONTEXT',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    return [context, Blockly.Python.ORDER_NONE];
+python.pythonGenerator.forBlock["ast_WithItem"] = function (block) {
+    let context = python.pythonGenerator.valueToCode(block, 'CONTEXT',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    return [context, python.pythonGenerator.ORDER_NONE];
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_WithItemAs",
@@ -22,12 +22,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.CONTROL,
     "inputsInline": true,
 });
-Blockly.Python["ast_WithItemAs"] = function (block) {
-    let context = Blockly.Python.valueToCode(block, 'CONTEXT',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    let as = Blockly.Python.valueToCode(block, 'AS',
-        Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
-    return [context + " as " + as, Blockly.Python.ORDER_NONE];
+python.pythonGenerator.forBlock["ast_WithItemAs"] = function (block) {
+    let context = python.pythonGenerator.valueToCode(block, 'CONTEXT',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    let as = python.pythonGenerator.valueToCode(block, 'AS',
+        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    return [context + " as " + as, python.pythonGenerator.ORDER_NONE];
 };
 
 Blockly.Blocks['ast_With'] = {
@@ -94,15 +94,15 @@ Blockly.Blocks['ast_With'] = {
     },
 };
 
-Blockly.Python['ast_With'] = function (block) {
+python.pythonGenerator.forBlock['ast_With'] = function(block, generator) {
     // Contexts
     let items = new Array(block.itemCount_);
     for (let i = 0; i < block.itemCount_; i++) {
-        items[i] = (Blockly.Python.valueToCode(block, 'ITEM' + i, Blockly.Python.ORDER_NONE) ||
-            Blockly.Python.blank);
+        items[i] = (python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.pythonGenerator.ORDER_NONE) ||
+            python.pythonGenerator.blank);
     }
     // Body
-    let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     return "with " + items.join(', ') + ":\n" + body;
 };
 

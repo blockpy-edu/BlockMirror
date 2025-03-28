@@ -22,29 +22,43 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "extensions": ["text_quotes"]
 });
 
-BlockMirrorTextToBlocks.BLOCKS.push({
-    "type": "ast_StrMultiline",
-    "message0": "%1",
-    "args0": [
-        {"type": "field_multilinetext", "name": "TEXT", "value": ''}
-    ],
-    "output": "String",
-    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
-    "extensions": ["text_quotes"]
-});
 
-BlockMirrorTextToBlocks.BLOCKS.push({
-    "type": "ast_StrDocstring",
-    "message0": "Docstring: %1 %2",
-    "args0": [
-        {"type": "input_dummy"},
-        {"type": "field_multilinetext", "name": "TEXT", "value": ''}
-    ],
-    "previousStatement": null,
-    "nextStatement": null,
-    "colour": BlockMirrorTextToBlocks.COLOR.TEXT
-});
+{
+    let multiline_input_type = "field_multilinetext";
 
+    if (!Blockly.registry.hasItem(Blockly.registry.Type.FIELD, multiline_input_type)) {
+        if (typeof registerFieldMultilineInput === "function") {
+            // Register if the field-multilineinput plugin is available
+            registerFieldMultilineInput()
+        } else {
+            // Fallback in case plugin @blockly/field-multilineinput is not available
+            multiline_input_type = "field_input";
+        }
+    }
+
+    BlockMirrorTextToBlocks.BLOCKS.push({
+        "type": "ast_StrMultiline",
+        "message0": "%1",
+        "args0": [
+            {"type": multiline_input_type, "name": "TEXT", "value": ''}
+        ],
+        "output": "String",
+        "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
+        "extensions": ["text_quotes"]
+    });
+
+    BlockMirrorTextToBlocks.BLOCKS.push({
+        "type": "ast_StrDocstring",
+        "message0": "Docstring: %1 %2",
+        "args0": [
+            {"type": "input_dummy"},
+            {"type": multiline_input_type, "name": "TEXT", "value": ''}
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": BlockMirrorTextToBlocks.COLOR.TEXT
+    });
+}
 
 Blockly.Blocks['ast_Image'] = {
     init: function () {
@@ -87,36 +101,42 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     //"extensions": ["text_quotes"]
 });*/
 
-Blockly.Python['ast_Str'] = function (block) {
+python.pythonGenerator.forBlock['ast_Str'] = function(block, generator) {
     // Text value
-    let code = Blockly.Python.quote_(block.getFieldValue('TEXT'));
+    let code = python.pythonGenerator.quote_(block.getFieldValue('TEXT'));
     code = code.replace("\n", "n");
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
-Blockly.Python['ast_StrChar'] = function (block) {
+python.pythonGenerator.forBlock['ast_StrChar'] = function(block, generator) {
     // Text value
     let value = block.getFieldValue('TEXT');
     switch (value) {
-        case "\n": return ["'\\n'", Blockly.Python.ORDER_ATOMIC];
-        case "\t": return ["'\\t'", Blockly.Python.ORDER_ATOMIC];
+        case "\n": return ["'\\n'", python.pythonGenerator.ORDER_ATOMIC];
+        case "\t": return ["'\\t'", python.pythonGenerator.ORDER_ATOMIC];
     }
 };
 
-Blockly.Python['ast_Image'] = function (block) {
+python.pythonGenerator.forBlock['ast_Image'] = function(block, generator) {
     // Text value
-    //Blockly.Python.definitions_["import_image"] = "from image import Image";
-    let code = Blockly.Python.quote_(block.src_);
-    return [code, Blockly.Python.ORDER_FUNCTION_CALL];
+    //python.pythonGenerator.definitions_["import_image"] = "from image import Image";
+    let code = python.pythonGenerator.quote_(block.src_);
+    return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
 };
 
-Blockly.Python['ast_StrMultiline'] = function (block) {
+const multiline_quote = function (string) {
+    // Can't use goog.string.quote since % must also be escaped.
+  string = string.replace(/'''/g, '\\\'\\\'\\\'');
+  return '\'\'\'' + string + '\'\'\'';
+}
+
+python.pythonGenerator.forBlock['ast_StrMultiline'] = function(block, generator) {
     // Text value
-    let code = Blockly.Python.multiline_quote_(block.getFieldValue('TEXT'));
-    return [code, Blockly.Python.ORDER_ATOMIC];
+    let code = multiline_quote(block.getFieldValue('TEXT'));
+    return [code, python.pythonGenerator.ORDER_ATOMIC];
 };
 
-Blockly.Python['ast_StrDocstring'] = function (block) {
+python.pythonGenerator.forBlock['ast_StrDocstring'] = function(block, generator) {
     // Text value.
     let code = block.getFieldValue('TEXT');
     if (code.charAt(0) !== '\n') {
@@ -125,7 +145,7 @@ Blockly.Python['ast_StrDocstring'] = function (block) {
     if (code.charAt(code.length-1) !== '\n') {
         code = code + '\n';
     }
-    return Blockly.Python.multiline_quote_(code)+"\n";
+    return multiline_quote(code)+"\n";
 };
 
 BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
@@ -144,6 +164,7 @@ BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
 };
 
 BlockMirrorTextToBlocks.prototype.dedent = function (text, levels, isDocString) {
+    console.log(text, levels, isDocString);
     if (!isDocString && text.charAt(0) === "\n") {
         return text;
     }
@@ -193,6 +214,7 @@ BlockMirrorTextToBlocks.prototype['ast_Str'] = function (node, parent) {
         return BlockMirrorTextToBlocks.create_block("ast_Str", node.lineno, {"TEXT": text});
     } else {
         let dedented = this.dedent(text, this.levelIndex - 1, false);
+        console.log("DD", dedented);
         return BlockMirrorTextToBlocks.create_block("ast_StrMultiline", node.lineno, {"TEXT": dedented});
     }
 };

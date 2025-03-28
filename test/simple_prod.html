@@ -17,15 +17,6 @@
     <script src="../node_modules/blockly/python_compressed.js" type="text/javascript"></script>
     <script src="../node_modules/@blockly/field-multilineinput/dist/index.js" type="text/javascript"></script>
 
-    <!-- Skulpt -->
-    <script src="../src/skulpt/skulpt_shim.js" type="text/javascript"></script>
-    <script src="../src/skulpt/astnodes.js" type="text/javascript"></script>
-    <script src="../src/skulpt/token.js" type="text/javascript"></script>
-    <script src="../src/skulpt/parse_tables.js" type="text/javascript"></script>
-    <script src="../src/skulpt/tokenize.js" type="text/javascript"></script>
-    <script src="../src/skulpt/parser.js" type="text/javascript"></script>
-    <script src="../src/skulpt/ast.js" type="text/javascript"></script>
-
     <!-- CodeMirror -->
     <link rel="stylesheet" href="../lib/codemirror/codemirror.css">
     <link rel="stylesheet" href="../lib/codemirror/fullscreen.css">
@@ -36,69 +27,23 @@
     <script src="../lib/codemirror/fullscreen.js" type="text/javascript"></script>
     <script src="../lib/codemirror/python.js" type="text/javascript"></script>
 
-    <!-- BlockMirror -->
-    <link rel="stylesheet" href="../src/block_mirror.css">
-    <script src="../src/blockly_shims.js" type="text/javascript"></script>
-    <script src="../src/block_mirror.js" type="text/javascript"></script>
-    <script src="../src/text_editor.js" type="text/javascript"></script>
-    <script src="../src/block_editor.js" type="text/javascript"></script>
-    <script src="../src/text_to_blocks.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_functions.js" type="text/javascript"></script>
-    <script src="../src/toolbars.js" type="text/javascript"></script>
+    <!-- Skulpt -->
+    <script src="../../skulpt/dist/skulpt.js" type="text/javascript"></script>
+    <script src="../../skulpt/dist/skulpt-stdlib.js" type="text/javascript"></script>
 
-    <script src="../src/ast/ast_For.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_If.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_While.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Num.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_BinOp.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Name.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Assign.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_AnnAssign.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_AugAssign.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Str.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Expr.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_UnaryOp.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_BoolOp.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Compare.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Assert.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_NameConstant.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_List.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Tuple.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Set.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Dict.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Starred.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_IfExp.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Attribute.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Call.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Raise.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Delete.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Subscript.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Comp.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_FunctionDef.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Lambda.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Return.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Yield.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_YieldFrom.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Global.js" type="text/javascript"></script>
-    <!--<script src="../src/ast/ast_Nonlocal.js" type="text/javascript"></script>-->
-    <script src="../src/ast/ast_Break.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Continue.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Try.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_ClassDef.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Import.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_With.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Comment.js" type="text/javascript"></script>
-    <script src="../src/ast/ast_Raw.js" type="text/javascript"></script>
+    <!-- BlockMirror -->
+    <link rel="stylesheet" href="../dist/block_mirror.css">
+    <script src="../dist/block_mirror.js" type="text/javascript"></script>
 
 </head>
 <body>
-<button id='go'>Run Unit Tests</button>
+<button id='go'>GO</button>
 <button id='make-image'>Make Image</button>
 <div id="image-spot"></div>
 <div style="width:900px; margin:0 auto;"
      id='example-frame'>
 
-    <div class="btn-group" data-toggle="buttons" style="display: inline-block; margin-right: 10em;">
+    <div class="btn-group" data-toggle="buttons" data-bind="visible: !assignment.upload()">
         <label onclick="editor.setMode('block');">
             <input type="radio" name="blockpy-mode-set" autocomplete="off"> Blocks
         </label>
@@ -110,50 +55,14 @@
         </label>
     </div>
 
-    <div class="btn-group" data-toggle="buttons" style="display: inline-block">
-        <label>
-            <input type="checkbox" name="blockpy-mode-set" checked
-                   onclick="editor.setImageMode(!editor.configuration.imageMode);">
-            Image Mode
-        </label>
-    </div>
-
 
     <div id="blockmirror-editor"></div>
 </div>
 
 
 <script type="text/javascript">
-    try {
-        var KEY_VALUE_STORE = localStorage.getItem('code-mirror-kv-length') || 0;
-        //localStorage.setItem('code-mirror-kv-length', KEY_VALUE_STORE+1);
-        function lookupImage(value) {
-
-        }
-    } catch (e) {
-        console.error(e);
-        KEY_VALUE_STORE = {};
-    }
-
     var editor = new BlockMirror({
-        'blocklyMediaPath': '../node_modules/blockly/media',
         'container': document.getElementById('blockmirror-editor'),
-        'toolbox': 'normal',
-        imageMode: true,
-        imageDownloadHOok: (oldUrl) => {
-            return oldUrl;
-        },
-        imageUploadHook: (blob) => {
-            return Promise.resolve("Image("+JSON.stringify(URL.createObjectURL(blob))+")");
-        },
-        imageLiteralHook: (oldUrl) => {
-            return `Image("${oldUrl}")`;
-        },
-        /*var reader = new FileReader();
-        reader.onload = function(event){
-            // Post to a server, get back a URL
-            console.log(event.target.result); // data url!
-        };*/
         //'height': '2000px'
     });
     editor.addChangeListener(function (event) {
@@ -267,7 +176,9 @@
         "while x == 0:\n    pass\nwhile y < z:\n    a = 0\nelse:\n    b = a",
         "import x as y, b as c, d\nimport os",
         "from . import x\nfrom .os import y\nfrom ..path import z\nfrom dog.house import a\nfrom cat import b, c as d, e",
-        //"import matplotlib.pyplot as plt",
+        // Hidden import, works if the import is used:
+        "import matplotlib.pyplot as plt\n\n\nplt.plot(___)",
+        // "import matplotlib.pyplot as plt",
         "with open('filename') as outfile:\n    pass",
         "with open('filename') as outfile, open('file2') as infile, other_context:\n    pass",
         "#hello world!\n# Another comment\n#: int\n\na",
@@ -276,9 +187,8 @@
         "with x():\n    pass",
         "(lambda x: x)()",
         // Changed due to https://github.com/google/blockly/issues/3978:
-        "class Alpha:\n    def beta():\n        '' + '\\n' +\n        'Hello World!' + '\\n' +\n        'Testing.' + '\\n' +\n        ''\n",        "'test'.replace(1, 2, 3)",        "'\\n'",
-        // Changed due to https://github.com/google/blockly/issues/3978:
-        "'' + '\\n' +\n'test'"
+        "class Alpha:\n    def beta():\n        '' + '\\n' +\n        'Hello World!' + '\n' +\n        'Testing.' + '\\n' +\n        ''",
+        "'test'.replace(1, 2, 3)"
     ];
 
     function runTests() {

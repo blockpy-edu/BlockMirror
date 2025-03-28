@@ -88,8 +88,7 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     // Toolbox
     this.configuration.toolbox = configuration.toolbox || "normal";
 
-    // IsParsons?
-    this.isParsons = function() { return false; };
+    this.configuration.renderer = configuration.renderer || 'Thrasos';
 
     // Convert image URLs?
     this.configuration.imageUploadHook = configuration.imageUploadHook || (old => Promise.resolve(old));
@@ -239,7 +238,7 @@ BlockMirror.prototype.setHighlightedLines = function(lines, style) {
     //this.blockEditor.highlightLines(lines, style);
 };
 
-BlockMirror.prototype.clearHighlightedLines = function() {
-    this.textEditor.clearHighlightedLines();
+BlockMirror.prototype.clearHighlightedLines = function(style=null) {
+    this.textEditor.clearHighlightedLines(style);
     //this.blockEditor.unhighlightLines(lines, style);
 };

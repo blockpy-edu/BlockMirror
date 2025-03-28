@@ -19,7 +19,7 @@ Blockly.Blocks['ast_Global'] = {
         for (var i = 0; i < this.nameCount_; i++) {
             if (!this.getField('NAME' + i)) {
                 if (i !== 0) {
-                    input.appendField(',').setAlign(Blockly.ALIGN_RIGHT);
+                    input.appendField(',').setAlign(Blockly.inputs.Align.RIGHT);
                 }
                 input.appendField(new Blockly.FieldVariable("variable"), 'NAME' + i);
             }
@@ -56,11 +56,11 @@ Blockly.Blocks['ast_Global'] = {
     },
 };
 
-Blockly.Python['ast_Global'] = function (block) {
+python.pythonGenerator.forBlock['ast_Global'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     let elements = new Array(block.nameCount_);
     for (let i = 0; i < block.nameCount_; i++) {
-        elements[i] = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
+        elements[i] = python.pythonGenerator.getVariableName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
     }
     return 'global ' + elements.join(', ') + "\n";
 };

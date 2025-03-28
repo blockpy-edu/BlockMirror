@@ -8,19 +8,19 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.MATH
 })
 
-Blockly.Python['ast_Num'] = function(block) {
+python.pythonGenerator.forBlock['ast_Num'] = function(block) {
   // Numeric value.
   var code = parseFloat(block.getFieldValue('NUM'));
   var order;
   if (code == Infinity) {
     code = 'float("inf")';
-    order = Blockly.Python.ORDER_FUNCTION_CALL;
+    order = python.pythonGenerator.ORDER_FUNCTION_CALL;
   } else if (code == -Infinity) {
     code = '-float("inf")';
-    order = Blockly.Python.ORDER_UNARY_SIGN;
+    order = python.pythonGenerator.ORDER_UNARY_SIGN;
   } else {
-    order = code < 0 ? Blockly.Python.ORDER_UNARY_SIGN :
-            Blockly.Python.ORDER_ATOMIC;
+    order = code < 0 ? python.pythonGenerator.ORDER_UNARY_SIGN :
+            python.pythonGenerator.ORDER_ATOMIC;
   }
   return [code, order];
 };

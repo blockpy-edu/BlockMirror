@@ -12,7 +12,7 @@ Blockly.Blocks['ast_Try'] = {
             .appendField("try:");
         this.appendStatementInput("BODY")
             .setCheck(null)
-            .setAlign(Blockly.ALIGN_RIGHT);
+            .setAlign(Blockly.inputs.Align.RIGHT);
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
@@ -87,34 +87,34 @@ Blockly.Blocks['ast_Try'] = {
     },
 };
 
-Blockly.Python['ast_Try'] = function (block) {
+python.pythonGenerator.forBlock['ast_Try'] = function(block, generator) {
     // Try:
-    let body = Blockly.Python.statementToCode(block, 'BODY') || Blockly.Python.PASS;
+    let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Except clauses
     var handlers = new Array(block.handlersCount_);
     for (let i = 0; i < block.handlersCount_; i++) {
         let level = block.handlers_[i];
         let clause = "except";
         if (level !== BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL) {
-            clause += " " + Blockly.Python.valueToCode(block, 'TYPE' + i,
-                Blockly.Python.ORDER_NONE) || Blockly.Python.blank;
+            clause += " " + python.pythonGenerator.valueToCode(block, 'TYPE' + i,
+                python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
             if (level === BlockMirrorTextToBlocks.HANDLERS_COMPLETE) {
-                clause += " as " + Blockly.Python.variableDB_.getName(block.getFieldValue('NAME' + i),
+                clause += " as " + python.pythonGenerator.getVariableName(block.getFieldValue('NAME' + i),
                     Blockly.Variables.NAME_TYPE);
             }
         }
-        clause += ":\n" + (Blockly.Python.statementToCode(block, 'HANDLER' + i) || Blockly.Python.PASS);
+        clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'HANDLER' + i) || python.pythonGenerator.PASS);
         handlers[i] = clause;
     }
     // Orelse:
     let orelse = "";
     if (this.hasElse_) {
-        orelse = "else:\n" + (Blockly.Python.statementToCode(block, 'ORELSE') || Blockly.Python.PASS);
+        orelse = "else:\n" + (python.pythonGenerator.statementToCode(block, 'ORELSE') || python.pythonGenerator.PASS);
     }
     // Finally:
     let finalbody = "";
     if (this.hasFinally_) {
-        finalbody = "finally:\n" + (Blockly.Python.statementToCode(block, 'FINALBODY') || Blockly.Python.PASS);
+        finalbody = "finally:\n" + (python.pythonGenerator.statementToCode(block, 'FINALBODY') || python.pythonGenerator.PASS);
     }
     return "try:\n" + body + handlers.join("") + orelse + finalbody;
 };
