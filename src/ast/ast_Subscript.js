@@ -2,7 +2,7 @@ Blockly.Blocks['ast_Subscript'] = {
     init: function () {
         this.setInputsInline(true);
         this.setOutput(true);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
         this.sliceKinds_ = ["I"];
 
         this.appendValueInput("VALUE")
@@ -123,32 +123,32 @@ Blockly.Blocks['ast_Subscript'] = {
 python.pythonGenerator.forBlock['ast_Subscript'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     let value = python.pythonGenerator.valueToCode(block, 'VALUE',
-        python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+        python.Order.MEMBER) || python.pythonGenerator.blank;
     var slices = new Array(block.sliceKinds_.length);
     for (let i = 0; i < block.sliceKinds_.length; i++) {
         let kind = block.sliceKinds_[i];
         if (kind.charAt(0) === 'I') {
             slices[i] = python.pythonGenerator.valueToCode(block, 'INDEX' + i,
-                python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+                python.Order.MEMBER) || python.pythonGenerator.blank;
         } else {
             slices[i] = "";
             if (kind.charAt(1) === '1') {
                 slices[i] += python.pythonGenerator.valueToCode(block, 'SLICELOWER' + i,
-                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+                    python.Order.MEMBER) || python.pythonGenerator.blank;
             }
             slices[i] += ":";
             if (kind.charAt(2) === '1') {
                 slices[i] += python.pythonGenerator.valueToCode(block, 'SLICEUPPER' + i,
-                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+                    python.Order.MEMBER) || python.pythonGenerator.blank;
             }
             if (kind.charAt(3) === '1') {
                 slices[i] += ":" + python.pythonGenerator.valueToCode(block, 'SLICESTEP' + i,
-                    python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+                    python.Order.MEMBER) || python.pythonGenerator.blank;
             }
         }
     }
     var code = value + '[' + slices.join(', ') + "]";
-    return [code, python.pythonGenerator.ORDER_MEMBER];
+    return [code, python.Order.MEMBER];
 };
 
 var isWeirdSliceCase = function(slice) {

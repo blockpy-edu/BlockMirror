@@ -24,11 +24,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     ['ParameterKwarg', 'Keyworded Variable length parameter', '**', false],
     ['ParameterKwargType', 'Keyworded Variable length parameter with type', '**', true, false],
 ].forEach(function (parameterTypeTuple) {
-    let parameterType = parameterTypeTuple[0],
-        parameterDescription = parameterTypeTuple[1],
-        parameterPrefix = parameterTypeTuple[2],
-        parameterTyped = parameterTypeTuple[3],
-        parameterDefault = parameterTypeTuple[4];
+  let [parameterType, parameterDescription, parameterPrefix, parameterTyped, parameterDefault] = parameterTypeTuple;
     BlockMirrorTextToBlocks.BLOCKS.push({
         "type": "ast_FunctionMutant" + parameterType,
         "message0": parameterDescription,
@@ -62,14 +58,14 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         let typed = "";
         if (parameterTyped) {
             typed = ": " + (python.pythonGenerator.valueToCode(block, 'TYPE',
-                python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+                python.Order.NONE) || python.pythonGenerator.blank);
         }
         let defaulted = "";
         if (parameterDefault) {
             defaulted = "=" + (python.pythonGenerator.valueToCode(block, 'DEFAULT',
-                python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+                python.Order.NONE) || python.pythonGenerator.blank);
         }
-        return [parameterPrefix + name + typed + defaulted, python.pythonGenerator.ORDER_ATOMIC];
+        return [parameterPrefix + name + typed + defaulted, python.Order.ATOMIC];
     }
 });
 
@@ -78,7 +74,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 Blockly.Blocks['ast_FunctionDef'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("define")
+            .appendField(this.translateText("define"))
             .appendField(new Blockly.FieldTextInput("function"), "NAME");
         this.decoratorsCount_ = 0;
         this.parametersCount_ = 0;
@@ -89,7 +85,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
         this.updateShape_();
         this.setMutator(new Blockly.icons.MutatorIcon(['ast_FunctionMutantParameter',
             'ast_FunctionMutantParameterType'], this));
@@ -124,7 +120,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
                 this.appendValueInput("RETURNS")
                     .setCheck(null)
                     .setAlign(Blockly.inputs.Align.RIGHT)
-                    .appendField("returns");
+                    .appendField(this.translateText("returns"));
             }
             this.moveInputBefore('RETURNS', 'BODY');
         } else if (!status && currentReturn) {
@@ -261,7 +257,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
                     if (this.returnConnection_) {
                         let returnBlock = returnConnection.targetBlock();
                         returnBlock.unplug();
-                        returnBlock.bumpNeighbours_();
+                        returnBlock.bumpNeighbours();
                     }
                     this.setReturnAnnotation_(false);
                 }
@@ -292,20 +288,20 @@ python.pythonGenerator.forBlock['ast_FunctionDef'] = function(block, generator) 
     // Decorators
     let decorators = new Array(block.decoratorsCount_);
     for (let i = 0; i < block.decoratorsCount_; i++) {
-        let decorator = (python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) ||
+        let decorator = (python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
         decorators[i] = "@" + decorator + "\n";
     }
     // Parameters
     let parameters = new Array(block.parametersCount_);
     for (let i = 0; i < block.parametersCount_; i++) {
-        parameters[i] = (python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.pythonGenerator.ORDER_NONE) ||
+        parameters[i] = (python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
     }
     // Return annotation
     let returns = "";
     if (this.hasReturn_) {
-        returns = " -> " + python.pythonGenerator.valueToCode(block, 'RETURNS', python.pythonGenerator.ORDER_NONE) ||
+        returns = " -> " + python.pythonGenerator.valueToCode(block, 'RETURNS', python.Order.NONE) ||
             python.pythonGenerator.blank;
     }
     // Body
@@ -389,7 +385,11 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
 
     if (decorator_list !== null) {
         for (let i = 0; i < decorator_list.length; i++) {
-            values['DECORATOR' + i] = this.convert(decorator_list[i], node);
+            let converted = this.convert(decorator_list[i], node)
+            if (converted.constructor === Array) {
+                converted = converted[0]
+            }
+            values['DECORATOR' + i] = converted;
         }
     }
 

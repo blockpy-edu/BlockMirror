@@ -1,0 +1,19 @@
+{
+  "__toolbox": false,
+  "__colour": "PLOTTING",
+  "matplotlib.pyplot as plt": [
+    "show(*, block: bool | None = None): None // show plot canvas",
+    "hist(x, bins=None, *, range=None, density=False, weights=None, cumulative: bool = False, bottom=None, histtype: str = 'bar', align: str = 'mid', orientation: str = 'vertical', rwidth: float | None = None, log: bool = False, color=None, label=None, stacked: bool = False, data=None, **kwargs): Any // plot histogram",
+    "bar(x, height, width=0.8, bottom=None, *, align: typing.Literal['center', 'edge'] = 'center', data=None, tick_label: str | list[str] | None = None, **kwargs): Any // plot bar chart",
+    "plot(*args, scalex: bool = True, scaley: bool = True, data=None, **kwargs): list // plot line",
+    "boxplot(x, *, notch=None, sym=None, vert=None, orientation='vertical', whis=None, positions=None, widths=None, patch_artist=None, bootstrap=None, usermedians=None, conf_intervals=None, meanline=None, showmeans=None, showcaps=None, showbox=None, showfliers=None, boxprops=None, tick_labels=None, flierprops=None, medianprops=None, meanprops=None, capprops=None, whiskerprops=None, manage_ticks=True, autorange=False, zorder=None, capwidths=None, label=None, data=None): dict // plot boxplot",
+    "hlines(y, xmin, xmax, colors=None, linestyles='solid', *, label='', data=None, **kwargs): Any // plot horizontal line",
+    "vlines(x, ymin, ymax, colors=None, linestyles='solid', *, label='', data=None, **kwargs): Any // plot vertical line",
+    "scatter(x, y, s=None, c=None, *, marker=None, cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, edgecolors=None, colorizer=None, plotnonfinite=False, data=None, **kwargs) // plot scatter",
+    "title(label: str, fontdict=None, loc=None, pad=None, *, y=None, **kwargs): Any // make plot's title",
+    "xlabel(xlabel: str, fontdict=None, labelpad=None, *, loc=None, **kwargs): None // make plot's x-axis label",
+    "ylabel(ylabel, fontdict=None, labelpad=None, *, loc=None, **kwargs) // make plot's y-axis label",
+    "xticks(ticks=None, labels=None, *, minor=False, **kwargs) // make x ticks",
+    "yticks(ticks=None, labels=None, *, minor=False, **kwargs) // make y ticks"
+  ]
+}

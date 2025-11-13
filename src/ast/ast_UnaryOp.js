@@ -17,7 +17,7 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
             {"type": "input_value", "name": "VALUE"}
         ],
         "inputsInline": false,
-        "output": null,
+        "output": unaryop[1] === 'Not' ? "Boolean" : null,
         "colour": (unaryop[1] === 'Not' ?
             BlockMirrorTextToBlocks.COLOR.LOGIC :
             BlockMirrorTextToBlocks.COLOR.MATH)
@@ -25,7 +25,7 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
 
     python.pythonGenerator.forBlock[fullName] = function (block) {
         // Basic arithmetic operators, and power.
-        var order = (unaryop[1] === 'Not' ? python.pythonGenerator.ORDER_LOGICAL_NOT : python.pythonGenerator.ORDER_UNARY_SIGN);
+        var order = (unaryop[1] === 'Not' ? python.Order.LOGICAL_NOT : python.Order.UNARY_SIGN);
         var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
         var code = unaryop[0] + (unaryop[1] === 'Not' ? ' ' : '') + argument1;
         return [code, order];
@@ -35,6 +35,12 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
 BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
     let op = node.op.name;
     let operand = node.operand;
+
+    if (operand instanceof Sk.astnodes.Num && op === "USub") {
+      // Do not make the blocks more complex than needed, just make the number negative:
+      operand.n.v = - operand.n.v
+      return this.convert(operand, node)
+    }
 
     return BlockMirrorTextToBlocks.create_block('ast_UnaryOp' + op, node.lineno, {}, {
         "VALUE": this.convert(operand, node)

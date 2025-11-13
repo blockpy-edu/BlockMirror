@@ -4,7 +4,7 @@ Blockly.Blocks["ast_Set"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Set");
@@ -62,7 +62,7 @@ Blockly.Blocks["ast_Set"] = {
         itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
     // Disconnect any children that don't belong.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         connection.disconnect();
@@ -71,7 +71,7 @@ Blockly.Blocks["ast_Set"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       connections[i]?.reconnect(this, "ADD" + i);
     }
   },
@@ -138,7 +138,7 @@ Blockly.Blocks["ast_Set_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.appendDummyInput().appendField("Add new set elements below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -151,7 +151,7 @@ Blockly.Blocks["ast_Set_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -162,7 +162,7 @@ Blockly.Blocks["ast_Set_create_with_item"] = {
 python.pythonGenerator.forBlock["ast_Set"] = function (block, generator) {
   // Create a set with any number of elements of any type.
   if (block.itemCount_ === 0) {
-    return ["set()", python.pythonGenerator.ORDER_FUNCTION_CALL];
+    return ["set()", python.Order.FUNCTION_CALL];
   }
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
@@ -170,11 +170,11 @@ python.pythonGenerator.forBlock["ast_Set"] = function (block, generator) {
       python.pythonGenerator.valueToCode(
         block,
         "ADD" + i,
-        python.pythonGenerator.ORDER_NONE,
+        python.Order.NONE,
       ) || python.pythonGenerator.blank;
   }
   var code = "{" + elements.join(", ") + "}";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype["ast_Set"] = function (node, parent) {

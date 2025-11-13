@@ -16,23 +16,33 @@ function BlockMirrorBlockEditor(blockMirror) {
 
     // Have to call BEFORE we inject, or Blockly will delete the css string!
     // this.loadBlocklyCSS();
+    this.baseToolboxContent_ = this.makeBaseToolboxContent()
 
     // Inject Blockly
     let blocklyOptions = {
         media: blockMirror.configuration.blocklyMediaPath,
-        // We use special comment blocks
-        zoom: {controls: true},
-        comments: false,
+        comments: false, // We use special comment blocks
         disable: false,
         oneBasedIndex: false,
         readOnly: blockMirror.configuration.readOnly,
         scrollbars: true,
         toolbox: this.makeToolbox(),
-        renderer: blockMirror.configuration.renderer
+        renderer: blockMirror.configuration.renderer,
+        move: blockMirror.configuration.move,
+        zoom: blockMirror.configuration.zoom
     };
     this.workspace = Blockly.inject(blockMirror.tags.blockEditor,
         blocklyOptions);
-    // Configure Blockly
+
+    this.workspace.registerToolboxCategoryCallback(
+      'VARIABLE', this.variableFlyoutCallback);
+
+    this.workspace.convertColour = blockMirror.configuration.convertColour;
+    this.workspace.translateText = blockMirror.configuration.translate;
+    this.workspace.libraries = blockMirror.libraries;
+    this.workspace.toolbox.flyout.workspace_.libraries = blockMirror.libraries;
+
+  // Configure Blockly
     this.workspace.addChangeListener(this.changed.bind(this));
 
     // Configure Blockly DIV
@@ -46,7 +56,101 @@ function BlockMirrorBlockEditor(blockMirror) {
 
     window.addEventListener('resize', this.resized.bind(this), false);
     this.resized();
+
+    // Needed for libraries with dynamic toolbox
+    // TODO optimize
+    this.blockMirror.addChangeListener(event => this.remakeToolbox());
 }
+
+/**
+ * Construct the blocks required by the flyout for the variable category.
+ * @param {!Blockly.Workspace} workspace The workspace containing variables.
+ * @return {!Array.<!Element>} Array of XML block elements.
+ */
+BlockMirrorBlockEditor.prototype.variableFlyoutCallback = function (workspace) {
+  var xmlList = [];
+
+  const button = document.createElement('button');
+  button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+
+  workspace.registerButtonCallback('CREATE_VARIABLE', function (button) {
+    Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
+  });
+
+  xmlList.push(button);
+
+  var variableModelList = workspace.getVariableMap().getVariablesOfType('');
+
+  if (variableModelList.length > 0) {
+    // New variables are added to the end of the variableModelList.
+    let mostRecentVariableState;
+
+    for (let i = variableModelList.length - 1; i >= 0; i--) {
+      let variable = variableModelList[i];
+
+      if (variable.name !== python.pythonGenerator.blank) {
+        mostRecentVariableState = variable;
+        break;
+      }
+    }
+
+    if (mostRecentVariableState && !Blockly.Variables._HIDE_GETTERS_SETTERS) {
+      let mostRecentVariableFieldXmlString =
+        '<field name="VAR"><shadow type="ast_Name">' +
+        mostRecentVariableState.getName() +
+        "</shadow></field>";
+
+      xmlList.push(
+        Blockly.utils.xml.textToDom(
+          (blockText =
+            '<block type="ast_Assign" gap="8">' +
+            mostRecentVariableFieldXmlString +
+            "</block>"),
+        ),
+      );
+
+      let blockText =
+        '<block type="ast_AugAssign" gap="8">' +
+        mostRecentVariableFieldXmlString +
+        '<value name="VALUE">' +
+        '<shadow type="ast_Num">' +
+        '<field name="NUM">1</field>' +
+        "</shadow>" +
+        "</value>" +
+        '<mutation options="false" simple="true"></mutation>' +
+        "</block>";
+      xmlList.push(Blockly.utils.xml.textToDom(blockText));
+    }
+  }
+
+  xmlList.push(
+    Blockly.utils.xml.textToDom(
+      '<block type="ast_Assign" gap="8"><mutation targets="1" simple="false"></mutation></block>',
+    ),
+  );
+
+  variableModelList.sort(Blockly.VariableModel.compareByName);
+  for (let i = 0, variable; variable = variableModelList[i]; i++) {
+    if (variable.name === python.pythonGenerator.blank) {
+      continue;
+    } else if (Blockly.Variables._HIDE_GETTERS_SETTERS) {
+      block = Blockly.utils.xml.createElement('label');
+      block.setAttribute('text', variable.name);
+      block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+      //block.setAttribute('gap', 8);
+      xmlList.push(block);
+    } else {
+      let block = Blockly.utils.xml.createElement('block');
+      block.setAttribute('type', 'ast_Name');
+      block.setAttribute('gap', 8);
+      block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
+      xmlList.push(block);
+    }
+  }
+
+  return xmlList;
+};
 
 BlockMirrorBlockEditor.prototype.resizeReadOnlyDiv = function () {
     if (this.readOnlyDiv_ !== null) {
@@ -119,7 +223,7 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
         if (typeof category === "string") {
             return category;
         }
-        let colour = BlockMirrorTextToBlocks.COLOR[category.colour];
+        let colour = this.blockMirror.configuration.convertColour("toolbox", BlockMirrorTextToBlocks.COLOR[category.colour], category.name);
         let header = `<category name="${category.name}" colour="${colour}"`;
         if (category.custom) {
             header += ` custom="${category.custom}">`;
@@ -127,8 +231,28 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
             header += ">";
         }
         let body = (category.blocks || []).map((code) => {
+          if (code === '') {
+            return "<sep gap='50'></sep>";
+          }
+
+          let textToBlocks = this.blockMirror.textToBlocks;
+          let originalVariables = textToBlocks.variables;
+          try {
+            textToBlocks.variables = new TypesRegistry()
             let result = this.blockMirror.textToBlocks.convertSource('toolbox.py', code);
+
+            if (result.rawXml.firstElementChild.getAttribute('type') === 'ast_AnnAssignFull') {
+              // In case the first line only specifies the class the attribute is defined on.
+              let nextElements = result.rawXml.getElementsByTagName("next");
+
+              if (nextElements.length > 0) {
+                return nextElements.item(0).innerHTML.toString();
+              }
+            }
             return result.rawXml.innerHTML.toString();
+          } finally {
+            textToBlocks.variables = originalVariables
+          }
         }).join("\n");
         let footer = "</category>";
         if (category['hideGettersSetters']) {
@@ -138,21 +262,39 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
     }).join("\n");
 };
 
-BlockMirrorBlockEditor.prototype.makeToolbox = function () {
+BlockMirrorBlockEditor.prototype.makeBaseToolboxContent = function () {
     let toolbox = this.blockMirror.configuration.toolbox;
-    // Use palette if it exists, otherwise assume its a custom one.
+    // Use palette if it exists, otherwise assume it is a custom one.
     if (toolbox in this.TOOLBOXES) {
         toolbox = this.TOOLBOXES[toolbox];
     }
     // Convert if necessary
-    if (typeof toolbox  !== "string") {
-        toolbox = this.toolboxPythonToBlocks(toolbox);
+    if (typeof toolbox !== "string") {
+        let textToBlocks = this.blockMirror.textToBlocks
+        let originalImports = textToBlocks.imports
+        let originalVariables = textToBlocks.variables
+        try {
+            textToBlocks.imports = new TypeRegistry()
+            textToBlocks.variables = new TypesRegistry()
+            this.blockMirror.libraries.registerImports(textToBlocks.imports)
+            toolbox = this.toolboxPythonToBlocks(toolbox);
+        } finally {
+            textToBlocks.imports = originalImports
+            textToBlocks.variables = originalVariables
+        }
     }
     // TODO: Fix Hack, this should be configurable by instance rather than by class
     for (let name in BlockMirrorBlockEditor.EXTRA_TOOLS) {
         toolbox += BlockMirrorBlockEditor.EXTRA_TOOLS[name];
     }
-    return '<xml id="toolbox" style="display:none">'+toolbox+'</xml>';
+
+    return toolbox
+}
+
+BlockMirrorBlockEditor.prototype.makeToolbox = function () {
+    let toolbox = this.baseToolboxContent_;
+    toolbox += this.blockMirror.libraries.toToolbox(this.blockMirror.textToBlocks);
+    return '<xml id="toolbox" style="display:none">' + toolbox + '</xml>';
 };
 
 BlockMirrorBlockEditor.prototype.remakeToolbox = function () {
@@ -235,8 +377,29 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
  * percolating.
  */
 BlockMirrorBlockEditor.prototype.getCode = function () {
-    return python.pythonGenerator.workspaceToCode(this.workspace);
+    python.pythonGenerator.libraries = this.blockMirror.libraries
+    return python.pythonGenerator.workspaceToCode(this.workspace)
 };
+
+// Simplified workspace cleanup, which can assume there are no immovable blocks.
+BlockMirrorBlockEditor.prototype._cleanUpWorkspace = function() {
+    this.workspace.setResizesEnabled(false);
+    const topBlocks = this.workspace.getTopBlocks(true);
+    const spacerHeight = this.workspace.renderer.getConstants().SPACER_DEFAULT_HEIGHT
+    // Not entirely clear why, but these are the minimum values needed to avoid most unwanted layout changes when dragging.
+    const extraHeight = Math.round(this.workspace.renderer.getConstants().MIN_BLOCK_HEIGHT * 2.5);
+    let cursorY = extraHeight;
+
+    for (const block of topBlocks) {
+        let boundingRect = block.getBoundingRectangle();
+        block.moveBy(-boundingRect.left + spacerHeight, Math.max(0, cursorY - boundingRect.top), ['cleanup']);
+        cursorY =
+            block.getRelativeToSurfaceXY().y +
+            block.getHeightWidth().height +
+            extraHeight;
+    }
+    this.workspace.setResizesEnabled(true);
+}
 
 /**
  * Attempts to update the model for the current code file from the
@@ -245,20 +408,22 @@ BlockMirrorBlockEditor.prototype.getCode = function () {
  */
 BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
     if (this.isVisible()) {
+        this.blockMirror.textToBlocks.imports.clear()
+        this.blockMirror.textToBlocks.variables.clear()
         let result = this.blockMirror.textToBlocks.convertSource('__main__.py', code);
         if (quietly) {
             Blockly.Events.disable();
         }
         try {
+            let minBlockHeight = this.workspace.renderer.getConstants().MIN_BLOCK_HEIGHT
             let xml_code = Blockly.utils.xml.textToDom(result.xml);
-
             // Convert line numbers to y coordinates, to ensure proper ordering
             for (let i = 0, xmlChild; (xmlChild = xml_code.childNodes[i]); i++) {
-                xmlChild.setAttribute('y', (xmlChild.getAttribute('line_number') ?? 1) * 100);
+                xmlChild.setAttribute('y', ((xmlChild.getAttribute('line_number') ?? 1) - 1) * minBlockHeight);
             }
 
             Blockly.Xml.clearWorkspaceAndLoadFromXml(xml_code, this.workspace);
-            this.workspace.cleanUp();
+            this._cleanUpWorkspace();
         } catch (error) {
             console.error(error);
         }
@@ -340,7 +505,7 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function(callback) {
             var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox();
             // Create the XML representation of the SVG
             var xml = new XMLSerializer().serializeToString(blocks);
-            const classes = 'class="Thrasos-renderer classic-theme" ';
+            const classes = 'class="' + this.blockMirror.configuration.renderer + '-renderer classic-theme" ';
             xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '+classes+' width="'+bbox.width+'" height="'+bbox.height+'" viewBox="0 0 '+bbox.width+" "+bbox.height+'"><rect width="100%" height="100%" fill="white"></rect>'+xml+"</svg>";
             console.log(xml);
             // create a file blob of our SVG.

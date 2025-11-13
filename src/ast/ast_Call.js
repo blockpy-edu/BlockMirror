@@ -4,7 +4,7 @@
 
 Blockly.Blocks['ast_Call'] = {
     /**
-     * Block for calling a procedure with no return value.
+     * Block for calling a procedure
      * @this Blockly.Block
      */
     init: function () {
@@ -20,14 +20,18 @@ Blockly.Blocks['ast_Call'] = {
         // acbart: Show parameter names, if they exist
         this.showParameterNames_ = false;
         // acbart: Whether this block returns
-        this.returns_ = true;
+        this.returns_ = 'Any';
         // acbart: added simpleName to handle complex function calls (e.g., chained)
         this.isMethod_ = false;
         this.name_ = null;
         this.message_ = "function";
         this.premessage_ = "";
-        this.module_ = "";
-        this.updateShape_();
+        this.postmessage_ = "";
+        this.import_ = "";
+        this.fromLibrary_ = null;
+
+        let messageInput = this.appendDummyInput('MESSAGE_INPUT').setAlign(Blockly.inputs.Align.RIGHT);
+        messageInput.appendField(new Blockly.FieldLabel(), 'MESSAGE');
     },
 
     /**
@@ -86,7 +90,7 @@ Blockly.Blocks['ast_Call'] = {
         }
         // Test arguments (arrays of strings) for changes. '\n' is not a valid
         // argument name character, so it is a valid delimiter here.
-        if (paramNames.join('\n') == this.arguments_.join('\n')) {
+        if (paramNames.join('\n') === this.arguments_.join('\n')) {
             // No change.
             this.quarkIds_ = paramIds;
             return false;
@@ -113,7 +117,7 @@ Blockly.Blocks['ast_Call'] = {
                     paramIds.indexOf(this.quarkIds_[i]) === -1) {
                     // This connection should no longer be attached to this block.
                     connection.disconnect();
-                    connection.getSourceBlock().bumpNeighbours_();
+                    connection.getSourceBlock().bumpNeighbours();
                 }
             }
         }
@@ -155,6 +159,106 @@ Blockly.Blocks['ast_Call'] = {
         }
         return true;
     },
+    //defType_: 'procedures_defnoreturn',
+    parseArgument_: function (argument) {
+        if (argument.startsWith('KWARGS:')) {
+            // KWARG
+            return "unpack";
+        } else if (argument.startsWith('KEYWORD:')) {
+            let keywords = argument.substring(8);
+            return keywords + "=";
+        } else if (argument.startsWith("KNOWN_ARG:") && this.showParameterNames_) {
+            // FIXME KNOWN_ARG is not set anywhere?
+            return argument.substring(10) + "=";
+        }
+        return "";
+    },
+    updateShapeOfMessage: function(fromLibrary) {
+      let messageInput = this.getInput('MESSAGE_INPUT')
+
+      if (!fromLibrary) {
+        this.setFieldValue(this.message_ + this.postmessage_ + " (", "MESSAGE");
+        messageInput.removeField('MESSAGE_NAME', true)
+        messageInput.removeField('MESSAGE_POST', true)
+      } else {
+        this.setFieldValue(this.message_, "MESSAGE");
+
+        if (fromLibrary.labels.length === 1) {
+          this.setFieldValue(this.message_ + fromLibrary.label + this.postmessage_ + " (", "MESSAGE");
+          messageInput.removeField('MESSAGE_NAME', true)
+          messageInput.removeField('MESSAGE_POST', true)
+        } else if (messageInput.fieldRow.length === 1) {
+          this.setFieldValue(this.message_, "MESSAGE");
+          messageInput.appendField(new Blockly.FieldDropdown(
+            [[fromLibrary.label, fromLibrary.name],
+            ...fromLibrary.aliases.map(function (alias) {
+              return [alias.label, alias.name];
+            })]
+          ), "MESSAGE_NAME");
+          messageInput.appendField(new Blockly.FieldLabel(this.postmessage_ + " ("), "MESSAGE_POST")
+        }
+      }
+    },
+    updateShapeOfArguments(fromLibrary) {
+      // Process arguments
+      let drawnArgumentCount = this.getDrawnArgumentCount_();
+      let translateArgumentLabel = fromLibrary ? (item => fromLibrary.pythonModule.library.translate(item, item)) : (item => item)
+
+      for (let i = 0; i < drawnArgumentCount; i++) {
+            let argument = this.arguments_[i];
+            let argumentName = this.parseArgument_(argument);
+            let argumentNames = []
+            let postfix = ''
+
+            if (argumentName.endsWith('=')) {
+                argumentNames = argumentName.substring(0, argumentName.length - 1).split(' ');
+                argumentName = argumentNames[0];
+                postfix = '='
+            }
+
+            let field = this.getField('ARGNAME' + i);
+            let postfixField = this.getField('ARGPOSTFIX' + i);
+            if (field) {
+                if (argumentNames.length > 1) {
+                    if (field instanceof Blockly.FieldLabel) {
+                        field = new Blockly.FieldDropdown(argumentNames.map(item => [
+                          translateArgumentLabel(item), item]
+                        ));
+                        let input = input.getInput('ARG' + i)
+                        input.removeField('ARGNAME' + i);
+                        input.insertFieldAt(0, field);
+                    } else {
+                        field.setOptions(argumentNames.map(item => [translateArgumentLabel(item), item]));
+                    }
+                    field.setValue(argumentName, false);
+                } else if (!(field instanceof Blockly.FieldLabel)) {
+                    let label = postfix === "=" ? translateArgumentLabel(argumentName) : argumentName;
+                    field = new Blockly.FieldLabel(label);
+                    let input = input.getInput('ARG' + i)
+                    input.removeField('ARGNAME' + i);
+                    input.insertFieldAt(0, field);
+                }
+            } else {
+                // Add new input.
+                // For now, this assumes the function definition does not change.
+                if (argumentNames.length > 1) {
+                  field = new Blockly.FieldDropdown(argumentNames.map(item => [translateArgumentLabel(item), item]))
+                } else if (postfix === '=') {
+                  field = new Blockly.FieldLabel(translateArgumentLabel(argumentName));
+                } else {
+                  field = new Blockly.FieldLabel(argumentName);
+                }
+                postfixField = new Blockly.FieldLabel(postfix);
+                this.appendValueInput('ARG' + i)
+                    .setAlign(Blockly.inputs.Align.RIGHT)
+                    .appendField(field, 'ARGNAME' + i)
+                    .appendField(postfixField, 'ARGPOSTFIX' + i)
+                    .init();
+            }
+            field.setVisible(!!argumentName);
+            postfixField.setVisible(!!postfix);
+        }
+    },
     /**
      * Modify this block to have the correct number of arguments.
      * @private
@@ -172,54 +276,11 @@ Blockly.Blocks['ast_Call'] = {
             this.removeInput('FUNC');
         }
 
-        let drawnArgumentCount = this.getDrawnArgumentCount_();
-        let message = this.getInput('MESSAGE_AREA')
-        // Zero arguments, just do {message()}
-        if (drawnArgumentCount === 0) {
-            if (message) {
-                message.removeField('MESSAGE');
-            } else {
-                message = this.appendDummyInput('MESSAGE_AREA')
-                    .setAlign(Blockly.inputs.Align.RIGHT);
-            }
-            message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE');
-            // One argument, no MESSAGE_AREA
-        } else if (message) {
-            this.removeInput('MESSAGE_AREA');
-        }
-        // Process arguments
-        let i;
-        for (i = 0; i < drawnArgumentCount; i++) {
-            let argument = this.arguments_[i];
-            let argumentName = this.parseArgument_(argument);
-            if (i === 0) {
-                argumentName = this.message_ + "\ (" + argumentName;
-            }
-            let field = this.getField('ARGNAME' + i);
-            if (field) {
-                // Ensure argument name is up to date.
-                // The argument name field is deterministic based on the mutation,
-                // no need to fire a change event.
-                Blockly.Events.disable();
-                try {
-                    field.setValue(argumentName);
-                } finally {
-                    Blockly.Events.enable();
-                }
-            } else {
-                // Add new input.
-                field = new Blockly.FieldLabel(argumentName);
-                this.appendValueInput('ARG' + i)
-                    .setAlign(Blockly.inputs.Align.RIGHT)
-                    .appendField(field, 'ARGNAME' + i)
-                    .init();
-            }
-            if (argumentName) {
-                field.setVisible(true);
-            } else {
-                field.setVisible(false);
-            }
-        }
+        let fromLibrary = (this.fromLibrary_ === "" ? null : this.workspace.libraries.resolve(this.fromLibrary_));
+
+        this.updateShapeOfMessage(fromLibrary);
+        this.updateShapeOfArguments(fromLibrary);
+        let i = this.getDrawnArgumentCount_();
 
         // Closing parentheses
         if (!this.getInput('CLOSE_PAREN')) {
@@ -229,22 +290,26 @@ Blockly.Blocks['ast_Call'] = {
         }
 
         // Move everything into place
-        if (drawnArgumentCount === 0) {
-            if (this.isMethod_) {
-                this.moveInputBefore('FUNC', 'MESSAGE_AREA');
-            }
-            this.moveInputBefore('MESSAGE_AREA', 'CLOSE_PAREN');
-        } else {
-            if (this.isMethod_) {
-                this.moveInputBefore('FUNC', 'CLOSE_PAREN');
-            }
+        if (this.isMethod_) {
+            this.moveInputBefore('FUNC', 'MESSAGE_INPUT');
         }
+        this.moveInputBefore('MESSAGE_INPUT', 'CLOSE_PAREN');
+
         for (let j = 0; j < i; j++) {
             this.moveInputBefore('ARG' + j, 'CLOSE_PAREN')
         }
 
         // Set return state
-        this.setReturn_(this.returns_, false);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        if (this.returns_ === 'None') {
+          this.setOutput(false);
+        } else if (this.returns_ === 'bool') {
+          this.setOutput(true, 'Boolean');
+        } else {
+          this.setOutput(true);
+        }
+
         // Remove deleted inputs.
         while (this.getInput('ARG' + i)) {
             this.removeInput('ARG' + i);
@@ -269,12 +334,15 @@ Blockly.Blocks['ast_Call'] = {
         container.setAttribute('method', this.isMethod_);
         container.setAttribute('message', this.message_);
         container.setAttribute('premessage', this.premessage_);
-        container.setAttribute('module', this.module_);
+        container.setAttribute('postmessage', this.postmessage_);
+        container.setAttribute('import', this.import_);
+        container.setAttribute('fromlibrary', this.fromLibrary_);
         container.setAttribute('colour', this.givenColour_);
         for (var i = 0; i < this.arguments_.length; i++) {
             var parameter = document.createElement('arg');
             parameter.setAttribute('name', this.arguments_[i]);
             container.appendChild(parameter);
+            parameter.textContent = this.argumentInfo[i];
         }
         return container;
     },
@@ -285,22 +353,35 @@ Blockly.Blocks['ast_Call'] = {
      */
     domToMutation: function (xmlElement) {
         this.name_ = xmlElement.getAttribute('name');
-        this.name_ = this.name_ === '*' ? null : this.name_;
+        if (this.name_ === '*') {
+            this.name_ = null;
+        }
         this.argumentCount_ = parseInt(xmlElement.getAttribute('arguments'), 10);
         this.showParameterNames_ = "true" === xmlElement.getAttribute('parameters');
-        this.returns_ = "true" === xmlElement.getAttribute('returns');
+        this.returns_ = xmlElement.getAttribute('returns');
         this.isMethod_ = "true" === xmlElement.getAttribute('method');
         this.message_ = xmlElement.getAttribute('message');
         this.premessage_ = xmlElement.getAttribute('premessage');
-        this.module_ = xmlElement.getAttribute('module');
-        this.givenColour_ = parseInt(xmlElement.getAttribute('colour'), 10);
+        this.postmessage_ = xmlElement.getAttribute('postmessage');
+        this.import_ = xmlElement.getAttribute('import');
+        this.fromLibrary_ = xmlElement.getAttribute('fromlibrary');
+        let colour = xmlElement.getAttribute('colour')
+        this.givenColour_ = parseInt(colour, 10);
+        if (isNaN(this.givenColour_)) {
+          this.givenColour_ = colour;
+        }
 
         var args = [];
         var paramIds = [];
-        for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
+        this.argumentInfo = []
+
+        for (var i = 0; i < xmlElement.childNodes.length; i++) {
+            let childNode = xmlElement.childNodes[i];
+
             if (childNode.nodeName.toLowerCase() === 'arg') {
                 args.push(childNode.getAttribute('name'));
                 paramIds.push(childNode.getAttribute('paramId'));
+                this.argumentInfo.push(childNode.textContent)
             }
         }
         let result = this.setProcedureParameters_(args, paramIds);
@@ -327,8 +408,8 @@ Blockly.Blocks['ast_Call'] = {
      */
     customContextMenu: function (options) {
         if (!this.workspace.isMovable()) {
-            // If we center on the block and the workspace isn't movable we could
-            // loose blocks at the edges of the workspace.
+            // If we center on the block and the workspace is not movable,
+            // we could lose blocks at the edges of the workspace.
             return;
         }
 
@@ -358,185 +439,217 @@ Blockly.Blocks['ast_Call'] = {
                 block.render();
             }
         });
+    },
 
-        // Change Return Type
-        options.push({
-            enabled: true,
-            text: this.returns_ ? "Make statement" : "Make expression",
-            callback: function () {
-                block.returns_ = !block.returns_;
-                block.setReturn_(block.returns_, true);
-            }
-        })
-    },
-    /**
-     * Notification that the procedure's return state has changed.
-     * @param {boolean} returnState New return state
-     * @param forceRerender Whether to render
-     * @this Blockly.Block
-     */
-    setReturn_: function (returnState, forceRerender) {
-        this.unplug(true);
-        if (returnState) {
-            this.setPreviousStatement(false);
-            this.setNextStatement(false);
-            this.setOutput(true);
-        } else {
-            this.setOutput(false);
-            this.setPreviousStatement(true);
-            this.setNextStatement(true);
-        }
-        if (forceRerender) {
-            if (this.rendered) {
-                this.render();
-            }
-        }
-    },
-    //defType_: 'procedures_defnoreturn',
-    parseArgument_: function (argument) {
-        if (argument.startsWith('KWARGS:')) {
-            // KWARG
-            return "unpack";
-        } else if (argument.startsWith('KEYWORD:')) {
-            return argument.substring(8) + "=";
-        } else {
-            if (this.showParameterNames_) {
-                if (argument.startsWith("KNOWN_ARG:")) {
-                    return argument.substring(10) + "=";
-                }
-            }
-        }
-        return "";
-    },
     getDrawnArgumentCount_: function () {
         return Math.min(this.argumentCount_, this.arguments_.length);
     }
 };
 
 python.pythonGenerator.forBlock['ast_Call'] = function(block, generator) {
-    // TODO: Handle import
-    if (block.module_) {
-        python.pythonGenerator.definitions_["import_"+block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
+    if (block.import_) {
+        let [type, alias] = block.import_.split(' as ', 2)
+
+        if (type && !python.pythonGenerator.imports.hasType(type)) {
+            let name = alias ?? type;
+            python.pythonGenerator.imports.set(type, name);
+        }
     }
-    // python.pythonGenerator.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
     // Get the caller
-    let funcName = "";
-    if (block.isMethod_) {
-        funcName = python.pythonGenerator.valueToCode(block, 'FUNC', python.pythonGenerator.ORDER_FUNCTION_CALL) ||
-            python.pythonGenerator.blank;
+    let funcName, fromLibrary
+    let name = block.getField('MESSAGE_NAME')?.getValue()
+
+    if (name) {
+      name = this.name_.substring(0, this.name_.lastIndexOf('.') + 1) + name;
+    } else {
+      name = this.name_;
     }
-    funcName += this.name_;
+
+    if (block.isMethod_) {
+        let caller = python.pythonGenerator.valueToCode(block, 'FUNC', python.Order.FUNCTION_CALL) ||
+            python.pythonGenerator.blank;
+        let funcInputTargetBlock = block.getInputTargetBlock('FUNC')
+
+        if (funcInputTargetBlock?.returns_) {
+            fromLibrary = generator.libraries.resolve(funcInputTargetBlock.returns_ + name)
+            funcName = caller + name
+        } else {
+            let resolvedCaller = python.pythonGenerator.variables.getSingleType(caller) ?? caller
+            resolvedCaller = python.pythonGenerator.imports.getType(resolvedCaller) ?? resolvedCaller
+            fromLibrary = generator.libraries.resolve(resolvedCaller + name)
+            funcName = resolvedCaller + name
+        }
+    } else {
+        funcName = name;
+        fromLibrary = generator.libraries.resolve(name)
+    }
+
+    if (fromLibrary) {
+        // Save library item to the block, in case it changed
+        block.fromLibrary_ = fromLibrary.fullName
+    } else if (block.fromLibrary_) {
+        // Fall back to previously resolved library item
+        fromLibrary = generator.libraries.resolve(block.fromLibrary_)
+    }
+
+    if (fromLibrary instanceof PythonClass) {
+        fromLibrary = fromLibrary.members.get("__init__") ?? fromLibrary
+    }
+
+    if (fromLibrary instanceof PythonFunction) {
+        // Needed in case values were modified, but no blocks dragged.
+        fromLibrary.applyShadow(block)
+    }
+
     // Build the arguments
     var args = [];
     for (var i = 0; i < block.arguments_.length; i++) {
+        let argBlock = block.getInputTargetBlock('ARG' + i)
+
+        if (argBlock?.shadow) {
+            continue
+        }
+
         let value = python.pythonGenerator.valueToCode(block, 'ARG' + i,
-            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+            python.Order.NONE) || python.pythonGenerator.blank
         let argument = block.arguments_[i];
+
         if (argument.startsWith('KWARGS:')) {
-            args[i] = "**" + value;
+            args.push("**" + value);
         } else if (argument.startsWith('KEYWORD:')) {
-            args[i] = argument.substring(8) + "=" + value;
+            let keyword;
+
+            if (block.getField('ARGNAME' + i) instanceof Blockly.FieldLabel) {
+              keyword = argument.substring(8);
+            } else {
+              keyword = block.getFieldValue('ARGNAME' + i);
+            }
+
+            args.push(keyword + "=" + value);
         } else {
-            args[i] = value;
+            args.push(value);
         }
     }
+
     // Return the result
     let code = funcName + '(' + args.join(', ') + ')';
-    if (block.returns_) {
-        return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
-    } else {
-        return code + "\n";
+    if (block.outputConnection && block.outputConnection.targetBlock()) {
+        // Return as expression
+        return [code, python.Order.FUNCTION_CALL];
     }
-};
 
-BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
-    if (node._astname === 'Name') {
-        return Sk.ffi.remapToJs(node.id);
-    } else if (node._astname === 'Attribute') {
-        let origin = this.getAsModule(node.value);
-        if (origin !== null) {
-            return origin + '.' + Sk.ffi.remapToJs(node.attr);
-        }
-    } else {
-        return null;
-    }
+    return code + "\n";
 };
-
-//                              messageBefore, message, name
-// function call: print() -> "print" ([message]) ; print
-// Module function: plt.show() -> "show plot" ([plot]) ; plt.show
-// Method call: "test".title() -> "make" [str] "title case" () ; .title ; isMethod = true
 
 BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     let func = node.func;
     let args = node.args;
     let keywords = node.keywords;
-
-    // Can we make any guesses about this based on its name?
-    let signature = null;
     let isMethod = false;
-    let module = null;
+    let import_ = null;
     let premessage = "";
-    let message = "";
-    let name = "";
+    let postmessage = "";
+    let message;
+    let name;
     let caller = null;
-    let colour = BlockMirrorTextToBlocks.COLOR.FUNCTIONS;
+    let returns = 'Any';
+    let fromLibrary = this.resolveFromLibrary(func)
 
     if (func._astname === 'Name') {
         message = name = Sk.ffi.remapToJs(func.id);
-        if (name in this.FUNCTION_SIGNATURES) {
-            signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
-        }
     } else if (func._astname === 'Attribute') {
         isMethod = true;
         caller = func.value;
-        let potentialModule = this.getAsModule(caller);
         let attributeName = Sk.ffi.remapToJs(func.attr);
-        message = "." + attributeName;
-        if (potentialModule in this.MODULE_FUNCTION_SIGNATURES) {
-            signature = this.MODULE_FUNCTION_SIGNATURES[potentialModule][attributeName];
-            module = potentialModule;
-            message = name = potentialModule + message;
-            isMethod = false;
-        } else if (attributeName in this.METHOD_SIGNATURES) {
-            signature = this.METHOD_SIGNATURES[attributeName];
-            name = message;
-        } else {
-            name = message;
-        }
+        name = "." + attributeName;
+        message = name
     } else {
         isMethod = true;
+        caller = func;
         message = "";
         name = "";
-        caller = func;
         // (lambda x: x)()
     }
-    let returns = true;
 
-    if (signature !== null && signature !== undefined) {
-        if (signature.custom) {
-            try {
-                return signature.custom(node, parent, this)
-            } catch (e) {
-                console.error(e);
-                // We tried to be fancy and failed, better fall back to default behavior!
+    if (fromLibrary) {
+        if (fromLibrary instanceof PythonClass) {
+            fromLibrary = fromLibrary.members.get("__init__") ?? fromLibrary
+        }
+
+        if (fromLibrary instanceof PythonFunction) {
+            if (fromLibrary instanceof PythonMethod && !(fromLibrary instanceof PythonConstructorMethod) && !(fromLibrary.classmethod || fromLibrary.staticmethod)) {
+                // Regular instance method, no import needed
+                import_ = ""
+            } else {
+                import_ = fromLibrary.pythonClass?.requiresImport ?? fromLibrary.pythonModule.requiresImport
             }
-        }
-        if ('returns' in signature) {
-            returns = signature.returns;
-        }
-        if ('message' in signature) {
-            message = signature.message;
-        }
-        if ('premessage' in signature) {
-            premessage = signature.premessage;
-        }
-        if ('colour' in signature) {
-            colour = signature.colour;
+
+            name = fromLibrary.name;
+            premessage = fromLibrary.premessage;
+            postmessage = fromLibrary.postmessage;
+            message = fromLibrary.message;
+            if (fromLibrary.typeHint) {
+              returns = fromLibrary.typeHint.flattened().toString()
+            }
+
+            if (fromLibrary instanceof PythonConstructorMethod) {
+                // For constructor methods, the caller is fixed.
+                isMethod = false;
+                name = fromLibrary.pythonClass.name
+                returns = fromLibrary.pythonClass.fullName
+            } else if (fromLibrary instanceof PythonMethod) {
+                // For static and class methods, the caller is fixed.
+                isMethod = !fromLibrary.staticmethod && !fromLibrary.classmethod
+
+                if (isMethod) {
+                    caller = func.value
+                    name = "." + fromLibrary.name;
+                } else {
+                    name = fromLibrary.pythonClass.name + "." + fromLibrary.name;
+                }
+            } else {
+                // For functions, the caller is fixed.
+                isMethod = false;
+
+                if (fromLibrary.pythonModule.name === "") {
+                  name = fromLibrary.name;
+                } else {
+                  name = fromLibrary.pythonModule.name + "." + fromLibrary.name;
+
+                  if (message === ".") {
+                    let moduleName =
+                      this.imports.getName(fromLibrary.pythonModule.fullName) ??
+                      fromLibrary.pythonModule.name;
+                    message = moduleName + message;
+                  }
+                }
+            }
+        } else {
+            throw new TypeError("Unexpected type from library: " + fromLibrary.constructor.name + " for " + this.getAsModule(func.value))
         }
     }
 
-    returns = returns || (parent._astname !== 'Expr');
+    let colour;
+
+    if (fromLibrary) {
+      if (fromLibrary.custom) {
+          try {
+              let result = fromLibrary.custom(node, parent, this)
+
+              if (result !== null && result !== undefined) {
+                return result
+              }
+          } catch (e) {
+              console.error(e);
+              // We tried to be fancy and failed, better fall back to default behavior!
+          }
+      }
+      colour = fromLibrary.colour;
+    } else {
+      colour = this.blockMirror.configuration.convertColour(
+        "ast_Call", BlockMirrorTextToBlocks.COLOR.FUNCTIONS
+      );
+    }
 
     let argumentsNormal = {};
     // TODO: do I need to be limiting only the *args* length, not keywords?
@@ -549,17 +662,42 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
         "@name": name,
         "@message": message,
         "@premessage": premessage,
+        "@postmessage": postmessage,
         "@colour": colour,
-        "@module": module || ""
+        "@import": import_ ?? "",
+        "@fromlibrary": fromLibrary?.fullName ?? ""
     };
     // Handle arguments
     let overallI = 0;
     if (args !== null) {
         for (let i = 0; i < args.length; i += 1, overallI += 1) {
-            argumentsNormal["ARG" + overallI] = this.convert(args[i], node);
-            argumentsMutation["UNKNOWN_ARG:" + overallI] = null;
+            argumentsNormal["ARG" + i] = this.convert(args[i], node)
+            argumentsMutation["UNKNOWN_ARG:" + i] = null
         }
     }
+    if (fromLibrary instanceof PythonFunction) {
+        if (args !== null) {
+            for (let i = 0; i < args.length; i += 1) {
+                argumentsMutation["UNKNOWN_ARG:" + i] = document.createTextNode(fromLibrary.fullName)
+            }
+        }
+        if (this.blockMirror.configuration.showDefaultArguments) {
+            for (let i = overallI; i < fromLibrary.parameters.length - fromLibrary.argumentOffset; i += 1) {
+                let pythonParameter = fromLibrary.parameters[i + fromLibrary.argumentOffset]
+                if (pythonParameter.keyword || pythonParameter.preferKeyword) {
+                    break
+                }
+
+                if (pythonParameter.defaultValue !== "") {
+                    argumentsNormal["ARG" + i] = pythonParameter.defaultValueBlocks(this)
+                }
+                argumentsMutation["UNKNOWN_ARG:" + i] = document.createTextNode(fromLibrary.fullName)
+                overallI += 1
+            }
+        }
+    }
+    let foundKeywords = new Set();
+    let overallIBeforeKeywords = overallI;
     if (keywords !== null) {
         for (let i = 0; i < keywords.length; i += 1, overallI += 1) {
             let keyword = keywords[i];
@@ -570,25 +708,61 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
                 argumentsMutation["KWARGS:" + overallI] = null;
             } else {
                 argumentsNormal["ARG" + overallI] = this.convert(value, node);
-                argumentsMutation["KEYWORD:" + Sk.ffi.remapToJs(arg)] = null;
+                let keywordName = Sk.ffi.remapToJs(arg)
+
+                if (fromLibrary instanceof PythonFunction) {
+                    let parameter = fromLibrary.parameters.findByKeyword(keywordName)
+                    foundKeywords.add(keywordName);
+                    let keywordNames = keywordName
+
+                    if (parameter?.names.length > 1) {
+                        let otherNames = [...parameter.names].filter(item => item !== keywordName)
+                        keywordNames = keywordName + ' ' + otherNames;
+                        otherNames.forEach(foundKeywords.add, foundKeywords);
+                    }
+                    argumentsMutation["KEYWORD:" + keywordNames] = document.createTextNode(fromLibrary.fullName + " " + keywordName)
+                } else {
+                    argumentsMutation["KEYWORD:" + keywordName] = null;
+                }
             }
         }
     }
-    // Build actual block
-    let newBlock;
+    if (this.blockMirror.configuration.showDefaultArguments && fromLibrary instanceof PythonFunction) {
+        for (let i = overallIBeforeKeywords; i < fromLibrary.parameters.length - fromLibrary.argumentOffset; i += 1) {
+            let pythonParameter = fromLibrary.parameters[i + fromLibrary.argumentOffset]
+            if (!(pythonParameter.keyword || pythonParameter.preferKeyword) || foundKeywords.has(pythonParameter.name)) {
+                continue
+            }
+
+            if (pythonParameter.variableLength) {
+                continue
+            }
+
+            if (pythonParameter.defaultValue !== "") {
+                argumentsNormal["ARG" + overallI] = pythonParameter.defaultValueBlocks(this)
+            }
+            argumentsMutation["KEYWORD:" + pythonParameter.names.join(' ')] = document.createTextNode(fromLibrary.fullName + " " + pythonParameter.name)
+            overallI += 1
+        }
+    }
+
     if (isMethod) {
         argumentsNormal['FUNC'] = this.convert(caller, node);
-        newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno,
-            {}, argumentsNormal, {inline: true}, argumentsMutation);
-    } else {
-        newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {},
-            argumentsNormal, {inline: true}, argumentsMutation);
     }
-    // Return as either statement or expression
-    if (returns) {
-        return newBlock;
-    } else {
+
+    // Build actual block
+    let newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno,
+        {}, argumentsNormal, {inline: true}, argumentsMutation);
+
+    if (fromLibrary instanceof PythonFunction) {
+        fromLibrary.applyShadow(newBlock)
+    }
+
+    if (returns === 'None' || this.isStatement(node)) {
+        // Return as statement
         return [newBlock];
+    } else {
+        // Return as expression
+        return newBlock;
     }
 };
-

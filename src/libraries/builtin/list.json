@@ -1,0 +1,27 @@
+{
+  "__colour": "LIST",
+  "__toolbox": false,
+  "class collections.abc.Sequence": [
+    "count(self, item, /): int",
+    "index(self, item, /): int"
+  ],
+  "class collections.abc.MutableSequence(collections.abc.Sequence)": [
+    "append(self, value, /): None // to list {} append (___)",
+    "extend(self, other: collections.abc.Sequence, /): None",
+    "insert(self, pos, elmnt, /): None // to list {} insert at (___, ___)",
+    "reverse(self): collections.abc.MutableSequence"
+  ],
+  "class list(collections.abc.MutableSequence)": [
+    "__init__(self, iterable = None, /)",
+    "copy(self): list",
+    "sort(self, *, reverse: bool = False, key = None)",
+    {
+      "signatures": [
+        "clear(self): None",
+        "pop(self, pos: int = -1, /): Any",
+        "remove(self, value: Any, /): None"
+      ],
+      "colour": "SEQUENCES"
+    }
+  ]
+}

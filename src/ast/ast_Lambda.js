@@ -12,7 +12,7 @@ Blockly.Blocks['ast_Lambda'] = {
             .setCheck(null);
         this.setInputsInline(false);
         this.setOutput(true);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
         this.updateShape_();
     },
     mutationToDom: Blockly.Blocks['ast_FunctionDef'].mutationToDom,
@@ -25,12 +25,12 @@ python.pythonGenerator.forBlock['ast_Lambda'] = function(block, generator) {
     // Parameters
     let parameters = new Array(block.parametersCount_);
     for (let i = 0; i < block.parametersCount_; i++) {
-        parameters[i] = (python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.pythonGenerator.ORDER_NONE) ||
+        parameters[i] = (python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
     }
     // Body
-    let body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.PASS;
-    return ["lambda " + parameters.join(', ') + ": " + body, python.pythonGenerator.ORDER_LAMBDA];
+    let body = python.pythonGenerator.valueToCode(block, 'BODY', python.Order.LAMBDA) || python.pythonGenerator.PASS;
+    return ["lambda " + parameters.join(', ') + ": " + body, python.Order.LAMBDA];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {

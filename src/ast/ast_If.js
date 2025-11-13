@@ -3,14 +3,14 @@ Blockly.Blocks['ast_If'] = {
         this.orelse_ = 0;
         this.elifs_ = 0;
         this.appendValueInput('TEST')
-            .appendField("if");
+            .appendField(this.translateText("if"));
         this.appendStatementInput("BODY")
             .setCheck(null)
             .setAlign(Blockly.inputs.Align.RIGHT);
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.LOGIC);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.LOGIC));
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -33,7 +33,7 @@ Blockly.Blocks['ast_If'] = {
 
         if (this.orelse_ && !this.getInput('ELSE')) {
             this.appendDummyInput('ORELSETEST')
-                .appendField("else:");
+                .appendField(this.translateText("else:"));
             this.appendStatementInput("ORELSEBODY")
                 .setCheck(null);
         } else if (!this.orelse_ && this.getInput('ELSE')) {
@@ -77,7 +77,7 @@ Blockly.Blocks['ast_If'] = {
 python.pythonGenerator.forBlock['ast_If'] = function(block, generator) {
     // Test
     let test = "if " + (python.pythonGenerator.valueToCode(block, 'TEST',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+        python.Order.NONE) || python.pythonGenerator.blank) + ":\n";
     // Body:
     let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Elifs
@@ -85,7 +85,7 @@ python.pythonGenerator.forBlock['ast_If'] = function(block, generator) {
     for (let i = 0; i < block.elifs_; i++) {
         let elif = block.elifs_[i];
         let clause = "elif " + (python.pythonGenerator.valueToCode(block, 'ELIFTEST' + i,
-            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+            python.Order.NONE) || python.pythonGenerator.blank);
         clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'ELIFBODY' + i) || python.pythonGenerator.PASS);
         elifs[i] = clause;
     }

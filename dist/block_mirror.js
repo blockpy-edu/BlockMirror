@@ -1,38 +1,304 @@
 "use strict";
 
-{
-  var orig_init = python.pythonGenerator.init;
-
-  /**
-   * Initialise the database of variable names.
-   * @param {!Blockly.Workspace} workspace Workspace to generate code from.
-   */
-  python.pythonGenerator.init = function (workspace) {
-    // Keep track of datasets that are already imported
-    python.pythonGenerator.imported_ = Object.create(null);
-    orig_init.bind(this)(workspace);
-  };
-}
-python.pythonGenerator.finish = function (code) {
-  // Convert the definitions dictionary into a list.
-  var imports = [];
-  var definitions = [];
-  for (var name in this.definitions_) {
-    var def = this.definitions_[name];
-    if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
-      imports.push(def);
-    } else {
-      definitions.push(def);
+function _superPropGet(t, o, e, r) { var p = _get(_getPrototypeOf(1 & r ? t.prototype : t), o, e); return 2 & r && "function" == typeof p ? function (t) { return p.apply(e, t); } : p; }
+function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
+function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));); return t; }
+function _wrapNativeSuper(t) { var r = "function" == typeof Map ? new Map() : void 0; return _wrapNativeSuper = function _wrapNativeSuper(t) { if (null === t || !_isNativeFunction(t)) return t; if ("function" != typeof t) throw new TypeError("Super expression must either be null or a function"); if (void 0 !== r) { if (r.has(t)) return r.get(t); r.set(t, Wrapper); } function Wrapper() { return _construct(t, arguments, _getPrototypeOf(this).constructor); } return Wrapper.prototype = Object.create(t.prototype, { constructor: { value: Wrapper, enumerable: !1, writable: !0, configurable: !0 } }), _setPrototypeOf(Wrapper, t); }, _wrapNativeSuper(t); }
+function _construct(t, e, r) { if (_isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments); var o = [null]; o.push.apply(o, e); var p = new (t.bind.apply(t, o))(); return r && _setPrototypeOf(p, r.prototype), p; }
+function _isNativeFunction(t) { try { return -1 !== Function.toString.call(t).indexOf("[native code]"); } catch (n) { return "function" == typeof t; } }
+function _toArray(r) { return _arrayWithHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableRest(); }
+function _classPrivateMethodInitSpec(e, a) { _checkPrivateRedeclaration(e, a), a.add(e); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var TypeRegistry = /*#__PURE__*/function () {
+  function TypeRegistry() {
+    _classCallCheck(this, TypeRegistry);
+    this._name_to_type = new Map();
+    this._type_to_name = new Map();
+  }
+  return _createClass(TypeRegistry, [{
+    key: "size",
+    get: function get() {
+      return this._name_to_type.size;
     }
+  }, {
+    key: "set",
+    value: function set(type, name) {
+      this._name_to_type.set(name, type);
+      this._type_to_name.set(type, name);
+    }
+  }, {
+    key: "getType",
+    value: function getType(name) {
+      return this._name_to_type.get(name);
+    }
+  }, {
+    key: "getName",
+    value: function getName(type) {
+      return this._type_to_name.get(type);
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this._name_to_type.clear();
+      this._type_to_name.clear();
+    }
+  }, {
+    key: "deleteName",
+    value: function deleteName(name) {
+      var type = this._name_to_type.get(name);
+      this._name_to_type["delete"](name);
+      this._type_to_name["delete"](type);
+    }
+  }, {
+    key: "deleteType",
+    value: function deleteType(type) {
+      var name = this._type_to_name.get(type);
+      this._name_to_type["delete"](name);
+      this._type_to_name["delete"](type);
+    }
+  }, {
+    key: "entries",
+    value: function entries() {
+      return this._name_to_type.entries();
+    }
+  }, {
+    key: "hasName",
+    value: function hasName(name) {
+      return this._name_to_type.has(name);
+    }
+  }, {
+    key: "hasType",
+    value: function hasType(type) {
+      return this._type_to_name.has(type);
+    }
+  }, {
+    key: "names",
+    value: function names() {
+      return this._name_to_type.keys();
+    }
+  }, {
+    key: "types",
+    value: function types() {
+      return this._type_to_name.keys();
+    }
+  }]);
+}(); // A type may be used by multiple names.
+// A name may have multiple types, as Python is not typed.
+var TypesRegistry = /*#__PURE__*/function () {
+  function TypesRegistry() {
+    _classCallCheck(this, TypesRegistry);
+    this._name_to_types = new Map();
+    this._type_to_names = new Map();
+  }
+  return _createClass(TypesRegistry, [{
+    key: "size",
+    get: function get() {
+      return this._name_to_types.size;
+    }
+  }, {
+    key: "add",
+    value: function add(type, name) {
+      var types = this._name_to_types.get(name) || [];
+      var names = this._type_to_names.get(name) || [];
+      if (!names.includes(name)) {
+        names.push(name);
+      }
+      if (!types.includes(type)) {
+        types.push(type);
+      }
+      this._name_to_types.set(name, types);
+      this._type_to_names.set(type, names);
+    }
+  }, {
+    key: "getTypes",
+    value: function getTypes(name) {
+      return this._name_to_types.get(name);
+    }
+  }, {
+    key: "getSingleType",
+    value: function getSingleType(name) {
+      var types = this.getTypes(name);
+      return types && types.length === 1 ? types[0] : null;
+    }
+  }, {
+    key: "getNames",
+    value: function getNames(type) {
+      return this._type_to_names.get(type);
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this._name_to_types.clear();
+      this._type_to_names.clear();
+    }
+  }, {
+    key: "deleteName",
+    value: function deleteName(name) {
+      var types = this._name_to_types.get(name);
+      this._name_to_types["delete"](name);
+      if (types !== undefined) {
+        var _iterator = _createForOfIteratorHelper(types),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var type = _step.value;
+            this._type_to_names["delete"](type);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      }
+    }
+  }, {
+    key: "deleteType",
+    value: function deleteType(type) {
+      var names = this._type_to_names.get(type);
+      this._type_to_names["delete"](type);
+      if (names !== undefined) {
+        var _iterator2 = _createForOfIteratorHelper(names),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var name = _step2.value;
+            this._name_to_types["delete"](name);
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      }
+    }
+  }, {
+    key: "entries",
+    value: function entries() {
+      return this._name_to_types.entries();
+    }
+  }, {
+    key: "hasName",
+    value: function hasName(name) {
+      return this._name_to_types.has(name);
+    }
+  }, {
+    key: "hasType",
+    value: function hasType(type) {
+      return this._type_to_names.has(type);
+    }
+  }, {
+    key: "names",
+    value: function names() {
+      return this._name_to_types.keys();
+    }
+  }, {
+    key: "types",
+    value: function types() {
+      return this._type_to_names.keys();
+    }
+  }]);
+}();
+python.pythonGenerator.imports = new TypeRegistry();
+python.pythonGenerator.variables = new TypesRegistry();
+
+// Hook for cases where custom scrubbing needs to be undone
+python.pythonGenerator.descrub_ = function (line) {
+  return line;
+};
+python.pythonGenerator.finish = function (code) {
+  var importRegExp = /^(from\s+\S+\s+)?import\s+\S+/;
+  var lines = code.split('\n');
+  var descrubbed_lines = lines.map(python.pythonGenerator.descrub_);
+  var code_lines = [];
+  var imports = [];
+  var descrubbed_imports = [];
+  var _iterator3 = _createForOfIteratorHelper(descrubbed_lines.entries()),
+    _step3;
+  try {
+    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+      var _step3$value = _slicedToArray(_step3.value, 2),
+        index = _step3$value[0],
+        descrubbed_line = _step3$value[1];
+      if (descrubbed_line.match(importRegExp)) {
+        descrubbed_imports.push(descrubbed_line);
+        imports.push(lines[index]);
+      } else {
+        code_lines.push(lines[index]);
+      }
+    }
+  } catch (err) {
+    _iterator3.e(err);
+  } finally {
+    _iterator3.f();
+  }
+  var _iterator4 = _createForOfIteratorHelper(_toConsumableArray(this.imports.entries()).sort()),
+    _step4;
+  try {
+    var _loop = function _loop() {
+      var _step4$value = _slicedToArray(_step4.value, 2),
+        name = _step4$value[0],
+        type = _step4$value[1];
+      // Only add imports from the registry if not already defined in code
+      if (!descrubbed_imports.some(function (item) {
+        return item.match(new RegExp("\\s+".concat(name, "\\s*(,.*)?$")));
+      })) {
+        if (name === type) {
+          imports.push("import ".concat(type));
+        } else {
+          var lastIndexOfDot = type.lastIndexOf('.');
+          var simpleType = type.substring(lastIndexOfDot + 1);
+          if (simpleType === name) {
+            // TODO gather from statements first
+            var fromModule = type.substring(0, lastIndexOfDot);
+            imports.push("from ".concat(fromModule, " import ").concat(name));
+          } else {
+            imports.push("import ".concat(type, " as ").concat(name));
+          }
+        }
+      }
+    };
+    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+      _loop();
+    }
+  } catch (err) {
+    _iterator4.e(err);
+  } finally {
+    _iterator4.f();
   }
   this.definitions_ = Object.create(null);
   this.functionNames_ = Object.create(null);
-  this.imported_ = Object.create(null);
   this.isInitialized = false;
+  this.imports.clear();
+  this.variables.clear();
   this.nameDB_.reset();
   // acbart: Don't actually inject initializations - we don't need 'em.
-  var allDefs = imports.join('\n') + '\n\n'; // + definitions.join('\n\n');
-  return allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n\n') + code;
+  var allDefs = _toConsumableArray(new Set(imports)).join('\n') + '\n\n';
+  return allDefs.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n\n\n') + code_lines.join('\n').trimStart();
 };
 python.pythonGenerator.INDENT = '    ';
 python.pythonGenerator.RESERVED_WORDS_ = "False,None,True,and,as,assert,break,class," + "continue,def,del,elif,else,except,finally,for," + "from,global,if,import,in,is,lambda,nonlocal," + "not,or,pass,raise,return,try,while,with,yield";
@@ -48,53 +314,8 @@ python.pythonGenerator.scrubNakedValue = function (line) {
   return line;
 };
 
-/**
- * Construct the blocks required by the flyout for the variable category.
- * @param {!Blockly.Workspace} workspace The workspace containing variables.
- * @return {!Array.<!Element>} Array of XML block elements.
- */
-Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
-  var variableModelList = workspace.getVariablesOfType('');
-  var xmlList = [];
-  if (variableModelList.length > 0) {
-    // New variables are added to the end of the variableModelList.
-    var mostRecentVariableFieldXmlString = variableModelList[variableModelList.length - 1];
-    if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_Assign']) {
-      var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
-      var blockText = '<xml>' + '<block type="ast_Assign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '</block>' + '</xml>';
-      var block = Blockly.utils.xml.textToDom(blockText).firstChild;
-      xmlList.push(block);
-    }
-    if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_AugAssign']) {
-      var gap = Blockly.Blocks['ast_Name'] ? 20 : 8;
-      var blockText = '<xml>' + '<block type="ast_AugAssign" gap="' + gap + '">' + mostRecentVariableFieldXmlString + '<value name="VALUE">' + '<shadow type="ast_Num">' + '<field name="NUM">1</field>' + '</shadow>' + '</value>' + '<mutation options="false" simple="true"></mutation>' + '</block>' + '</xml>';
-      var block = Blockly.utils.xml.textToDom(blockText).firstChild;
-      xmlList.push(block);
-    }
-    if (Blockly.Blocks['ast_Name']) {
-      variableModelList.sort(Blockly.VariableModel.compareByName);
-      for (var i = 0, variable; variable = variableModelList[i]; i++) {
-        if (!Blockly.Variables._HIDE_GETTERS_SETTERS) {
-          var _block = Blockly.utils.xml.createElement('block');
-          _block.setAttribute('type', 'ast_Name');
-          _block.setAttribute('gap', 8);
-          _block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
-          xmlList.push(_block);
-        } else {
-          block = Blockly.utils.xml.createElement('label');
-          block.setAttribute('text', variable.name);
-          block.setAttribute('web-class', 'blockmirror-toolbox-variable');
-          //block.setAttribute('gap', 8);
-          xmlList.push(block);
-        }
-      }
-    }
-  }
-  return xmlList;
-};
-
 //******************************************************************************
-// Hacks to make variable names case sensitive
+// Hacks to make variable names case-sensitive
 
 /**
  * A custom compare function for the VariableModel objects.
@@ -157,6 +378,15 @@ Blockly.Variables.nameUsedWithAnyType = function (name, workspace) {
   }
   return null;
 };
+Blockly.BlockSvg.prototype.translateText = function (identifier, defaultValue, namespace) {
+  // Find the main workspace and call the function on that.
+  return this.workspace.themeManager_.workspace.translateText(identifier, defaultValue, namespace);
+};
+Blockly.BlockSvg.prototype.convertColour = function (type, defaultValue, fromLibrary) {
+  // Find the main workspace and call the function on that.
+  return this.workspace.themeManager_.workspace.convertColour(type, defaultValue, fromLibrary);
+};
+
 /**
 
  External visible stuff
@@ -186,6 +416,11 @@ Blockly.Variables.nameUsedWithAnyType = function (name, workspace) {
  */
 
 /**
+ * Location to register default libraries.
+ */
+BlockMirror.LIBRARIES = {};
+
+/**
  *
  */
 function BlockMirror(configuration) {
@@ -200,6 +435,7 @@ function BlockMirror(configuration) {
   this.setMode(this.configuration.viewMode);
 }
 BlockMirror.prototype.validateConfiguration = function (configuration) {
+  var _configuration$readOn, _configuration$height, _configuration$viewMo, _configuration$skipSk, _configuration$blockD, _configuration$toolbo, _configuration$render, _configuration$imageU, _configuration$imageD, _configuration$imageL, _configuration$imageD2, _configuration$imageM, _configuration$librar, _configuration$transl, _configuration$prefer, _configuration$showDe, _configuration$move, _configuration$zoom, _configuration$conver;
   this.configuration = {};
 
   // Container
@@ -226,36 +462,49 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
   }
 
   // readOnly
-  this.configuration['readOnly'] = configuration['readOnly'] || false;
+  this.configuration['readOnly'] = (_configuration$readOn = configuration['readOnly']) !== null && _configuration$readOn !== void 0 ? _configuration$readOn : false;
 
   // height
-  this.configuration.height = configuration.height || 500;
+  this.configuration.height = (_configuration$height = configuration.height) !== null && _configuration$height !== void 0 ? _configuration$height : 500;
 
   // viewMode
-  this.configuration.viewMode = configuration.viewMode || 'split';
+  this.configuration.viewMode = (_configuration$viewMo = configuration.viewMode) !== null && _configuration$viewMo !== void 0 ? _configuration$viewMo : 'split';
 
   // Need to load skulpt?
-  this.configuration.skipSkulpt = configuration.skipSkulpt || false;
+  this.configuration.skipSkulpt = (_configuration$skipSk = configuration.skipSkulpt) !== null && _configuration$skipSk !== void 0 ? _configuration$skipSk : false;
 
   // Delay?
-  this.configuration.blockDelay = configuration.blockDelay || false;
+  this.configuration.blockDelay = (_configuration$blockD = configuration.blockDelay) !== null && _configuration$blockD !== void 0 ? _configuration$blockD : false;
 
   // Toolbox
-  this.configuration.toolbox = configuration.toolbox || "normal";
-  this.configuration.renderer = configuration.renderer || 'Thrasos';
+  this.configuration.toolbox = (_configuration$toolbo = configuration.toolbox) !== null && _configuration$toolbo !== void 0 ? _configuration$toolbo : "normal";
+  this.configuration.renderer = (_configuration$render = configuration.renderer) !== null && _configuration$render !== void 0 ? _configuration$render : 'Thrasos';
 
   // Convert image URLs?
-  this.configuration.imageUploadHook = configuration.imageUploadHook || function (old) {
+  this.configuration.imageUploadHook = (_configuration$imageU = configuration.imageUploadHook) !== null && _configuration$imageU !== void 0 ? _configuration$imageU : function (old) {
     return Promise.resolve(old);
   };
-  this.configuration.imageDownloadHook = configuration.imageDownloadHook || function (old) {
+  this.configuration.imageDownloadHook = (_configuration$imageD = configuration.imageDownloadHook) !== null && _configuration$imageD !== void 0 ? _configuration$imageD : function (old) {
     return old;
   };
-  this.configuration.imageLiteralHook = configuration.imageLiteralHook || function (old) {
+  this.configuration.imageLiteralHook = (_configuration$imageL = configuration.imageLiteralHook) !== null && _configuration$imageL !== void 0 ? _configuration$imageL : function (old) {
     return old;
   };
-  this.configuration.imageDetection = configuration.imageDetection || 'string';
-  this.configuration.imageMode = configuration.imageMode || false;
+  this.configuration.imageDetection = (_configuration$imageD2 = configuration.imageDetection) !== null && _configuration$imageD2 !== void 0 ? _configuration$imageD2 : 'string';
+  this.configuration.imageMode = (_configuration$imageM = configuration.imageMode) !== null && _configuration$imageM !== void 0 ? _configuration$imageM : false;
+  this.configuration.libraries = (_configuration$librar = configuration.libraries) !== null && _configuration$librar !== void 0 ? _configuration$librar : BlockMirror.LIBRARIES;
+  this.configuration.translate = (_configuration$transl = configuration.translate) !== null && _configuration$transl !== void 0 ? _configuration$transl : function (identifier, defaultValue, _namespace) {
+    return defaultValue === undefined || defaultValue === null ? identifier : defaultValue;
+  };
+  this.configuration.preferFullAttributeBlocks = (_configuration$prefer = configuration.preferFullAttributeBlocks) !== null && _configuration$prefer !== void 0 ? _configuration$prefer : false;
+  this.configuration.showDefaultArguments = (_configuration$showDe = configuration.showDefaultArguments) !== null && _configuration$showDe !== void 0 ? _configuration$showDe : false;
+  this.configuration.move = (_configuration$move = configuration.move) !== null && _configuration$move !== void 0 ? _configuration$move : {};
+  this.configuration.zoom = (_configuration$zoom = configuration.zoom) !== null && _configuration$zoom !== void 0 ? _configuration$zoom : {
+    controls: true
+  };
+  this.configuration.convertColour = (_configuration$conver = configuration.convertColour) !== null && _configuration$conver !== void 0 ? _configuration$conver : function (type, defaultValue, name) {
+    return defaultValue;
+  };
 };
 BlockMirror.prototype.initializeVariables = function () {
   this.tags = {
@@ -300,6 +549,7 @@ BlockMirror.prototype.initializeVariables = function () {
 
   // Listeners
   this.listeners_ = [];
+  this.libraries = new Libraries(this.configuration.libraries, this.configuration.translate, this.configuration.convertColour);
 };
 BlockMirror.prototype.loadSkulpt = function () {
   Sk.configure({
@@ -573,10 +823,10 @@ BlockMirrorTextEditor.prototype.updateImages = function (cm, from, to) {
 };
 
 //'https://game-icons.net/icons/ffffff/000000/1x1/delapouite/labrador-head.png'
-var FULL_IMAGE_URL = /^(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)$/;
+var FULL_IMAGE_URL = /^(?:https?:\/\/[-a-zA-Z0-9@:%._/\\+~#=]+(?:png|jpg|jpeg|gif|svg)+)$/;
 //const BLOB_IMAGE_URL = /(["'])(blob:null\/[A-Fa-f0-9-]+)\1/g;
 //const REGULAR_IMAGE_URL = /(["'])((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+)\1/g;
-var STRING_IMAGE_URL = /((["'])(?:https?:\/\/[-a-zA-Z0-9@:%._\/\+~#=]+(?:png|jpg|jpeg|gif|svg)+)|(?:blob:null\/[A-Fa-f0-9-]+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2})\2)/g;
+var STRING_IMAGE_URL = /((["'])(?:https?:\/\/[-a-zA-Z0-9@:%._\\/+~#=]+(?:png|jpg|jpeg|gif|svg)+)|(?:blob:null\/[A-Fa-f0-9-]+)|(?:data:image\/(?:png|jpg|jpeg|gif|svg\+xml|webp|bmp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}))/g;
 //const CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])((?:blob:null\/[A-Fa-f0-9-]+)|(?:(?:https?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+(?:png|jpg|jpeg|gif|svg)+))\2\))/g;
 var CONSTRUCTOR_IMAGE_URL = /(?:^|\W)(Image\((["'])(.+?)\2\))/g;
 BlockMirrorTextEditor.REGEX_PATTERNS = {
@@ -750,6 +1000,7 @@ BlockMirrorTextEditor.prototype.clearHighlightedLines = function (style) {
  */
 
 function BlockMirrorBlockEditor(blockMirror) {
+  var _this6 = this;
   this.blockMirror = blockMirror;
   this.blockContainer = blockMirror.tags.blockContainer;
   this.blockEditor = blockMirror.tags.blockEditor;
@@ -760,23 +1011,29 @@ function BlockMirrorBlockEditor(blockMirror) {
 
   // Have to call BEFORE we inject, or Blockly will delete the css string!
   // this.loadBlocklyCSS();
+  this.baseToolboxContent_ = this.makeBaseToolboxContent();
 
   // Inject Blockly
   var blocklyOptions = {
     media: blockMirror.configuration.blocklyMediaPath,
-    // We use special comment blocks
-    zoom: {
-      controls: true
-    },
     comments: false,
+    // We use special comment blocks
     disable: false,
     oneBasedIndex: false,
     readOnly: blockMirror.configuration.readOnly,
     scrollbars: true,
     toolbox: this.makeToolbox(),
-    renderer: blockMirror.configuration.renderer
+    renderer: blockMirror.configuration.renderer,
+    move: blockMirror.configuration.move,
+    zoom: blockMirror.configuration.zoom
   };
   this.workspace = Blockly.inject(blockMirror.tags.blockEditor, blocklyOptions);
+  this.workspace.registerToolboxCategoryCallback('VARIABLE', this.variableFlyoutCallback);
+  this.workspace.convertColour = blockMirror.configuration.convertColour;
+  this.workspace.translateText = blockMirror.configuration.translate;
+  this.workspace.libraries = blockMirror.libraries;
+  this.workspace.toolbox.flyout.workspace_.libraries = blockMirror.libraries;
+
   // Configure Blockly
   this.workspace.addChangeListener(this.changed.bind(this));
 
@@ -789,7 +1046,67 @@ function BlockMirrorBlockEditor(blockMirror) {
   this.readOnlyDiv_ = null;
   window.addEventListener('resize', this.resized.bind(this), false);
   this.resized();
+
+  // Needed for libraries with dynamic toolbox
+  // TODO optimize
+  this.blockMirror.addChangeListener(function (event) {
+    return _this6.remakeToolbox();
+  });
 }
+
+/**
+ * Construct the blocks required by the flyout for the variable category.
+ * @param {!Blockly.Workspace} workspace The workspace containing variables.
+ * @return {!Array.<!Element>} Array of XML block elements.
+ */
+BlockMirrorBlockEditor.prototype.variableFlyoutCallback = function (workspace) {
+  var xmlList = [];
+  var button = document.createElement('button');
+  button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+  workspace.registerButtonCallback('CREATE_VARIABLE', function (button) {
+    Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
+  });
+  xmlList.push(button);
+  var variableModelList = workspace.getVariableMap().getVariablesOfType('');
+  if (variableModelList.length > 0) {
+    // New variables are added to the end of the variableModelList.
+    var mostRecentVariableState;
+    for (var i = variableModelList.length - 1; i >= 0; i--) {
+      var variable = variableModelList[i];
+      if (variable.name !== python.pythonGenerator.blank) {
+        mostRecentVariableState = variable;
+        break;
+      }
+    }
+    if (mostRecentVariableState && !Blockly.Variables._HIDE_GETTERS_SETTERS) {
+      var mostRecentVariableFieldXmlString = '<field name="VAR"><shadow type="ast_Name">' + mostRecentVariableState.getName() + "</shadow></field>";
+      xmlList.push(Blockly.utils.xml.textToDom(blockText = '<block type="ast_Assign" gap="8">' + mostRecentVariableFieldXmlString + "</block>"));
+      var blockText = '<block type="ast_AugAssign" gap="8">' + mostRecentVariableFieldXmlString + '<value name="VALUE">' + '<shadow type="ast_Num">' + '<field name="NUM">1</field>' + "</shadow>" + "</value>" + '<mutation options="false" simple="true"></mutation>' + "</block>";
+      xmlList.push(Blockly.utils.xml.textToDom(blockText));
+    }
+  }
+  xmlList.push(Blockly.utils.xml.textToDom('<block type="ast_Assign" gap="8"><mutation targets="1" simple="false"></mutation></block>'));
+  variableModelList.sort(Blockly.VariableModel.compareByName);
+  for (var _i = 0, _variable; _variable = variableModelList[_i]; _i++) {
+    if (_variable.name === python.pythonGenerator.blank) {
+      continue;
+    } else if (Blockly.Variables._HIDE_GETTERS_SETTERS) {
+      block = Blockly.utils.xml.createElement('label');
+      block.setAttribute('text', _variable.name);
+      block.setAttribute('web-class', 'blockmirror-toolbox-variable');
+      //block.setAttribute('gap', 8);
+      xmlList.push(block);
+    } else {
+      var _block2 = Blockly.utils.xml.createElement('block');
+      _block2.setAttribute('type', 'ast_Name');
+      _block2.setAttribute('gap', 8);
+      _block2.appendChild(Blockly.Variables.generateVariableFieldDom(_variable));
+      xmlList.push(_block2);
+    }
+  }
+  return xmlList;
+};
 BlockMirrorBlockEditor.prototype.resizeReadOnlyDiv = function () {
   if (this.readOnlyDiv_ !== null) {
     if (!this.isVisible()) {
@@ -852,13 +1169,13 @@ BlockMirrorBlockEditor.prototype.resized = function (e) {
   this.resizeReadOnlyDiv();
 };
 BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython) {
-  var _this6 = this;
+  var _this7 = this;
   Blockly.Variables._HIDE_GETTERS_SETTERS = false;
   return toolboxPython.map(function (category) {
     if (typeof category === "string") {
       return category;
     }
-    var colour = BlockMirrorTextToBlocks.COLOR[category.colour];
+    var colour = _this7.blockMirror.configuration.convertColour("toolbox", BlockMirrorTextToBlocks.COLOR[category.colour], category.name);
     var header = "<category name=\"".concat(category.name, "\" colour=\"").concat(colour, "\"");
     if (category.custom) {
       header += " custom=\"".concat(category.custom, "\">");
@@ -866,8 +1183,25 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
       header += ">";
     }
     var body = (category.blocks || []).map(function (code) {
-      var result = _this6.blockMirror.textToBlocks.convertSource('toolbox.py', code);
-      return result.rawXml.innerHTML.toString();
+      if (code === '') {
+        return "<sep gap='50'></sep>";
+      }
+      var textToBlocks = _this7.blockMirror.textToBlocks;
+      var originalVariables = textToBlocks.variables;
+      try {
+        textToBlocks.variables = new TypesRegistry();
+        var result = _this7.blockMirror.textToBlocks.convertSource('toolbox.py', code);
+        if (result.rawXml.firstElementChild.getAttribute('type') === 'ast_AnnAssignFull') {
+          // In case the first line only specifies the class the attribute is defined on.
+          var nextElements = result.rawXml.getElementsByTagName("next");
+          if (nextElements.length > 0) {
+            return nextElements.item(0).innerHTML.toString();
+          }
+        }
+        return result.rawXml.innerHTML.toString();
+      } finally {
+        textToBlocks.variables = originalVariables;
+      }
     }).join("\n");
     var footer = "</category>";
     if (category['hideGettersSetters']) {
@@ -876,20 +1210,36 @@ BlockMirrorBlockEditor.prototype.toolboxPythonToBlocks = function (toolboxPython
     return [header, body, footer].join("\n");
   }).join("\n");
 };
-BlockMirrorBlockEditor.prototype.makeToolbox = function () {
+BlockMirrorBlockEditor.prototype.makeBaseToolboxContent = function () {
   var toolbox = this.blockMirror.configuration.toolbox;
-  // Use palette if it exists, otherwise assume its a custom one.
+  // Use palette if it exists, otherwise assume it is a custom one.
   if (toolbox in this.TOOLBOXES) {
     toolbox = this.TOOLBOXES[toolbox];
   }
   // Convert if necessary
   if (typeof toolbox !== "string") {
-    toolbox = this.toolboxPythonToBlocks(toolbox);
+    var textToBlocks = this.blockMirror.textToBlocks;
+    var originalImports = textToBlocks.imports;
+    var originalVariables = textToBlocks.variables;
+    try {
+      textToBlocks.imports = new TypeRegistry();
+      textToBlocks.variables = new TypesRegistry();
+      this.blockMirror.libraries.registerImports(textToBlocks.imports);
+      toolbox = this.toolboxPythonToBlocks(toolbox);
+    } finally {
+      textToBlocks.imports = originalImports;
+      textToBlocks.variables = originalVariables;
+    }
   }
   // TODO: Fix Hack, this should be configurable by instance rather than by class
   for (var name in BlockMirrorBlockEditor.EXTRA_TOOLS) {
     toolbox += BlockMirrorBlockEditor.EXTRA_TOOLS[name];
   }
+  return toolbox;
+};
+BlockMirrorBlockEditor.prototype.makeToolbox = function () {
+  var toolbox = this.baseToolboxContent_;
+  toolbox += this.blockMirror.libraries.toToolbox(this.blockMirror.textToBlocks);
   return '<xml id="toolbox" style="display:none">' + toolbox + '</xml>';
 };
 BlockMirrorBlockEditor.prototype.remakeToolbox = function () {
@@ -969,7 +1319,33 @@ BlockMirrorBlockEditor.prototype.setMode = function (mode) {
  * percolating.
  */
 BlockMirrorBlockEditor.prototype.getCode = function () {
+  python.pythonGenerator.libraries = this.blockMirror.libraries;
   return python.pythonGenerator.workspaceToCode(this.workspace);
+};
+
+// Simplified workspace cleanup, which can assume there are no immovable blocks.
+BlockMirrorBlockEditor.prototype._cleanUpWorkspace = function () {
+  this.workspace.setResizesEnabled(false);
+  var topBlocks = this.workspace.getTopBlocks(true);
+  var spacerHeight = this.workspace.renderer.getConstants().SPACER_DEFAULT_HEIGHT;
+  // Not entirely clear why, but these are the minimum values needed to avoid most unwanted layout changes when dragging.
+  var extraHeight = Math.round(this.workspace.renderer.getConstants().MIN_BLOCK_HEIGHT * 2.5);
+  var cursorY = extraHeight;
+  var _iterator5 = _createForOfIteratorHelper(topBlocks),
+    _step5;
+  try {
+    for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+      var _block3 = _step5.value;
+      var boundingRect = _block3.getBoundingRectangle();
+      _block3.moveBy(-boundingRect.left + spacerHeight, Math.max(0, cursorY - boundingRect.top), ['cleanup']);
+      cursorY = _block3.getRelativeToSurfaceXY().y + _block3.getHeightWidth().height + extraHeight;
+    }
+  } catch (err) {
+    _iterator5.e(err);
+  } finally {
+    _iterator5.f();
+  }
+  this.workspace.setResizesEnabled(true);
 };
 
 /**
@@ -979,20 +1355,22 @@ BlockMirrorBlockEditor.prototype.getCode = function () {
  */
 BlockMirrorBlockEditor.prototype.setCode = function (code, quietly) {
   if (this.isVisible()) {
+    this.blockMirror.textToBlocks.imports.clear();
+    this.blockMirror.textToBlocks.variables.clear();
     var result = this.blockMirror.textToBlocks.convertSource('__main__.py', code);
     if (quietly) {
       Blockly.Events.disable();
     }
     try {
+      var minBlockHeight = this.workspace.renderer.getConstants().MIN_BLOCK_HEIGHT;
       var xml_code = Blockly.utils.xml.textToDom(result.xml);
-
       // Convert line numbers to y coordinates, to ensure proper ordering
       for (var i = 0, xmlChild; xmlChild = xml_code.childNodes[i]; i++) {
         var _xmlChild$getAttribut;
-        xmlChild.setAttribute('y', ((_xmlChild$getAttribut = xmlChild.getAttribute('line_number')) !== null && _xmlChild$getAttribut !== void 0 ? _xmlChild$getAttribut : 1) * 100);
+        xmlChild.setAttribute('y', (((_xmlChild$getAttribut = xmlChild.getAttribute('line_number')) !== null && _xmlChild$getAttribut !== void 0 ? _xmlChild$getAttribut : 1) - 1) * minBlockHeight);
       }
       Blockly.Xml.clearWorkspaceAndLoadFromXml(xml_code, this.workspace);
-      this.workspace.cleanUp();
+      this._cleanUpWorkspace();
     } catch (error) {
       console.error(error);
     }
@@ -1066,7 +1444,7 @@ BlockMirrorBlockEditor.prototype.getPngFromBlocks = function (callback) {
       var bbox = document.getElementsByClassName("blocklyBlockCanvas")[0].getBBox();
       // Create the XML representation of the SVG
       var xml = new XMLSerializer().serializeToString(blocks);
-      var classes = 'class="Thrasos-renderer classic-theme" ';
+      var classes = 'class="' + this.blockMirror.configuration.renderer + '-renderer classic-theme" ';
       xml = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' + classes + ' width="' + bbox.width + '" height="' + bbox.height + '" viewBox="0 0 ' + bbox.width + " " + bbox.height + '"><rect width="100%" height="100%" fill="white"></rect>' + xml + "</svg>";
       console.log(xml);
       // create a file blob of our SVG.
@@ -1120,9 +1498,47 @@ function BlockMirrorTextToBlocks(blockMirror) {
   this.hiddenImports = ["plt"];
   this.strictAnnotations = ['int', 'float', 'str', 'bool'];
   if (!BlockMirrorTextToBlocks.LOADED) {
+    var _iterator6 = _createForOfIteratorHelper(BlockMirrorTextToBlocks.BLOCKS),
+      _step6;
+    try {
+      for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+        var blockElement = _step6.value;
+        blockElement.colour = blockMirror.configuration.convertColour(blockElement.type, blockElement.colour);
+        if (blockElement.message0) {
+          blockElement.message0 = blockMirror.configuration.translate(blockElement.message0);
+        }
+        if (blockElement.args0) {
+          var _iterator7 = _createForOfIteratorHelper(blockElement.args0),
+            _step7;
+          try {
+            for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+              var arg = _step7.value;
+              if (arg.type === 'field_dropdown') {
+                arg.options = arg.options.map(function (_ref) {
+                  var _ref2 = _slicedToArray(_ref, 2),
+                    label = _ref2[0],
+                    value = _ref2[1];
+                  return [blockMirror.configuration.translate(label), value];
+                });
+              }
+            }
+          } catch (err) {
+            _iterator7.e(err);
+          } finally {
+            _iterator7.f();
+          }
+        }
+      }
+    } catch (err) {
+      _iterator6.e(err);
+    } finally {
+      _iterator6.f();
+    }
     Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
     BlockMirrorTextToBlocks.LOADED = true;
   }
+  this.imports = new TypeRegistry();
+  this.variables = new TypesRegistry();
 }
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
   return new XMLSerializer().serializeToString(xml);
@@ -1152,6 +1568,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     error;
   var badChunks = [];
   var originalSource = python_source;
+  this.filename = filename;
   this.source = python_source.split("\n");
   var previousLine = 1 + this.source.length;
   var startLine = 1;
@@ -1245,14 +1662,14 @@ BlockMirrorTextToBlocks.prototype.recursiveMeasure = function (node, nextBlockLi
     }
   }
   if ("orelse" in node) {
-    for (var _i = 0; _i < node.orelse.length; _i++) {
+    for (var _i2 = 0; _i2 < node.orelse.length; _i2++) {
       var _next = void 0;
-      if (_i === node.orelse.length) {
+      if (_i2 === node.orelse.length) {
         _next = nextBlockLine;
       } else {
-        _next = 1 + (node.orelse[_i].lineno - 1);
+        _next = 1 + (node.orelse[_i2].lineno - 1);
       }
-      this.recursiveMeasure(node.orelse[_i], _next);
+      this.recursiveMeasure(node.orelse[_i2], _next);
     }
   }
 };
@@ -1403,9 +1820,9 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   // Handle comments that are on the very last line
   var lastLineNumber = lineNumberInProgram + 1;
   if (lastLineNumber in this.comments) {
-    var comment = this.comments[lastLineNumber].split("|", 2);
-    if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
-      var lastComment = comment[1];
+    var _comment = this.comments[lastLineNumber].split("|", 2);
+    if (parseInt(_comment[0], 10) / 4 === this.levelIndex - 1) {
+      var lastComment = _comment[1];
       var _commentChild = this.ast_Comment(lastComment, lastLineNumber);
       if (is_top_level && !previousWasStatement) {
         addPeer(_commentChild);
@@ -1420,9 +1837,9 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   // Handle any extra comments that stuck around
   if (is_top_level) {
     for (var commentLineInProgram in this.comments) {
-      var comment = this.comments[commentLineInProgram].split("|", 2);
-      if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
-        var commentInProgram = comment[1];
+      var _comment2 = this.comments[commentLineInProgram].split("|", 2);
+      if (parseInt(_comment2[0], 10) / 4 == this.levelIndex - 1) {
+        var commentInProgram = _comment2[1];
         var _commentChild2 = this.ast_Comment(commentInProgram, commentLineInProgram);
         distance = commentLineInProgram - previousLineInProgram;
         if (previousLineInProgram == null) {
@@ -1441,9 +1858,17 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
   this.levelIndex -= 1;
   return children;
 };
-BlockMirrorTextToBlocks.prototype.TOP_LEVEL_NODES = ['Module', 'Expression', 'Interactive', 'Suite'];
-BlockMirrorTextToBlocks.prototype.isTopLevel = function (parent) {
-  return !parent || this.TOP_LEVEL_NODES.indexOf(parent._astname) !== -1;
+BlockMirrorTextToBlocks.prototype.isTopLevel = function (ast) {
+  return !ast || ast instanceof Sk.astnodes.Module || ast instanceof Sk.astnodes.Expression || ast instanceof Sk.astnodes.Interactive || ast instanceof Sk.astnodes.Suite;
+};
+BlockMirrorTextToBlocks.prototype.isStatementContainer = function (ast) {
+  return this.isTopLevel(ast) || ast instanceof Sk.astnodes.FunctionDef || ast instanceof Sk.astnodes.Expr && this.isStatementContainer(ast._parent);
+};
+BlockMirrorTextToBlocks.prototype.isStatement = function (ast) {
+  if (ast instanceof Sk.astnodes.FunctionDef) {
+    return ast.decorator_list.includes(ast);
+  }
+  return this.isStatementContainer(ast._parent);
 };
 BlockMirrorTextToBlocks.prototype.convert = function (node, parent) {
   var functionName = 'ast_' + node._astname;
@@ -1475,18 +1900,18 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source
 };
 BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
   var lineNumbers = [];
-  if (node.hasOwnProperty("lineno")) {
+  if (Object.hasOwn(node, "lineno")) {
     lineNumbers.push(node.lineno);
   }
-  if (node.hasOwnProperty("body")) {
+  if (Object.hasOwn(node, "body")) {
     for (var i = 0; i < node.body.length; i += 1) {
       var subnode = node.body[i];
       lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
     }
   }
-  if (node.hasOwnProperty("orelse")) {
-    for (var _i2 = 0; _i2 < node.orelse.length; _i2 += 1) {
-      var _subnode = node.orelse[_i2];
+  if (Object.hasOwn(node, "orelse")) {
+    for (var _i3 = 0; _i3 < node.orelse.length; _i3 += 1) {
+      var _subnode = node.orelse[_i3];
       lineNumbers = lineNumbers.concat(this.getChunkHeights(_subnode));
     }
   }
@@ -1551,16 +1976,14 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
   if (statements !== undefined && Object.keys(statements).length > 0) {
     for (var statement in statements) {
       var statementValue = statements[statement];
-      if (statementValue == null) {
-        continue;
-      } else {
-        for (var _i3 = 0; _i3 < statementValue.length; _i3 += 1) {
+      if (statementValue !== null) {
+        for (var _i4 = 0; _i4 < statementValue.length; _i4 += 1) {
           // In most cases, you really shouldn't ever have more than
           //  one statement in this list. I'm not sure Blockly likes
           //  that.
           var newStatement = document.createElement("statement");
           newStatement.setAttribute("name", statement);
-          newStatement.appendChild(statementValue[_i3]);
+          newStatement.appendChild(statementValue[_i4]);
           newBlock.appendChild(newStatement);
         }
       }
@@ -1568,8 +1991,9 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
   }
   return newBlock;
 };
-BlockMirrorTextToBlocks.raw_block = function (txt, lineno) {
-  return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno || 0, {
+BlockMirrorTextToBlocks.raw_block = function (txt) {
+  var lineno = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno, {
     "TEXT": txt
   });
 };
@@ -1616,8 +2040,1914 @@ BlockMirrorTextToBlocks.COLOR = {
   SET: 10,
   TUPLE: 20
 };
-BlockMirrorTextToBlocks['ast_Image'] = function (node, parent, bmttb) {
-  if (!bmttb.blockMirror.configuration.imageMode) {
+BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
+  if (node._astname === 'Name') {
+    return Sk.ffi.remapToJs(node.id);
+  } else if (node._astname === 'Call') {
+    return this.getAsModule(node.func);
+  } else if (node._astname === 'Attribute') {
+    var origin = this.getAsModule(node.value);
+    if (origin !== null) {
+      return origin + '.' + Sk.ffi.remapToJs(node.attr);
+    }
+  } else {
+    return null;
+  }
+};
+BlockMirrorTextToBlocks.prototype.resolveFromLibrary = function (node) {
+  if (node._astname === 'Name') {
+    var _this$imports$getType;
+    var name = Sk.ffi.remapToJs(node.id);
+
+    // First check if this may be a globally known variable
+    var resolved = this.blockMirror.libraries.resolve(name);
+    if (resolved) {
+      return resolved;
+    }
+    var fullTypeName = (_this$imports$getType = this.imports.getType(name)) !== null && _this$imports$getType !== void 0 ? _this$imports$getType : name;
+    return this.blockMirror.libraries.resolve(fullTypeName);
+  } else if (node._astname === 'Call') {
+    var _this$imports$getType2;
+    var _name = Sk.ffi.remapToJs(node.func.id);
+    var _fullTypeName = (_this$imports$getType2 = this.imports.getType(_name)) !== null && _this$imports$getType2 !== void 0 ? _this$imports$getType2 : _name;
+    var _resolved = this.blockMirror.libraries.resolve(_fullTypeName);
+    if (_resolved instanceof PythonClass) {
+      return _resolved;
+    } else if (_resolved instanceof PythonFunction && _resolved.typeHint) {
+      return _resolved.typeHint.resolveSingleClass();
+    }
+  } else if (node._astname === 'Attribute') {
+    var caller = node.value;
+    var potentialModule = this.getAsModule(caller);
+    if (potentialModule) {
+      var _this$variables$getSi;
+      var resolvedFromLibrary = (_this$variables$getSi = this.variables.getSingleType(potentialModule)) !== null && _this$variables$getSi !== void 0 ? _this$variables$getSi : this.blockMirror.libraries.resolve(potentialModule);
+      var _fullTypeName2;
+      if (resolvedFromLibrary instanceof PythonAttribute) {
+        _fullTypeName2 = resolvedFromLibrary.typeHint.value;
+      } else if (resolvedFromLibrary) {
+        _fullTypeName2 = resolvedFromLibrary.fullName;
+      } else {
+        var _this$imports$getType3;
+        _fullTypeName2 = (_this$imports$getType3 = this.imports.getType(potentialModule)) !== null && _this$imports$getType3 !== void 0 ? _this$imports$getType3 : potentialModule;
+      }
+      var attributeName = Sk.ffi.remapToJs(node.attr);
+      return this.blockMirror.libraries.resolve(_fullTypeName2 + "." + attributeName);
+    }
+    var callerBlock = this.convert(caller, node._parent); // TODO caller node
+
+    if (!(callerBlock !== null && callerBlock !== void 0 && callerBlock.children)) {
+      return null;
+    }
+    var mutationElement = callerBlock.children[0];
+
+    // TODO is this clean/reliable enough?
+    if (mutationElement && /^mutation$/i.test(mutationElement.tagName)) {
+      var _attributeName = Sk.ffi.remapToJs(node.attr);
+      return this.blockMirror.libraries.resolve(mutationElement.getAttribute('returns') + "." + _attributeName);
+    }
+  }
+  return null;
+};
+var __BLANK = "___"; // Mirrors python.pythonGenerator.blank
+
+function _resolve_colour(colour) {
+  if (typeof colour === "string" && !colour.startsWith('#') && typeof BlockMirrorTextToBlocks === "function") {
+    return BlockMirrorTextToBlocks.COLOR[colour];
+  }
+  return colour;
+}
+var PythonModule = /*#__PURE__*/function () {
+  function PythonModule(library, signature, comment, members) {
+    _classCallCheck(this, PythonModule);
+    this.library = library;
+    var fullName;
+    var _signature$split = signature.split(" as ", 2);
+    var _signature$split2 = _slicedToArray(_signature$split, 2);
+    fullName = _signature$split2[0];
+    this.name = _signature$split2[1];
+    this.fullName = fullName.trim();
+    if (!this.name) {
+      this.name = this.fullName.substring(this.fullName.lastIndexOf(".") + 1);
+    }
+    this.requiresImport = this.fullName === "" ? "" : this.name === this.fullName ? this.fullName : this.fullName + " as " + this.name;
+    this.members = new Map();
+    this.colour = library.colour;
+    if (members !== undefined) {
+      var _iterator8 = _createForOfIteratorHelper(members),
+        _step8;
+      try {
+        for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+          var input = _step8.value;
+          if (_typeof(input) === "object") {
+            if (input.__colour) {
+              this.colour = this.library.libraries.convertColour("module", _resolve_colour(input.__colour), this.fullName);
+            } else if (input.__color) {
+              this.colour = this.library.libraries.convertColour("module", _resolve_colour(input.__color), this.fullName);
+            } else if (input.signatures) {
+              var _iterator9 = _createForOfIteratorHelper(input.signatures),
+                _step9;
+              try {
+                for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+                  var _signature = _step9.value;
+                  this.addMember(_signature, input);
+                }
+              } catch (err) {
+                _iterator9.e(err);
+              } finally {
+                _iterator9.f();
+              }
+            } else {
+              this.addMember(input.signature, input);
+            }
+          } else {
+            this.addMember(input);
+          }
+        }
+      } catch (err) {
+        _iterator8.e(err);
+      } finally {
+        _iterator8.f();
+      }
+    }
+  }
+  return _createClass(PythonModule, [{
+    key: "addMember",
+    value: function addMember(signature, inputObject) {
+      var _signature$split3 = signature.split("//", 2),
+        _signature$split4 = _slicedToArray(_signature$split3, 2),
+        code = _signature$split4[0],
+        comment = _signature$split4[1];
+      var member;
+      if (PythonTypeAliasType.isA(code)) {
+        var translatedComment = this.translate(PythonTypeAliasType.extractName(code), comment);
+        member = new PythonTypeAliasType(this, code, translatedComment, inputObject === null || inputObject === void 0 ? void 0 : inputObject.fieldFactory);
+      } else if (PythonFunction.isA(code)) {
+        var _inputObject$colour;
+        var _translatedComment = this.translateFunctionComment(PythonFunction.extractName(code), comment);
+        member = new PythonFunction(this, code, _translatedComment, (_inputObject$colour = inputObject === null || inputObject === void 0 ? void 0 : inputObject.colour) !== null && _inputObject$colour !== void 0 ? _inputObject$colour : inputObject === null || inputObject === void 0 ? void 0 : inputObject.color, inputObject === null || inputObject === void 0 ? void 0 : inputObject.custom);
+        var _iterator0 = _createForOfIteratorHelper(member.aliases),
+          _step0;
+        try {
+          for (_iterator0.s(); !(_step0 = _iterator0.n()).done;) {
+            var alias = _step0.value;
+            this.members.set(alias.name, alias);
+          }
+        } catch (err) {
+          _iterator0.e(err);
+        } finally {
+          _iterator0.f();
+        }
+      } else {
+        var _inputObject$colour2;
+        member = new PythonAttribute(this, code, this.translate(PythonAttribute.extractName(code), comment), (_inputObject$colour2 = inputObject === null || inputObject === void 0 ? void 0 : inputObject.colour) !== null && _inputObject$colour2 !== void 0 ? _inputObject$colour2 : inputObject === null || inputObject === void 0 ? void 0 : inputObject.color);
+        var _iterator1 = _createForOfIteratorHelper(member.aliases),
+          _step1;
+        try {
+          for (_iterator1.s(); !(_step1 = _iterator1.n()).done;) {
+            var _alias = _step1.value;
+            this.members.set(_alias.name, _alias);
+          }
+        } catch (err) {
+          _iterator1.e(err);
+        } finally {
+          _iterator1.f();
+        }
+      }
+      this.members.set(member.name, member);
+    }
+  }, {
+    key: "translate",
+    value: function translate(memberName, defaultValue) {
+      if (this.fullName === "") {
+        return this.library.translate(memberName, defaultValue);
+      }
+      return this.library.translate(this.fullName + "." + memberName, defaultValue);
+    }
+  }, {
+    key: "translateFunctionComment",
+    value: function translateFunctionComment(memberName, defaultValue) {
+      if (defaultValue) {
+        var _defaultValue$split = defaultValue.split("(", 2),
+          _defaultValue$split2 = _slicedToArray(_defaultValue$split, 2),
+          toTranslate = _defaultValue$split2[0],
+          tail = _defaultValue$split2[1];
+        if (tail) {
+          return this.translate(memberName, toTranslate) + "(" + tail;
+        }
+      }
+      return this.translate(memberName, defaultValue);
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return this.requiresImport;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      var result = "";
+      var _iterator10 = _createForOfIteratorHelper(this.members.values()),
+        _step10;
+      try {
+        for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+          var value = _step10.value;
+          var resultItem = value.toToolbox(textToBlocks);
+          if (resultItem) {
+            result += resultItem;
+          }
+        }
+      } catch (err) {
+        _iterator10.e(err);
+      } finally {
+        _iterator10.f();
+      }
+      return result;
+    }
+  }, {
+    key: "resolve",
+    value: function resolve(name) {
+      var _member2;
+      if (name === this.fullName) {
+        return this;
+      }
+      var memberName;
+      if (name.startsWith(this.fullName + ".") && this.fullName !== "") {
+        memberName = name.substring(this.fullName.length + 1);
+      } else {
+        memberName = name;
+      }
+      var indexOfDot = memberName.lastIndexOf(".");
+      if (indexOfDot === -1) {
+        return this.members.get(memberName);
+      }
+      if (this.fullName === "" && indexOfDot === 0) {
+        // Special case, look for a method in all builtin classes
+        var methodName = memberName.substring(1);
+        var _iterator11 = _createForOfIteratorHelper(this.members.values()),
+          _step11;
+        try {
+          for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+            var _member = _step11.value;
+            if (_member instanceof PythonClass) {
+              var result = _member.resolve(methodName);
+              if (result) {
+                return result;
+              }
+            }
+          }
+        } catch (err) {
+          _iterator11.e(err);
+        } finally {
+          _iterator11.f();
+        }
+        return null;
+      }
+      var member = this.members.get(memberName.substring(0, indexOfDot));
+      if (member instanceof PythonAttribute) {
+        if (member.typeHint === null) {
+          return null;
+        }
+        member = this.library.libraries.resolve(member.typeHint.toString());
+      }
+      return (_member2 = member) === null || _member2 === void 0 ? void 0 : _member2.resolve(memberName.substring(indexOfDot + 1));
+    }
+  }, {
+    key: "registerImports",
+    value: function registerImports(typeRegistry) {
+      typeRegistry.set(this.fullName, this.name);
+      var _iterator12 = _createForOfIteratorHelper(this.members.values()),
+        _step12;
+      try {
+        for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+          var member = _step12.value;
+          if (member instanceof PythonClass) {
+            typeRegistry.set(member.fullName, member.name);
+          }
+        }
+      } catch (err) {
+        _iterator12.e(err);
+      } finally {
+        _iterator12.f();
+      }
+    }
+  }], [{
+    key: "isA",
+    value: function isA(fullName) {
+      return /^([a-z][a-zA-Z0-9_]*)(\.[a-z][a-zA-Z0-9_]*)*$/.test(fullName);
+    }
+  }, {
+    key: "extractName",
+    value: function extractName(signature) {
+      if (signature.startsWith('class ')) {
+        signature = signature.substring(6).split('(', 1)[0];
+        var lastIndexOfDot = signature.lastIndexOf('.');
+        return lastIndexOfDot === -1 ? null : signature.substring(0, lastIndexOfDot);
+      }
+      var moduleName = signature.split(/\.(_?[A-Z][^.]*)\.?.+$/, 1)[0];
+      if (PythonModule.isA(moduleName)) {
+        return moduleName;
+      }
+      return "";
+    }
+  }]);
+}();
+var PythonTypeHint = /*#__PURE__*/function () {
+  function PythonTypeHint(libraries, signature) {
+    _classCallCheck(this, PythonTypeHint);
+    var unionTypes = splitParameters(signature.trim(), '|');
+    if (unionTypes.length >= 2) {
+      this.value = "typing.Union";
+      this.typeParams = unionTypes;
+    } else if (signature.trim().endsWith("]")) {
+      var _signature$split5 = signature.split("[", 2),
+        _signature$split6 = _slicedToArray(_signature$split5, 2),
+        value = _signature$split6[0],
+        typeParams = _signature$split6[1];
+      typeParams = typeParams.trim();
+      this.value = value.trim();
+      this.typeParams = splitParameters(typeParams.substring(0, typeParams.length - 1));
+    } else {
+      this.value = signature.trim();
+      this.typeParams = [];
+    }
+    this.libraries = libraries;
+    this._referencedTypeAliases = null;
+    this._flattened = null;
+  }
+  return _createClass(PythonTypeHint, [{
+    key: "referencedTypeAliases",
+    value: function referencedTypeAliases() {
+      if (this._referencedTypeAliases == null) {
+        this._referencedTypeAliases = [];
+        if (this.isUnion() || this.isOptional()) {
+          var _iterator13 = _createForOfIteratorHelper(this.typeParams),
+            _step13;
+          try {
+            for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+              var typeParam = _step13.value;
+              var resolved = this.libraries.resolve(typeParam);
+              if (resolved instanceof PythonTypeAliasType) {
+                this._referencedTypeAliases.push(resolved);
+              }
+            }
+          } catch (err) {
+            _iterator13.e(err);
+          } finally {
+            _iterator13.f();
+          }
+        } else {
+          var _resolved2 = this.libraries.resolve(this.value);
+          if (_resolved2 instanceof PythonTypeAliasType) {
+            this._referencedTypeAliases.push(_resolved2);
+          }
+        }
+      }
+      return this._referencedTypeAliases;
+    }
+
+    /**
+     * Without type alias types.
+     */
+  }, {
+    key: "flattened",
+    value: function flattened() {
+      var _this8 = this;
+      if (this._flattened == null) {
+        var referencedTypeAliases = this.referencedTypeAliases();
+        if (referencedTypeAliases.length) {
+          if (this.isUnion() || this.isOptional()) {
+            this._flattened = new PythonTypeHint(this.libraries, "");
+            this._flattened.value = this.value;
+            var _iterator14 = _createForOfIteratorHelper(this.typeParams),
+              _step14;
+            try {
+              var _loop2 = function _loop2() {
+                var item = _step14.value;
+                var referencedTypeAlias = referencedTypeAliases.find(function (alias) {
+                  return alias.fullName === item;
+                });
+                if (referencedTypeAlias) {
+                  if (referencedTypeAlias.isUnion()) {
+                    _this8._flattened.typeParams = _this8._flattened.typeParams.concat(_this8._flattened.typeParams, referencedTypeAlias.flattened().typeParams);
+                  } else if (referencedTypeAlias.isOptional()) {
+                    _this8._flattened.typeParams = _this8._flattened.typeParams.concat(_this8._flattened.typeParams, referencedTypeAlias.flattened().typeParams);
+                    if (!_this8._flattened.typeParams.includes("None")) {
+                      _this8._flattened.typeParams.push("None");
+                    }
+                  } else {
+                    _this8._flattened.typeParams.push(referencedTypeAlias.flattened().toString());
+                  }
+                }
+              };
+              for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+                _loop2();
+              }
+            } catch (err) {
+              _iterator14.e(err);
+            } finally {
+              _iterator14.f();
+            }
+          } else {
+            this._flattened = referencedTypeAliases[0].flattened();
+          }
+        } else {
+          this._flattened = this;
+        }
+      }
+      return this._flattened;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(_textToBlocks) {
+      // Not meant to be used as a toolbox block at this time.
+      return null;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      if (this.isUnion()) {
+        return this.typeParams.join(' | ');
+      } else if (this.isOptional()) {
+        return this.typeParams.join(' | ') + " | None";
+      } else if (this.typeParams.length) {
+        return this.value + "[" + this.typeParams.join(', ') + "]";
+      } else {
+        return this.value;
+      }
+    }
+  }, {
+    key: "isLiteral",
+    value: function isLiteral() {
+      return this.value === 'typing.Literal';
+    }
+  }, {
+    key: "isUnion",
+    value: function isUnion() {
+      return this.value === 'typing.Union';
+    }
+  }, {
+    key: "isOptional",
+    value: function isOptional() {
+      return this.value === 'typing.Optional';
+    }
+  }, {
+    key: "matches",
+    value: function matches(typeString) {
+      if (this.value === typeString) {
+        return true;
+      } else if (this.isUnion() || this.isOptional()) {
+        return this.typeParams.some(function (typeParam) {
+          return typeParam === typeString;
+        });
+      } else if (this.flattened() !== this) {
+        return this.flattened().matches(typeString);
+      }
+      return false;
+    }
+
+    /**
+     * Resolves to a single Python class.
+     * @returns {PythonClass | null}
+     */
+  }, {
+    key: "resolveSingleClass",
+    value: function resolveSingleClass() {
+      var flattened = this.flattened();
+      if (flattened.isOptional()) {
+        return this.libraries.resolve(flattened.typeParams[0]);
+      } else if (!flattened.isUnion()) {
+        return this.libraries.resolve(flattened.value);
+      }
+      return null;
+    }
+  }]);
+}();
+function _resolveFunction(identifier, fullName) {
+  if (typeof identifier === "function") {
+    return identifier;
+  }
+  if (identifier) {
+    var result = globalThis;
+    var _iterator15 = _createForOfIteratorHelper(identifier.split('.')),
+      _step15;
+    try {
+      for (_iterator15.s(); !(_step15 = _iterator15.n()).done;) {
+        var item = _step15.value;
+        result = result[item];
+        if (!result) {
+          console.warn("Could not find function " + identifier + " for " + fullName);
+          break;
+        }
+      }
+    } catch (err) {
+      _iterator15.e(err);
+    } finally {
+      _iterator15.f();
+    }
+    return result;
+  }
+  return null;
+}
+var PythonTypeAliasType = /*#__PURE__*/function (_PythonTypeHint) {
+  function PythonTypeAliasType(pythonModule, signature, comment, fieldFactory) {
+    var _comment$trim;
+    var _this9;
+    _classCallCheck(this, PythonTypeAliasType);
+    _this9 = _callSuper(this, PythonTypeAliasType, [pythonModule.library.libraries, signature.substring(signature.indexOf('=') + 1).trim()]);
+    if (signature.startsWith("type ")) {
+      signature = signature.substring(5);
+    }
+    _this9.name = PythonTypeAliasType.extractName(signature);
+    _this9.fullName = (pythonModule === null || pythonModule === void 0 ? void 0 : pythonModule.fullName) === "" ? _this9.name : (pythonModule === null || pythonModule === void 0 ? void 0 : pythonModule.fullName) + "." + _this9.name;
+    _this9.comment = (_comment$trim = comment === null || comment === void 0 ? void 0 : comment.trim()) !== null && _comment$trim !== void 0 ? _comment$trim : "";
+    _this9.resolvedFieldFactory = _resolveFunction(fieldFactory, _this9.fullName);
+    _this9.fieldFactory = _this9.resolvedFieldFactory === null ? null : fieldFactory;
+    return _this9;
+  }
+  _inherits(PythonTypeAliasType, _PythonTypeHint);
+  return _createClass(PythonTypeAliasType, null, [{
+    key: "isA",
+    value: function isA(signature) {
+      return signature.startsWith("type ");
+    }
+  }, {
+    key: "extractName",
+    value: function extractName(signature) {
+      return signature.split('=', 1)[0].trim();
+    }
+  }]);
+}(PythonTypeHint);
+var _PythonParameter_brand = /*#__PURE__*/new WeakSet();
+var PythonParameter = /*#__PURE__*/function () {
+  function PythonParameter(pythonFunction, parameter, arg, positional, keyword) {
+    _classCallCheck(this, PythonParameter);
+    _classPrivateMethodInitSpec(this, _PythonParameter_brand);
+    this.pythonFunction = pythonFunction;
+    this.positional = positional;
+    this.keyword = keyword;
+    if (parameter.startsWith("*")) {
+      this.variableLength = true;
+      if (parameter.startsWith("**")) {
+        parameter = parameter.substring(2);
+        this.keyword = true;
+        this.positional = false;
+      } else {
+        parameter = parameter.substring(1);
+        this.keyword = false;
+        this.positional = true;
+      }
+    } else {
+      this.variableLength = false;
+    }
+    var _parameter$split = parameter.split("=", 2),
+      _parameter$split2 = _slicedToArray(_parameter$split, 2),
+      nameAndTypeHint = _parameter$split2[0],
+      _defaultValue = _parameter$split2[1];
+    var _nameAndTypeHint$spli = nameAndTypeHint.split(":", 2),
+      _nameAndTypeHint$spli2 = _slicedToArray(_nameAndTypeHint$spli, 2),
+      names = _nameAndTypeHint$spli2[0],
+      typeHint = _nameAndTypeHint$spli2[1];
+    this.name = null;
+    this.aliases = null;
+    this.names = names.split(' ');
+    var _this$names = _toArray(this.names);
+    this.name = _this$names[0];
+    this.aliases = _this$names.slice(1);
+    this.typeHint = typeHint ? new PythonTypeHint(pythonFunction.pythonModule.library.libraries, typeHint) : null;
+
+    // Convert double quotes to single quotes for default string values
+    this.defaultValue = (_defaultValue !== null && _defaultValue !== void 0 ? _defaultValue : "").trim().replace(/^"([^"]*)"$/, "'$1'");
+    this.preferKeyword = this.positional && this.keyword;
+    if (arg.includes("=")) {
+      var _arg$split = arg.split("=", 2),
+        _arg$split2 = _slicedToArray(_arg$split, 2),
+        message = _arg$split2[0],
+        value = _arg$split2[1];
+      this.message = message.trim();
+      this.value = value.trim();
+    } else {
+      this.message = this.name;
+      this.value = arg.trim();
+      if (this.value !== "") {
+        this.preferKeyword = false;
+      }
+    }
+    if (this.value === __BLANK) {
+      // For consistency
+      this.value = "";
+    }
+  }
+  return _createClass(PythonParameter, [{
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      if (this.variableLength && this.keyword) {
+        return "";
+      }
+      var processedValue = this.value;
+      if (this.value === "") {
+        if (this.defaultValue === "" && !(this.variableLength && this.positional)) {
+          processedValue = __BLANK;
+        } else {
+          processedValue = this.defaultValue;
+        }
+      }
+      if (this.positional && (!this.keyword || !this.preferKeyword)) {
+        // Positional only or preferred
+        return processedValue;
+      }
+      return "".concat(this.name, " = ").concat(processedValue);
+    }
+  }, {
+    key: "applyShadow",
+    value: function applyShadow(argBlock) {
+      var shouldShadow = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      if (argBlock) {
+        if (shouldShadow == null) {
+          shouldShadow = _assertClassBrand(_PythonParameter_brand, this, _shouldShadow).call(this, argBlock, this.defaultValue);
+        }
+        if (argBlock instanceof HTMLElement) {
+          // Blockly XML
+          var _iterator16 = _createForOfIteratorHelper(argBlock.children),
+            _step16;
+          try {
+            for (_iterator16.s(); !(_step16 = _iterator16.n()).done;) {
+              var childElement = _step16.value;
+              if (childElement.tagName === (shouldShadow ? 'BLOCK' : 'SHADOW')) {
+                var replacementElement = _assertClassBrand(_PythonParameter_brand, this, _replaceTagName).call(this, childElement, shouldShadow ? 'SHADOW' : 'BLOCK');
+                this.applyShadow(replacementElement, shouldShadow);
+              } else {
+                this.applyShadow(childElement, shouldShadow);
+              }
+            }
+          } catch (err) {
+            _iterator16.e(err);
+          } finally {
+            _iterator16.f();
+          }
+        } else if (argBlock.shadow !== shouldShadow) {
+          // Blockly block
+          argBlock.shadow = shouldShadow;
+          argBlock.setStyle(argBlock.getStyleName()); // Re-apply the style
+          var _iterator17 = _createForOfIteratorHelper(argBlock.getChildren()),
+            _step17;
+          try {
+            for (_iterator17.s(); !(_step17 = _iterator17.n()).done;) {
+              var child = _step17.value;
+              this.applyShadow(child, shouldShadow);
+            }
+          } catch (err) {
+            _iterator17.e(err);
+          } finally {
+            _iterator17.f();
+          }
+        }
+      }
+    }
+  }, {
+    key: "defaultValueBlocks",
+    value: function defaultValueBlocks(textToBlocks) {
+      var _converted$0$children;
+      var pythonSource, fictionalFilename;
+      if (this.keyword || this.preferKeyword) {
+        pythonSource = "k=" + this.defaultValue;
+        fictionalFilename = "keywordDefaultValue.py";
+      } else {
+        pythonSource = "p=" + this.defaultValue;
+        fictionalFilename = "positionalDefaultValue.py";
+      }
+      var parse = Sk.parse(fictionalFilename, pythonSource);
+      var ast = Sk.astFromParse(parse.cst, fictionalFilename, parse.flags);
+      var converted = textToBlocks.convert(ast);
+      return (_converted$0$children = converted[0].children['VALUE']) === null || _converted$0$children === void 0 ? void 0 : _converted$0$children.children[0];
+    }
+  }]);
+}();
+function _replaceTagName(element, tagName) {
+  if (element.tagName === tagName) {
+    return element;
+  }
+  var replacementElement = document.createElement(tagName);
+  for (var i = 0, l = element.attributes.length; i < l; ++i) {
+    var attr = element.attributes.item(i);
+    var nodeName = attr.nodeName;
+    var nodeValue = attr.nodeValue;
+    replacementElement.setAttribute(nodeName, nodeValue);
+  }
+  replacementElement.innerHTML = element.innerHTML;
+  element.parentNode.replaceChild(replacementElement, element);
+  return replacementElement;
+}
+function _matchesDefaultValue(type, value, defaultValue) {
+  if (defaultValue === "") {
+    return value === "";
+  }
+  switch (type) {
+    case "ast_NameConstantBoolean":
+      return defaultValue === value || defaultValue === "True" && value === "TRUE" || defaultValue === "False" && value === "FALSE";
+    case "ast_NameConstantNone":
+      return defaultValue === "None";
+    case "ast_Num":
+    case "ast_UnaryOpUSub":
+      return parseFloat(defaultValue) === parseFloat(value);
+    case "ast_Tuple":
+      break;
+    case "ast_Name":
+    case "ast_Str":
+    case "ast_StrChar":
+  }
+  return defaultValue === value;
+}
+function _shouldShadow(argBlock, defaultValue) {
+  if (defaultValue === '') {
+    return false;
+  } else if (argBlock instanceof HTMLElement) {
+    // Blockly XML
+    var blockElement = argBlock.firstElementChild;
+    var blockType = blockElement.getAttribute("type");
+    if (blockType === "ast_Tuple") {
+      var defaultValueParts = defaultValue.substring(1, defaultValue.length - 1).split(', ');
+      var valueChildren = _toConsumableArray(blockElement.children).filter(function (child) {
+        return child.localName === 'value';
+      });
+      if (defaultValueParts.length !== valueChildren.length) {
+        return false;
+      }
+      for (var i = 0; i < defaultValueParts.length; i++) {
+        if (!_assertClassBrand(_PythonParameter_brand, this, _shouldShadow).call(this, valueChildren[i], defaultValueParts[i])) {
+          return false;
+        }
+      }
+      return true;
+    } else if (blockType === "ast_Attribute") {
+      var valueElement = _toConsumableArray(blockElement.getElementsByTagName('value')).filter(function (child) {
+        return child.getAttribute('name') === 'VALUE';
+      })[0];
+      var attrElement = _toConsumableArray(blockElement.getElementsByTagName('field')).filter(function (child) {
+        return child.getAttribute('name') === 'ATTR';
+      })[0];
+      var mutationElement = (valueElement !== null && valueElement !== void 0 ? valueElement : blockElement).getElementsByTagName('mutation')[0];
+      var importAttr = mutationElement === null || mutationElement === void 0 ? void 0 : mutationElement.getAttribute('import');
+      if (importAttr) {
+        var fullName = importAttr.split(' as ', 1)[0];
+        var attrName = attrElement.textContent;
+        return defaultValue === fullName + '.' + attrName;
+      }
+    }
+    var value = blockElement.textContent;
+    if (blockType === "ast_UnaryOpUSub") {
+      value = "-" + value;
+    } else if (blockType === "ast_Str" || blockType === "ast_StrChar") {
+      value = "'" + value.replace("'", "\\'").replace('\n', '\\n') + "'";
+    }
+    return _assertClassBrand(_PythonParameter_brand, this, _matchesDefaultValue).call(this, blockType, value, defaultValue);
+  } else {
+    // Blockly block
+    var _value3 = python.pythonGenerator.descrub_(python.pythonGenerator.blockToCode(argBlock)[0]);
+    return _assertClassBrand(_PythonParameter_brand, this, _matchesDefaultValue).call(this, argBlock.type, _value3, defaultValue);
+  }
+}
+var PythonParameters = /*#__PURE__*/function (_Array) {
+  function PythonParameters(pythonFunction, signature, comment) {
+    var _this0;
+    _classCallCheck(this, PythonParameters);
+    _this0 = _callSuper(this, PythonParameters);
+    var parameters = signature.substring(signature.indexOf("(") + 1, signature.lastIndexOf(")")).trim();
+    if (parameters !== "") {
+      var args = comment.substring(comment.indexOf("(") + 1, comment.lastIndexOf(")"));
+      var argParts = splitParameters(args);
+      var parameterParts = splitParameters(parameters);
+
+      // PEP 570 Python Positional-Only Parameters
+      var positional = true;
+      var keyword = !parameterParts.includes("/");
+      var argIndex = 0;
+      var _iterator18 = _createForOfIteratorHelper(parameterParts),
+        _step18;
+      try {
+        for (_iterator18.s(); !(_step18 = _iterator18.n()).done;) {
+          var _parameter = _step18.value;
+          if (_parameter === "/") {
+            keyword = true;
+          } else if (_parameter === "*") {
+            positional = false;
+          } else {
+            var _argParts$argIndex;
+            var isSelfOrCls = argIndex === 0 && (_parameter === "self" || _parameter === "cls");
+            var pythonParameter = new PythonParameter(pythonFunction, _parameter, isSelfOrCls ? "" : (_argParts$argIndex = argParts[argIndex]) !== null && _argParts$argIndex !== void 0 ? _argParts$argIndex : "", positional, keyword);
+            _this0.push(pythonParameter);
+            if (_parameter.length > 1 && _parameter[0] === '*' && _parameter[1] !== '*') {
+              // No positional arguments after *args
+              positional = false;
+            }
+            if (!isSelfOrCls) {
+              argIndex++;
+            }
+          }
+        }
+
+        // Any parameter before *args should not be addressable by keyword
+      } catch (err) {
+        _iterator18.e(err);
+      } finally {
+        _iterator18.f();
+      }
+      var positionalOnly = false;
+      for (var i = _this0.length - 1; i >= 0; i--) {
+        var parameter = _this0[i];
+        if (positionalOnly) {
+          parameter.keyword = false;
+        }
+        positionalOnly = positionalOnly || parameter.variableLength && parameter.positional;
+      }
+    }
+    return _this0;
+  }
+  _inherits(PythonParameters, _Array);
+  return _createClass(PythonParameters, [{
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      return _toConsumableArray(this.entries().filter(function (_ref3) {
+        var _ref4 = _slicedToArray(_ref3, 2),
+          key = _ref4[0],
+          value = _ref4[1];
+        return !(key === 0 && (value.name === "self" || value.name === "cls"));
+      }).map(function (_ref5) {
+        var _ref6 = _slicedToArray(_ref5, 2),
+          value = _ref6[1];
+        return value.toPythonSource();
+      })).filter(function (result) {
+        return result !== "";
+      }).join(", ");
+    }
+  }, {
+    key: "findByKeyword",
+    value: function findByKeyword(keyword) {
+      return this.values().find(function (value) {
+        return value.names.includes(keyword);
+      });
+    }
+  }]);
+}(/*#__PURE__*/_wrapNativeSuper(Array));
+function splitParameters(input) {
+  var splitChar = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ',';
+  var result = [];
+  var openParentheses = 0;
+  var openBrackets = 0;
+  var doubleQuoted = false;
+  var singleQuoted = false;
+  var item = '';
+  var _iterator19 = _createForOfIteratorHelper(input),
+    _step19;
+  try {
+    for (_iterator19.s(); !(_step19 = _iterator19.n()).done;) {
+      var _char = _step19.value;
+      if (_char === '"') {
+        doubleQuoted = !doubleQuoted;
+      } else if (_char === "'") {
+        singleQuoted = !singleQuoted;
+      } else if (_char === splitChar && openParentheses === 0 && openBrackets === 0 && !doubleQuoted && !singleQuoted) {
+        result.push(item.trim());
+        item = '';
+        continue;
+      } else if (_char === '(') {
+        openParentheses++;
+      } else if (_char === ')') {
+        openParentheses--;
+      } else if (_char === '[') {
+        openBrackets++;
+      } else if (_char === ']') {
+        openBrackets--;
+      }
+      item += _char;
+    }
+  } catch (err) {
+    _iterator19.e(err);
+  } finally {
+    _iterator19.f();
+  }
+  item = item.trim();
+  if (item !== '') {
+    result.push(item);
+  }
+  return result;
+}
+function splitPremessageMessage(toSplit) {
+  var _toSplit$trim$split = toSplit.trim().split("{}", 2),
+    _toSplit$trim$split2 = _slicedToArray(_toSplit$trim$split, 2),
+    premessage = _toSplit$trim$split2[0],
+    message = _toSplit$trim$split2[1];
+  if (message === undefined) {
+    return ["", premessage];
+  }
+  return [premessage, message];
+}
+function splitPremessageMessagePostmessage(toSplit) {
+  var _toSplit$trim$split3 = toSplit.trim().split("{}", 3),
+    _toSplit$trim$split4 = _slicedToArray(_toSplit$trim$split3, 3),
+    premessage = _toSplit$trim$split4[0],
+    message = _toSplit$trim$split4[1],
+    postmessage = _toSplit$trim$split4[2];
+  if (message === undefined) {
+    return ["", premessage, ""];
+  } else if (postmessage === undefined) {
+    return [premessage, message, ""];
+  }
+  return [premessage, message, postmessage];
+}
+var PythonFunction = /*#__PURE__*/function () {
+  function PythonFunction(pythonModuleOrFunction, signature, comment, colour, custom) {
+    _classCallCheck(this, PythonFunction);
+    this.isAliasOf = null;
+    if (pythonModuleOrFunction instanceof PythonFunction) {
+      var original = pythonModuleOrFunction;
+      this.pythonModule = original.pythonModule;
+      this.typeHint = original.typeHint;
+      this.colour = original.colour;
+      this.premessage = original.premessage;
+      this.message = original.message;
+      this.postmessage = original.postmessage;
+      this.parameters = original.parameters;
+      this.custom = original.custom;
+      this.argumentOffset = original.argumentOffset;
+      this.names = original.names;
+      this.labels = original.labels;
+      this.name = signature.split("(", 1)[0];
+      this.fullName = this.pythonModule.fullName === "" ? this.name : this.pythonModule.fullName + "." + this.name;
+    } else {
+      var _resolve_colour2;
+      this.name = null;
+      this.names = signature.split("(", 1)[0].split(" ");
+      this.name = this.names[0];
+      this.label = this.name;
+      this.pythonModule = pythonModuleOrFunction;
+      var indexOfTypeHint = signature.indexOf(":", signature.indexOf(")") + 1);
+      this.typeHint = indexOfTypeHint < 0 ? null : new PythonTypeHint(this.pythonModule.library.libraries, signature.substring(indexOfTypeHint + 1));
+      if ((comment !== null && comment !== void 0 ? comment : "").trim() === "") {
+        this.premessage = "";
+        this.message = this.pythonModule.fullName === "" ? "" : ".";
+        this.postmessage = "";
+
+        // If no comment is in the specification, aliases should be made available.
+        this.labels = _toConsumableArray(this.names);
+      } else {
+        var _splitPremessageMessa = splitPremessageMessage(comment.split("(", 1)[0]);
+        var _splitPremessageMessa2 = _slicedToArray(_splitPremessageMessa, 2);
+        this.premessage = _splitPremessageMessa2[0];
+        this.message = _splitPremessageMessa2[1];
+        this.postmessage = "";
+        if (this.names.length === 1) {
+          // If there are no aliases, accolades are optional in the specification.
+          if (this.message.startsWith('.')) {
+            this.label = this.message.substring(1);
+            this.message = ".";
+          } else {
+            this.label = this.message;
+            this.message = "";
+          }
+          this.labels = [this.label];
+        } else {
+          var messageParts = this.message.split(/\{([^}]+)\}/, 3);
+          if (messageParts.length > 1) {
+            this.message = messageParts[0];
+            this.labels = _toConsumableArray(this.names);
+            var labels = messageParts[1].split("|");
+            var _iterator20 = _createForOfIteratorHelper(labels.entries()),
+              _step20;
+            try {
+              for (_iterator20.s(); !(_step20 = _iterator20.n()).done;) {
+                var _step20$value = _slicedToArray(_step20.value, 2),
+                  index = _step20$value[0],
+                  label = _step20$value[1];
+                this.labels[index] = label.trim();
+              }
+            } catch (err) {
+              _iterator20.e(err);
+            } finally {
+              _iterator20.f();
+            }
+            this.label = this.labels[0];
+            this.postmessage = messageParts[2];
+          } else {
+            // If there are aliases, but no accolades in the specification,
+            //  aliases are likely intended to be hidden.
+            this.label = this.message;
+            this.message = "";
+            this.labels = [this.label];
+          }
+        }
+      }
+      this.parameters = new PythonParameters(this, signature, comment !== null && comment !== void 0 ? comment : "");
+      this.fullName = this.pythonModule.fullName === "" ? this.name : this.pythonModule.fullName + "." + this.name;
+      this.argumentOffset = 0;
+      this.colour = (_resolve_colour2 = _resolve_colour(colour)) !== null && _resolve_colour2 !== void 0 ? _resolve_colour2 : this.pythonModule.library.colour;
+      if (this.constructor === PythonFunction) {
+        this.custom = _resolveFunction(custom, this.fullName);
+        this.colour = this.pythonModule.library.libraries.convertColour("ast_Call", this.colour, this.fullName);
+        this.createAliases();
+      }
+    }
+  }
+  return _createClass(PythonFunction, [{
+    key: "createAliases",
+    value: function createAliases() {
+      var _this1 = this;
+      this.aliases = this.names.slice(1).map(function (name) {
+        return new _this1.constructor(_this1, name);
+      });
+      if (this.labels.length <= 1) {
+        var _iterator21 = _createForOfIteratorHelper(this.aliases),
+          _step21;
+        try {
+          for (_iterator21.s(); !(_step21 = _iterator21.n()).done;) {
+            var alias = _step21.value;
+            alias.label = this.label;
+          }
+        } catch (err) {
+          _iterator21.e(err);
+        } finally {
+          _iterator21.f();
+        }
+      } else {
+        var _iterator22 = _createForOfIteratorHelper(this.aliases.entries()),
+          _step22;
+        try {
+          for (_iterator22.s(); !(_step22 = _iterator22.n()).done;) {
+            var _step22$value = _slicedToArray(_step22.value, 2),
+              index = _step22$value[0],
+              _alias2 = _step22$value[1];
+            _alias2.label = this.labels[index + 1];
+          }
+        } catch (err) {
+          _iterator22.e(err);
+        } finally {
+          _iterator22.f();
+        }
+      }
+      var _iterator23 = _createForOfIteratorHelper(this.aliases),
+        _step23;
+      try {
+        var _loop3 = function _loop3() {
+          var alias = _step23.value;
+          alias.isAliasOf = _this1;
+          alias.aliases = [_this1].concat(_toConsumableArray(_this1.aliases)).filter(function (item) {
+            return item !== alias;
+          });
+          alias.names = _this1.names;
+          alias.labels = _this1.labels;
+        };
+        for (_iterator23.s(); !(_step23 = _iterator23.n()).done;) {
+          _loop3();
+        }
+      } catch (err) {
+        _iterator23.e(err);
+      } finally {
+        _iterator23.f();
+      }
+    }
+  }, {
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      return this.pythonModule.fullName + "." + this.name + "(" + this.parameters.toPythonSource() + ")";
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return this.toPythonSource();
+    }
+  }, {
+    key: "applyShadow",
+    value: function applyShadow(block) {
+      if (block instanceof HTMLElement) {
+        var mutationElement = block.firstElementChild;
+        var blockChildren = block.children;
+        for (var i = 0; i < mutationElement.children.length; i++) {
+          var valueElement = blockChildren['ARG' + i];
+          if (!valueElement) {
+            continue;
+          }
+          var mutation = mutationElement.children[i].getAttribute('name');
+          if (mutation.startsWith('KEYWORD:')) {
+            var keywords = mutation.substring(8).split(' ');
+            var parameter = this.parameters.findByKeyword(keywords[0]);
+            if (parameter) {
+              if (parameter.name === keywords[0]) {
+                parameter.applyShadow(valueElement);
+              } else {
+                // Addressed by an alias, so may not be functionally the same
+                parameter.applyShadow(valueElement, false);
+              }
+            }
+          } else {
+            var _this$parameters;
+            (_this$parameters = this.parameters[i + this.argumentOffset]) === null || _this$parameters === void 0 || _this$parameters.applyShadow(valueElement);
+          }
+        }
+      } else {
+        for (var _i5 = 0; _i5 < block.arguments_.length; _i5++) {
+          var _mutation = block.arguments_[_i5];
+          var argBlock = block.getInputTargetBlock('ARG' + _i5);
+          if (_mutation.startsWith('KEYWORD:')) {
+            var keyword = block.getFieldValue('ARGNAME' + _i5);
+            var _parameter2 = this.parameters.findByKeyword(keyword);
+            if (_parameter2) {
+              if (_parameter2.name === keyword) {
+                _parameter2.applyShadow(argBlock);
+              } else {
+                // Addressed by an alias, so may not be functionally the same
+                _parameter2.applyShadow(argBlock, false);
+              }
+            }
+          } else {
+            var _this$parameters2;
+            (_this$parameters2 = this.parameters[_i5 + this.argumentOffset]) === null || _this$parameters2 === void 0 || _this$parameters2.applyShadow(argBlock);
+          }
+        }
+      }
+    }
+  }, {
+    key: "toToolboxBlock",
+    value: function toToolboxBlock(textToBlocks) {
+      var pythonSource = this.toPythonSource();
+      var result = textToBlocks.convertSource("toolbox.py", pythonSource);
+      var blockElement = result.rawXml.children[0];
+      // TODO tooltip does not seem to show up
+      // blockElement.setAttribute("tooltip", pythonSource);
+      return blockElement;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      if (this.isAliasOf) {
+        return "";
+      }
+      var toolboxBlock = this.toToolboxBlock(textToBlocks);
+      this.applyShadow(toolboxBlock);
+      return toolboxBlock.parentNode.innerHTML.toString() + "\n";
+    }
+  }], [{
+    key: "isA",
+    value: function isA(signature) {
+      return signature.includes("(");
+    }
+  }, {
+    key: "extractName",
+    value: function extractName(signature) {
+      return signature.split(/[( ]/, 1)[0];
+    }
+  }]);
+}();
+var PythonClass = /*#__PURE__*/function () {
+  function PythonClass(pythonModule, signature, comment, members) {
+    _classCallCheck(this, PythonClass);
+    this.pythonModule = pythonModule;
+    var endOfSimpleName = signature.indexOf("(");
+    if (endOfSimpleName === -1) {
+      endOfSimpleName = signature.length;
+      this.baseClass = "object";
+    } else {
+      this.baseClass = signature.substring(endOfSimpleName + 1, signature.indexOf(")")).trim();
+    }
+    var startOfSimpleName = signature.lastIndexOf(".", endOfSimpleName) + 1;
+    if (startOfSimpleName === 0 && signature.startsWith("class ")) {
+      startOfSimpleName = 6;
+    }
+    this.name = signature.substring(startOfSimpleName, endOfSimpleName);
+    if (this.name === this.baseClass) {
+      this.baseClass = "";
+    }
+    if (pythonModule.fullName === "") {
+      this.fullName = this.name;
+      this.requiresImport = "";
+    } else {
+      this.fullName = pythonModule.fullName + "." + this.name;
+      this.requiresImport = this.fullName === this.name ? this.name : this.fullName + " as " + this.name;
+    }
+    this.colour = pythonModule.library.colour;
+    this.members = new Map();
+
+    // Default constructor
+    this.members.set("__init__", new PythonConstructorMethod(this, "__init__()", "", null, null));
+    var _iterator24 = _createForOfIteratorHelper(members),
+      _step24;
+    try {
+      for (_iterator24.s(); !(_step24 = _iterator24.n()).done;) {
+        var input = _step24.value;
+        if (_typeof(input) === "object") {
+          if (input.signatures) {
+            var _iterator25 = _createForOfIteratorHelper(input.signatures),
+              _step25;
+            try {
+              for (_iterator25.s(); !(_step25 = _iterator25.n()).done;) {
+                var _signature2 = _step25.value;
+                this.addMember(_signature2, input);
+              }
+            } catch (err) {
+              _iterator25.e(err);
+            } finally {
+              _iterator25.f();
+            }
+          } else {
+            this.addMember(input.signature, input);
+          }
+        } else {
+          this.addMember(input);
+        }
+      }
+    } catch (err) {
+      _iterator24.e(err);
+    } finally {
+      _iterator24.f();
+    }
+  }
+  return _createClass(PythonClass, [{
+    key: "addMember",
+    value: function addMember(signature, inputObject) {
+      var member;
+      var _signature$split7 = signature.split("//", 2),
+        _signature$split8 = _slicedToArray(_signature$split7, 2),
+        code = _signature$split8[0],
+        comment = _signature$split8[1];
+      if (PythonFunction.isA(code)) {
+        if (PythonConstructorMethod.isA(code)) {
+          var _inputObject$colour3;
+          member = new PythonConstructorMethod(this, code, this.pythonModule.translateFunctionComment(this.name, comment), (_inputObject$colour3 = inputObject === null || inputObject === void 0 ? void 0 : inputObject.colour) !== null && _inputObject$colour3 !== void 0 ? _inputObject$colour3 : inputObject === null || inputObject === void 0 ? void 0 : inputObject.color, inputObject === null || inputObject === void 0 ? void 0 : inputObject.custom);
+          this.colour = member.colour;
+        } else {
+          var _inputObject$colour4;
+          member = new PythonMethod(this, code, this.translateFunctionComment(PythonFunction.extractName(code), comment), (_inputObject$colour4 = inputObject === null || inputObject === void 0 ? void 0 : inputObject.colour) !== null && _inputObject$colour4 !== void 0 ? _inputObject$colour4 : inputObject === null || inputObject === void 0 ? void 0 : inputObject.color, inputObject === null || inputObject === void 0 ? void 0 : inputObject.custom);
+          var _iterator26 = _createForOfIteratorHelper(member.aliases),
+            _step26;
+          try {
+            for (_iterator26.s(); !(_step26 = _iterator26.n()).done;) {
+              var alias = _step26.value;
+              this.members.set(alias.name, alias);
+            }
+          } catch (err) {
+            _iterator26.e(err);
+          } finally {
+            _iterator26.f();
+          }
+        }
+      } else {
+        var _inputObject$colour5;
+        member = new PythonAttribute(this, code, this.translate(PythonAttribute.extractName(code), comment), (_inputObject$colour5 = inputObject === null || inputObject === void 0 ? void 0 : inputObject.colour) !== null && _inputObject$colour5 !== void 0 ? _inputObject$colour5 : inputObject === null || inputObject === void 0 ? void 0 : inputObject.color);
+        var _iterator27 = _createForOfIteratorHelper(member.aliases),
+          _step27;
+        try {
+          for (_iterator27.s(); !(_step27 = _iterator27.n()).done;) {
+            var _alias3 = _step27.value;
+            this.members.set(_alias3.name, _alias3);
+          }
+        } catch (err) {
+          _iterator27.e(err);
+        } finally {
+          _iterator27.f();
+        }
+      }
+      this.members.set(member.name, member);
+    }
+  }, {
+    key: "translate",
+    value: function translate(memberName, defaultValue) {
+      if (memberName === "") {
+        return this.pythonModule.translate(this.name, defaultValue);
+      }
+      return this.pythonModule.translate(this.name + "." + memberName, defaultValue);
+    }
+  }, {
+    key: "translateFunctionComment",
+    value: function translateFunctionComment(memberName, defaultValue) {
+      if (defaultValue) {
+        var _defaultValue$split3 = defaultValue.split("(", 2),
+          _defaultValue$split4 = _slicedToArray(_defaultValue$split3, 2),
+          toTranslate = _defaultValue$split4[0],
+          tail = _defaultValue$split4[1];
+        if (tail) {
+          return this.translate(memberName, toTranslate) + "(" + tail;
+        }
+      }
+      return this.translate(memberName, defaultValue);
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return this.requiresImport;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      var result = "";
+      var _iterator28 = _createForOfIteratorHelper(this.members.values()),
+        _step28;
+      try {
+        for (_iterator28.s(); !(_step28 = _iterator28.n()).done;) {
+          var member = _step28.value;
+          result += member.toToolbox(textToBlocks);
+        }
+      } catch (err) {
+        _iterator28.e(err);
+      } finally {
+        _iterator28.f();
+      }
+      return result;
+    }
+  }, {
+    key: "resolve",
+    value: function resolve(name) {
+      if (name === this.fullName || name === this.name) {
+        return this;
+      }
+      var memberName;
+      if (name.startsWith(this.fullName + ".")) {
+        memberName = name.substring(this.fullName.length + 1);
+      } else if (name.startsWith(this.name + ".")) {
+        memberName = name.substring(this.name.length + 1);
+      } else {
+        memberName = name;
+      }
+      var indexOfDot = memberName.indexOf("(");
+      var result = this.members.get(indexOfDot === -1 ? memberName : memberName.substring(0, indexOfDot));
+      if (!result && this.baseClass !== "") {
+        result = this.pythonModule.library.libraries.resolve(this.baseClass + "." + memberName);
+      }
+      return result;
+    }
+  }], [{
+    key: "isA",
+    value: function isA(signature) {
+      return signature.startsWith("class ");
+    }
+  }]);
+}(); // TODO static class attributes
+var PythonAttribute = /*#__PURE__*/function () {
+  function PythonAttribute(pythonClassOrModule, signature, comment, colour) {
+    var _resolve_colour3,
+      _this10 = this;
+    _classCallCheck(this, PythonAttribute);
+    this.isAliasOf = null;
+    if (pythonClassOrModule instanceof PythonClass) {
+      this.pythonClass = pythonClassOrModule;
+      this.pythonModule = pythonClassOrModule.pythonModule;
+    } else {
+      this.pythonClass = null;
+      this.pythonModule = pythonClassOrModule;
+    }
+    var _signature$trim$split = signature.trim().split(":", 2),
+      _signature$trim$split2 = _slicedToArray(_signature$trim$split, 2),
+      names = _signature$trim$split2[0],
+      typeHint = _signature$trim$split2[1];
+    this.names = names.trim().split(" ");
+    this.labels = _toConsumableArray(this.names);
+    this.name = this.names[0];
+    this.fullName = pythonClassOrModule.fullName === "" ? this.name : pythonClassOrModule.fullName + "." + this.name;
+    this.typeHint = typeHint ? new PythonTypeHint(this.pythonModule.library.libraries, typeHint) : null;
+    this.colour = this.pythonModule.library.libraries.convertColour("ast_Attribute", (_resolve_colour3 = _resolve_colour(colour)) !== null && _resolve_colour3 !== void 0 ? _resolve_colour3 : pythonClassOrModule.colour, this.fullName);
+    if ((comment !== null && comment !== void 0 ? comment : "").trim() === "") {
+      this.premessage = this.pythonClass == null ? "" : this.pythonClass.translate("", this.pythonClass.name);
+      this.message = this.pythonClass == null && this.pythonModule.fullName === "" ? "" : ".";
+      this.postmessage = "";
+    } else {
+      var _splitPremessageMessa3 = splitPremessageMessagePostmessage(comment);
+      var _splitPremessageMessa4 = _slicedToArray(_splitPremessageMessa3, 3);
+      this.premessage = _splitPremessageMessa4[0];
+      this.message = _splitPremessageMessa4[1];
+      this.postmessage = _splitPremessageMessa4[2];
+      if (this.premessage === "" && this.pythonClass !== null) {
+        this.premessage = this.pythonClass.translate("", this.pythonClass.name);
+      }
+      var messageParts = this.message.split(/\{([^}]+)\}/, 3);
+      if (messageParts.length > 1) {
+        this.message = messageParts[0];
+        var labels = messageParts[1].split('|');
+        var _iterator29 = _createForOfIteratorHelper(labels.entries()),
+          _step29;
+        try {
+          for (_iterator29.s(); !(_step29 = _iterator29.n()).done;) {
+            var _step29$value = _slicedToArray(_step29.value, 2),
+              index = _step29$value[0],
+              label = _step29$value[1];
+            this.labels[index] = label.trim();
+          }
+        } catch (err) {
+          _iterator29.e(err);
+        } finally {
+          _iterator29.f();
+        }
+        this.postmessage = messageParts[2] + this.postmessage;
+      }
+    }
+    this.label = this.labels[0];
+    this.aliases = this.names.slice(1).map(function (name, index) {
+      var _this10$typeHint;
+      var result = new PythonAttribute(pythonClassOrModule, name + ':' + ((_this10$typeHint = _this10.typeHint) !== null && _this10$typeHint !== void 0 ? _this10$typeHint : ""), comment, colour);
+      result.isAliasOf = _this10;
+      result.names = _this10.names;
+      result.labels = _this10.labels;
+      result.label = _this10.labels[index + 1];
+      return result;
+    });
+  }
+  return _createClass(PythonAttribute, [{
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      if (this.pythonClass == null) {
+        if (this.pythonModule.fullName === "") {
+          return this.name;
+        }
+        return this.pythonModule.fullName + "." + this.name;
+      }
+      return __BLANK + "." + this.name;
+    }
+  }, {
+    key: "toString",
+    value: function toString() {
+      return this.toPythonSource();
+    }
+  }, {
+    key: "toToolboxBlock",
+    value: function toToolboxBlock(textToBlocks) {
+      var blockElement;
+      if (this.pythonClass !== null) {
+        var originalVariables = textToBlocks.variables;
+        try {
+          textToBlocks.variables = new TypesRegistry();
+          textToBlocks.variables.add(this.pythonClass.fullName, python.pythonGenerator.blank);
+          var result = textToBlocks.convertSource("toolbox.py", this.toPythonSource());
+          blockElement = result.rawXml.children[0];
+        } finally {
+          textToBlocks.variables = originalVariables;
+        }
+      } else {
+        var _result = textToBlocks.convertSource("toolbox.py", this.toPythonSource());
+        blockElement = _result.rawXml.children[0];
+      }
+      if (this.typeHint) {
+        blockElement.setAttribute("output", this.typeHint.flattened().toString());
+      }
+      return blockElement;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      return this.toToolboxBlock(textToBlocks).parentNode.innerHTML.toString() + "\n";
+    }
+  }], [{
+    key: "isA",
+    value: function isA(signature) {
+      return !signature.includes("(") && !signature.startsWith("type ");
+    }
+  }, {
+    key: "extractName",
+    value: function extractName(signature) {
+      return signature.split(/[: ]/, 1)[0];
+    }
+  }]);
+}();
+var PythonMethod = /*#__PURE__*/function (_PythonFunction) {
+  function PythonMethod(pythonClassOrMethod, signature, comment, colour, custom) {
+    var _this11;
+    _classCallCheck(this, PythonMethod);
+    _this11 = _callSuper(this, PythonMethod, [pythonClassOrMethod instanceof PythonMethod ? pythonClassOrMethod : pythonClassOrMethod.pythonModule, signature, comment, colour, custom]);
+    if (pythonClassOrMethod instanceof PythonMethod) {
+      var original = pythonClassOrMethod;
+      _this11.pythonClass = original.pythonClass;
+      _this11.staticmethod = original.staticmethod;
+      _this11.classmethod = original.classmethod;
+      _this11.fullName = _this11.pythonClass.fullName + "." + _this11.name;
+    } else {
+      _this11.pythonClass = pythonClassOrMethod;
+      _this11.fullName = _this11.pythonClass.fullName + "." + _this11.name;
+      if ((comment !== null && comment !== void 0 ? comment : "").trim() === "") {
+        _this11.message = ".";
+      }
+      if (_this11.parameters.length === 0) {
+        _this11.staticmethod = true;
+        _this11.classmethod = false;
+      } else if (_this11.parameters[0].name === "self") {
+        _this11.staticmethod = false;
+        _this11.classmethod = false;
+      } else if (_this11.parameters[0].name === "cls") {
+        _this11.staticmethod = false;
+        _this11.classmethod = true;
+      } else {
+        _this11.staticmethod = true;
+        _this11.classmethod = false;
+      }
+      if (_this11.premessage === "" && !(_this11.classmethod || _this11.staticmethod)) {
+        _this11.premessage = _this11.pythonClass.translate("", _this11.pythonClass.name);
+      }
+      _this11.argumentOffset = _this11.staticmethod ? 0 : 1;
+      _this11.colour = _this11.pythonClass.pythonModule.library.libraries.convertColour("ast_Call", _this11.colour, _this11.fullName);
+      if (_this11.constructor === PythonMethod) {
+        _this11.custom = _resolveFunction(custom, _this11.fullName);
+        _this11.createAliases();
+      }
+    }
+    return _this11;
+  }
+  _inherits(PythonMethod, _PythonFunction);
+  return _createClass(PythonMethod, [{
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      if (this.staticmethod || this.classmethod) {
+        return this.pythonClass.fullName + "." + this.name + "(" + this.parameters.toPythonSource() + ")";
+      }
+      return __BLANK + "." + this.name + "(" + this.parameters.toPythonSource() + ")";
+    }
+  }, {
+    key: "toToolboxBlock",
+    value: function toToolboxBlock(textToBlocks) {
+      var originalVariables = textToBlocks.variables;
+      var blockElement;
+      try {
+        textToBlocks.variables = new TypesRegistry();
+        textToBlocks.variables.add(this.pythonClass.fullName, __BLANK);
+        blockElement = _superPropGet(PythonMethod, "toToolboxBlock", this, 3)([textToBlocks]);
+      } finally {
+        textToBlocks.variables = originalVariables;
+      }
+      return blockElement;
+    }
+  }]);
+}(PythonFunction);
+var PythonConstructorMethod = /*#__PURE__*/function (_PythonMethod) {
+  function PythonConstructorMethod(pythonClass, signature, comment, colour, custom) {
+    var _this12;
+    _classCallCheck(this, PythonConstructorMethod);
+    _this12 = _callSuper(this, PythonConstructorMethod, [pythonClass, signature, comment, colour, custom]);
+    _this12.typeHint = new PythonTypeHint(pythonClass.pythonModule.library.libraries, pythonClass.fullName);
+    if ((comment !== null && comment !== void 0 ? comment : "").trim() === "") {
+      _this12.label = pythonClass === null || pythonClass === void 0 ? void 0 : pythonClass.name;
+      _this12.message = "";
+    }
+    return _this12;
+  }
+  _inherits(PythonConstructorMethod, _PythonMethod);
+  return _createClass(PythonConstructorMethod, [{
+    key: "toPythonSource",
+    value: function toPythonSource() {
+      return this.pythonClass.fullName + "(" + this.parameters.toPythonSource() + ")";
+    }
+  }], [{
+    key: "isA",
+    value: function isA(signature) {
+      return /^__init__\(\s*self\s*[,)]\s*/.test(signature);
+    }
+  }]);
+}(PythonMethod);
+var Library = /*#__PURE__*/function () {
+  function Library(name, libraryConfiguration, libraries) {
+    _classCallCheck(this, Library);
+    this.name = name;
+    this.libraries = libraries;
+    this.modules = new Map();
+    this.colour = libraries.defaultColor;
+    this.toolbox = null;
+    var classes = [];
+    for (var classOrModuleDef in libraryConfiguration) {
+      var _classOrModuleDef$spl = classOrModuleDef.split("//", 2),
+        _classOrModuleDef$spl2 = _slicedToArray(_classOrModuleDef$spl, 2),
+        _name2 = _classOrModuleDef$spl2[0],
+        comment = _classOrModuleDef$spl2[1];
+      if (_name2.startsWith("__")) {
+        // Library metadata
+        if (_name2 === "__colour" || _name2 === "__color") {
+          this.colour = libraries.convertColour("library", _resolve_colour(libraryConfiguration[_name2]), _name2);
+        } else if (_name2 === "__toolbox") {
+          this.toolbox = libraryConfiguration[_name2];
+        }
+      } else if (PythonClass.isA(_name2)) {
+        classes.push(classOrModuleDef);
+      } else {
+        var members = libraryConfiguration[classOrModuleDef];
+        if (members.some(function (member) {
+          return PythonConstructorMethod.isA(member);
+        })) {
+          classes.push(classOrModuleDef);
+        } else {
+          var _module = new PythonModule(this, _name2, comment, members);
+          this.modules.set(_module.fullName, _module);
+        }
+      }
+    }
+    for (var _i6 = 0, _classes = classes; _i6 < _classes.length; _i6++) {
+      var _PythonModule$extract;
+      var classDef = _classes[_i6];
+      var _classDef$split = classDef.split("//", 2),
+        _classDef$split2 = _slicedToArray(_classDef$split, 2),
+        signature = _classDef$split2[0],
+        _comment3 = _classDef$split2[1];
+      var moduleName = (_PythonModule$extract = PythonModule.extractName(signature)) !== null && _PythonModule$extract !== void 0 ? _PythonModule$extract : "";
+      var pythonModule = this.modules.get(moduleName);
+      if (!pythonModule) {
+        pythonModule = new PythonModule(this, moduleName);
+        this.modules.set(moduleName, pythonModule);
+      }
+      var pythonClass = new PythonClass(pythonModule, signature, _comment3, libraryConfiguration[classDef]);
+      pythonModule.members.set(pythonClass.name, pythonClass);
+    }
+  }
+  return _createClass(Library, [{
+    key: "_shouldShowToolbox",
+    value: function _shouldShowToolbox(imports) {
+      if (this.toolbox === false || this.toolbox === true) {
+        return this.toolbox;
+      }
+      if (imports) {
+        var _iterator30 = _createForOfIteratorHelper(imports.types()),
+          _step30;
+        try {
+          for (_iterator30.s(); !(_step30 = _iterator30.n()).done;) {
+            var importedType = _step30.value;
+            var _iterator31 = _createForOfIteratorHelper(this.modules.values()),
+              _step31;
+            try {
+              for (_iterator31.s(); !(_step31 = _iterator31.n()).done;) {
+                var _module2 = _step31.value;
+                if (_module2.resolve(importedType) !== null) {
+                  return true;
+                }
+              }
+            } catch (err) {
+              _iterator31.e(err);
+            } finally {
+              _iterator31.f();
+            }
+          }
+        } catch (err) {
+          _iterator30.e(err);
+        } finally {
+          _iterator30.f();
+        }
+        return false;
+      }
+      return true;
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      if (!this._shouldShowToolbox(textToBlocks.imports)) {
+        return "";
+      }
+      var categoryXml = "<category name=\"".concat(this.name, "\">"); // TODO color
+      var _iterator32 = _createForOfIteratorHelper(this.modules.values()),
+        _step32;
+      try {
+        for (_iterator32.s(); !(_step32 = _iterator32.n()).done;) {
+          var _module3 = _step32.value;
+          categoryXml += _module3.toToolbox(textToBlocks);
+        }
+      } catch (err) {
+        _iterator32.e(err);
+      } finally {
+        _iterator32.f();
+      }
+      categoryXml += "</category>";
+      return categoryXml;
+    }
+  }, {
+    key: "registerImports",
+    value: function registerImports(typeRegistry) {
+      var _iterator33 = _createForOfIteratorHelper(this.modules.values()),
+        _step33;
+      try {
+        for (_iterator33.s(); !(_step33 = _iterator33.n()).done;) {
+          var _module4 = _step33.value;
+          if (_module4.fullName === "") {
+            continue;
+          }
+          _module4.registerImports(typeRegistry);
+        }
+      } catch (err) {
+        _iterator33.e(err);
+      } finally {
+        _iterator33.f();
+      }
+    }
+  }, {
+    key: "translate",
+    value: function translate(identifier, defaultValue) {
+      return this.libraries.translate(identifier, defaultValue, this.name.split(" ", 1)[0]);
+    }
+  }]);
+}();
+var Libraries = /*#__PURE__*/function (_Map) {
+  function Libraries(librariesConfiguration, translate, convertColour) {
+    var _this13;
+    _classCallCheck(this, Libraries);
+    _this13 = _callSuper(this, Libraries);
+    _this13.translate_from_config = translate !== null && translate !== void 0 ? translate : function (identifier, defaultValue) {
+      return defaultValue;
+    };
+    _this13.convertColour = convertColour !== null && convertColour !== void 0 ? convertColour : function (type, defaultValue, fromLibrary) {
+      return defaultValue;
+    };
+    _this13.defaultColor = _this13.convertColour("libraries", _resolve_colour("FUNCTIONS"));
+    for (var name in librariesConfiguration) {
+      _this13.set(name, new Library(name, librariesConfiguration[name], _this13));
+    }
+    return _this13;
+  }
+  _inherits(Libraries, _Map);
+  return _createClass(Libraries, [{
+    key: "findModulesByName",
+    value: function findModulesByName(moduleName) {
+      return Array.from(this.values()).map(function (library) {
+        return library.modules.get(moduleName);
+      }).filter(function (module) {
+        return module;
+      });
+    }
+  }, {
+    key: "toToolbox",
+    value: function toToolbox(textToBlocks) {
+      var result = "";
+      var _iterator34 = _createForOfIteratorHelper(this.values()),
+        _step34;
+      try {
+        for (_iterator34.s(); !(_step34 = _iterator34.n()).done;) {
+          var library = _step34.value;
+          result += library.toToolbox(textToBlocks);
+        }
+      } catch (err) {
+        _iterator34.e(err);
+      } finally {
+        _iterator34.f();
+      }
+      return result;
+    }
+  }, {
+    key: "resolve",
+    value: function resolve(fullName) {
+      var moduleName = PythonModule.extractName(fullName);
+      var foundModules = this.findModulesByName(moduleName);
+      if (!foundModules.length && moduleName.includes('.')) {
+        // Last part may be an attribute
+        foundModules = this.findModulesByName(moduleName.substring(0, moduleName.lastIndexOf('.')));
+      }
+      if (!foundModules.length) {
+        // Might not contain a module name, check the built-ins
+        foundModules = this.findModulesByName('');
+      }
+      var _iterator35 = _createForOfIteratorHelper(foundModules),
+        _step35;
+      try {
+        for (_iterator35.s(); !(_step35 = _iterator35.n()).done;) {
+          var foundModule = _step35.value;
+          var found = foundModule.resolve(fullName);
+          if (found) {
+            return found;
+          }
+        }
+      } catch (err) {
+        _iterator35.e(err);
+      } finally {
+        _iterator35.f();
+      }
+      return null;
+    }
+  }, {
+    key: "registerImports",
+    value: function registerImports(typeRegistry) {
+      var _iterator36 = _createForOfIteratorHelper(this.values()),
+        _step36;
+      try {
+        for (_iterator36.s(); !(_step36 = _iterator36.n()).done;) {
+          var library = _step36.value;
+          library.registerImports(typeRegistry);
+        }
+      } catch (err) {
+        _iterator36.e(err);
+      } finally {
+        _iterator36.f();
+      }
+    }
+  }, {
+    key: "translate",
+    value: function translate(identifier, defaultValue, namespace) {
+      return this.translate_from_config(identifier, defaultValue || " ", namespace).trim();
+    }
+  }]);
+}(/*#__PURE__*/_wrapNativeSuper(Map));
+function unquote(value) {
+  if (value.length >= 2) {
+    var firstChar = value.charAt(0);
+    var lastChar = value.charAt(value.length - 1);
+    if (firstChar === "'" && lastChar === "'" || firstChar === '"' && lastChar === '"') {
+      return value.slice(1, -1);
+    }
+  }
+  return value;
+}
+function fieldFactoryForLiteral(typeHint) {
+  return function (block, fieldName) {
+    return new Blockly.FieldDropdown(function () {
+      var result = typeHint.flattened().typeParams.map(function (typeParam) {
+        var unquotedTypeParam = unquote(typeParam);
+        return [unquotedTypeParam, unquotedTypeParam];
+      });
+      var currentValue = block.getFieldValue(fieldName);
+      if (!result.some(function (item) {
+        return item[1] === currentValue;
+      })) {
+        result.unshift([currentValue, currentValue]);
+      }
+      return result;
+    });
+  };
+}
+function updateBlockFieldFactory(block, pythonTypeNames, render) {
+  var fieldFactoryBefore = block.fieldFactory_;
+  block.fieldFactory_ = "";
+  if (block.parentBlock_ !== null && block.parentBlock_.fromLibrary_ !== "") {
+    var argInput = block.parentBlock_.inputWithBlock = block.parentBlock_.getInputWithBlock(block);
+    if (argInput) {
+      var argName = argInput.name;
+      if (argName.startsWith("ARG")) {
+        var argIndex = Number(argName.substring(3));
+        var argumentInfo = block.parentBlock_.argumentInfo[argIndex];
+        var _argumentInfo$split = argumentInfo.split(" ", 2),
+          _argumentInfo$split2 = _slicedToArray(_argumentInfo$split, 2),
+          fullFunctionName = _argumentInfo$split2[0],
+          parameterKeyword = _argumentInfo$split2[1];
+        var pythonFunction = block.workspace.libraries.resolve(fullFunctionName);
+        if (pythonFunction instanceof PythonFunction) {
+          var _parameter3;
+          var parameter;
+          if (parameterKeyword) {
+            parameter = pythonFunction.parameters.findByKeyword(parameterKeyword);
+          } else {
+            parameter = pythonFunction.parameters[argIndex + pythonFunction.argumentOffset];
+          }
+          var typeHint = (_parameter3 = parameter) === null || _parameter3 === void 0 ? void 0 : _parameter3.typeHint;
+          if (typeHint) {
+            var typeAliases = typeHint.referencedTypeAliases();
+            var _iterator37 = _createForOfIteratorHelper(typeAliases),
+              _step37;
+            try {
+              var _loop4 = function _loop4() {
+                var typeAlias = _step37.value;
+                if (pythonTypeNames.some(function (pythonTypeName) {
+                  return typeAlias.matches(pythonTypeName);
+                })) {
+                  block.fieldFactory_ = typeAlias.fieldFactory;
+                  return 1; // break
+                }
+              };
+              for (_iterator37.s(); !(_step37 = _iterator37.n()).done;) {
+                if (_loop4()) break;
+              }
+
+              // TODO case with Literal[...] | None
+            } catch (err) {
+              _iterator37.e(err);
+            } finally {
+              _iterator37.f();
+            }
+            if (block.fieldFactory_ === "" && typeHint.flattened().isLiteral()) {
+              block.fieldFactory_ = fieldFactoryForLiteral(typeHint);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (block.fieldFactory_ !== fieldFactoryBefore) {
+    block.updateShape_();
+    if (render) {
+      block.render();
+    }
+  }
+}
+function initBlockFieldFactory(block, pythonTypeNames) {
+  block.onchange = function (changeEvent) {
+    if (changeEvent instanceof Blockly.Events.BlockMove) {
+      updateBlockFieldFactory(block, pythonTypeNames, false);
+    }
+  };
+  setTimeout(function () {
+    updateBlockFieldFactory(block, pythonTypeNames, true);
+  });
+}
+if (typeof module !== 'undefined') {
+  module.exports = {
+    Libraries: Libraries,
+    Library: Library,
+    PythonAttribute: PythonAttribute,
+    PythonClass: PythonClass,
+    PythonConstructorMethod: PythonConstructorMethod,
+    PythonFunction: PythonFunction,
+    PythonMethod: PythonMethod,
+    PythonModule: PythonModule,
+    PythonParameter: PythonParameter,
+    PythonParameters: PythonParameters,
+    PythonTypeHint: PythonTypeHint,
+    PythonTypeAliasType: PythonTypeAliasType
+  };
+}
+BlockMirrorTextToBlocks['ast_Image'] = function (node, parent, textToBlocks) {
+  if (!textToBlocks.blockMirror.configuration.imageMode) {
     throw "Not using image constructor";
   }
   if (node.args.length !== 1) {
@@ -1630,883 +3960,93 @@ BlockMirrorTextToBlocks['ast_Image'] = function (node, parent, bmttb) {
     "@src": Sk.ffi.remapToJs(node.args[0].s)
   });
 };
-BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES = {
-  'abs': {
-    'returns': true,
-    'full': ['x'],
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'all': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'any': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'ascii': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'bin': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'bool': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC,
-    simple: ['x']
-  },
-  'breakpoint': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'bytearray': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'bytes': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'callable': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'chr': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'classmethod': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'compile': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'complex': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'delattr': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.VARIABLES
-  },
-  'dict': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'dir': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'divmod': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'enumerate': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'eval': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'exec': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'filter': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'float': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH,
-    simple: ['x']
-  },
-  'format': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'frozenset': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'getattr': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'globals': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.VARIABLES
-  },
-  'hasattr': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'hash': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'help': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'hex': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'id': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'Image': {
-    custom: BlockMirrorTextToBlocks.ast_Image
-  },
-  'input': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.FILE,
-    simple: ['prompt']
-  },
-  'int': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH,
-    simple: ['x']
-  },
-  'isinstance': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'issubclass': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'iter': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'len': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'list': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'locals': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.VARIABLES
-  },
-  'map': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'max': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'memoryview': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'min': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'next': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'object': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'oct': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'open': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.FILE
-  },
-  'ord': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'pow': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'print': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.FILE,
-    simple: ['message'],
-    full: ['*messages', 'sep', 'end', 'file', 'flush']
-  },
-  'property': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'range': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES,
-    simple: ['stop'],
-    full: ['start', 'stop', 'step']
-  },
-  'repr': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'reversed': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'round': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH,
-    full: ['x', 'ndigits'],
-    simple: ['x']
-  },
-  'set': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'setattr': {
-    'returns': false,
-    'full': ['object', 'name', 'value'],
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'slice': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'sorted': {
-    'full': ['iterable', '*', '**key', '**reverse'],
-    'simple': ['iterable'],
-    'returns': true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'staticmethod': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'str': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT,
-    simple: ['x']
-  },
-  'sum': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'super': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'tuple': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TUPLE
-  },
-  'type': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  'vars': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.VARIABLES
-  },
-  'zip': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  '__import__': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  }
-};
-BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES = {
-  'conjugate': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'trunc': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'floor': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'ceil': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'bit_length': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'to_bytes': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'from_bytes': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'as_integer_ratio': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'is_integer': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'hex': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  'fromhex': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.MATH
-  },
-  '__iter__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  '__next__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'index': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'count': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'append': {
-    'returns': false,
-    'full': ['x'],
-    'message': 'append',
-    'premessage': 'to list',
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'clear': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'copy': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'extend': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'insert': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'pop': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'remove': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SEQUENCES
-  },
-  'reverse': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'sort': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.LIST
-  },
-  'capitalize': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'casefold': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'center': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'encode': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'endswith': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'expandtabs': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'find': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'format': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'format_map': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isalnum': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isalpha': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isascii': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isdecimal': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isdigit': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isidentifier': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'islower': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isnumeric': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isprintable': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isspace': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'istitle': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'isupper': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'join': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'ljust': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'lower': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'lstrip': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'maketrans': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'partition': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'replace': {
-    'returns': true,
-    'full': ['old', 'new', 'count'],
-    'simple': ['old', 'new'],
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rfind': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rindex': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rjust': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rpartition': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rsplit': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'rstrip': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'split': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'splitlines': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'startswith': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'strip': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'swapcase': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'title': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'translate': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'upper': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'zfill': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  'decode': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.TEXT
-  },
-  '__eq__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.LOGIC
-  },
-  'tobytes': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'tolist': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'release': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'cast': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-  },
-  'isdisjoint': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'issubset': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'issuperset': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'union': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'intersection': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'difference': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'symmetric_difference': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'update': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'intersection_update': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'difference_update': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'symmetric_difference_update': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'add': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'discard': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.SET
-  },
-  'fromkeys': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'get': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'items': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'keys': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'popitem': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'setdefault': {
-    returns: false,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  'values': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.DICTIONARY
-  },
-  '__enter__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.CONTROL
-  },
-  '__exit__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.CONTROL
-  },
-  'mro': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  },
-  '__subclasses__': {
-    returns: true,
-    colour: BlockMirrorTextToBlocks.COLOR.OO
-  }
-};
-BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS = {
-  "plt": "import matplotlib.pyplot as plt",
-  "turtle": "import turtle"
-};
-BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES = {
-  "cisc108": {
-    'assert_equal': {
-      returns: false,
-      simple: ["left", "right"],
-      message: "assert_equal",
-      colour: BlockMirrorTextToBlocks.COLOR.PYTHON
-    }
-  },
-  "turtle": {},
-  'plt': {
-    'show': {
-      returns: false,
-      simple: [],
-      message: 'show plot canvas',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'hist': {
-      returns: false,
-      simple: ['values'],
-      message: 'plot histogram',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'bar': {
-      returns: false,
-      simple: ['xs', 'heights', '*tick_label'],
-      message: 'plot bar chart',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'plot': {
-      returns: false,
-      simple: ['values'],
-      message: 'plot line',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'boxplot': {
-      returns: false,
-      simple: ['values'],
-      message: 'plot boxplot',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'hlines': {
-      returns: false,
-      simple: ['y', 'xmin', 'xmax'],
-      message: 'plot horizontal line',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'vlines': {
-      returns: false,
-      simple: ['x', 'ymin', 'ymax'],
-      message: 'plot vertical line',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'scatter': {
-      returns: false,
-      simple: ['xs', 'ys'],
-      message: 'plot scatter',
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'title': {
-      returns: false,
-      simple: ['label'],
-      message: "make plot's title",
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'xlabel': {
-      returns: false,
-      simple: ['label'],
-      message: "make plot's x-axis label",
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'ylabel': {
-      returns: false,
-      simple: ['label'],
-      message: "make plot's y-axis label",
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'xticks': {
-      returns: false,
-      simple: ['xs', 'labels', '*rotation'],
-      message: "make x ticks",
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    },
-    'yticks': {
-      returns: false,
-      simple: ['ys', 'labels', '*rotation'],
-      message: "make y ticks",
-      colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-    }
-  }
-};
-BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES['assert_equal'] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['cisc108']['assert_equal'];
-function makeTurtleBlock(name, returns, values, message, aliases) {
-  BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name] = {
-    "returns": returns,
-    "simple": values,
-    "message": message,
-    colour: BlockMirrorTextToBlocks.COLOR.PLOTTING
-  };
-  if (aliases) {
-    aliases.forEach(function (alias) {
-      BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][alias] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['turtle'][name];
-    });
+
+// TODO handle turtle when not in standard mode
+var turtle_angle_units = new Set();
+var state_for_source = "";
+function _reset_source_state(textToBlocks) {
+  if (textToBlocks.filename === '__main__.py' && textToBlocks.source !== state_for_source) {
+    turtle_angle_units.clear();
+    state_for_source = textToBlocks.source;
   }
 }
-makeTurtleBlock("forward", false, ["amount"], "move turtle forward by", ["fd"]);
-makeTurtleBlock("backward", false, ["amount"], "move turtle backward by", ["bd"]);
-makeTurtleBlock("right", false, ["angle"], "turn turtle right by", ["rt"]);
-makeTurtleBlock("left", false, ["angle"], "turn turtle left by", ["lt"]);
-makeTurtleBlock("goto", false, ["x", "y"], "move turtle to position", ["setpos", "setposition"]);
-makeTurtleBlock("setx", false, ["x"], "set turtle's x position to ", []);
-makeTurtleBlock("sety", false, ["y"], "set turtle's y position to ", []);
-makeTurtleBlock("setheading", false, ["angle"], "set turtle's heading to ", ["seth"]);
-makeTurtleBlock("home", false, [], "move turtle to origin ", []);
-makeTurtleBlock("circle", false, ["radius"], "move the turtle in a circle ", []);
-makeTurtleBlock("dot", false, ["size", "color"], "turtle draws a dot ", []);
-makeTurtleBlock("stamp", true, [], "stamp a copy of the turtle shape ", []);
-makeTurtleBlock("clearstamp", false, ["stampid"], "delete stamp with id ", []);
-makeTurtleBlock("clearstamps", false, [], "delete all stamps ", []);
-makeTurtleBlock("undo", false, [], "undo last turtle action ", []);
-makeTurtleBlock("speed", true, ["x"], "set or get turtle speed", []);
-makeTurtleBlock("position", true, [], "get turtle's position ", ["pos"]);
-makeTurtleBlock("towards", true, ["x", "y"], "get the angle from the turtle to the point ", []);
-makeTurtleBlock("xcor", true, [], "get turtle's x position ", []);
-makeTurtleBlock("ycor", true, [], "get turtle's y position ", []);
-makeTurtleBlock("heading", true, [], "get turtle's heading ", []);
-makeTurtleBlock("distance", true, ["x", "y"], "get the distance from turtle's position to ", []);
-makeTurtleBlock("degrees", false, [], "set turtle mode to degrees", []);
-makeTurtleBlock("radians", false, [], "set turtle mode to radians", []);
-makeTurtleBlock("pendown", false, [], "pull turtle pen down ", ["pd", "down"]);
-makeTurtleBlock("penup", false, [], "pull turtle pen up ", ["pu", "up"]);
-// Skipped some
-makeTurtleBlock("pensize", false, [], "set or get the pen size ", ["width"]);
-// Skipped some
-makeTurtleBlock("pencolor", false, [], "set or get the pen color ", []);
-makeTurtleBlock("fillcolor", false, [], "set or get the fill color ", []);
-makeTurtleBlock("reset", false, [], "reset drawing", []);
-makeTurtleBlock("clear", false, [], "clear drawing", []);
-makeTurtleBlock("write", false, ["message"], "write text ", []);
-// Skipped some
-makeTurtleBlock("bgpic", false, ["url"], "set background to ", []);
-makeTurtleBlock("done", false, [], "start the turtle loop ", ["mainloop"]);
-makeTurtleBlock("setup", false, ["width", "height"], "set drawing area size ", []);
-makeTurtleBlock("title", false, ["message"], "set title of drawing area ", []);
-makeTurtleBlock("bye", false, [], "say goodbye to turtles ", []);
-BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['matplotlib.pyplot'] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES['plt'];
-BlockMirrorTextToBlocks.getFunctionBlock = function (name, values, module) {
-  if (values === undefined) {
-    values = {};
+BlockMirrorTextToBlocks['turtleDegrees'] = function (node, parent, textToBlocks) {
+  if (textToBlocks.filename === '___main__.py') {
+    _reset_source_state(textToBlocks);
+    if (node.args.length === 1 && node.args[0]._astname === "Num") {
+      turtle_angle_units.add(Sk.ffi.remapToJs(node.args[0].n));
+    } else {
+      turtle_angle_units.add(360);
+    }
   }
-  // TODO: hack, we shouldn't be accessing the prototype like this
-  var signature;
-  var method = false;
-  if (module !== undefined) {
-    signature = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_SIGNATURES[module][name];
-  } else if (name.startsWith('.')) {
-    signature = BlockMirrorTextToBlocks.prototype.METHOD_SIGNATURES[name.substr(1)];
-    method = true;
-  } else {
-    signature = BlockMirrorTextToBlocks.prototype.FUNCTION_SIGNATURES[name];
-  }
-  var args = signature.simple !== undefined ? signature.simple : signature.full !== undefined ? signature.full : [];
-  var argumentsMutation = {
-    "@arguments": args.length,
-    "@returns": signature.returns || false,
-    "@parameters": true,
-    "@method": method,
-    "@name": module ? module + "." + name : name,
-    "@message": signature.message ? signature.message : name,
-    "@premessage": signature.premessage ? signature.premessage : "",
-    "@colour": signature.colour ? signature.colour : 0,
-    "@module": module || ""
-  };
-  for (var i = 0; i < args.length; i += 1) {
-    argumentsMutation["UNKNOWN_ARG:" + i] = null;
-  }
-  var newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", null, {}, values, {
-    inline: true
-  }, argumentsMutation);
-  // Return as either statement or expression
-  return BlockMirrorTextToBlocks.xmlToString(newBlock);
 };
+BlockMirrorTextToBlocks['turtleRadians'] = function (node, parent, textToBlocks) {
+  if (textToBlocks.filename === '___main__.py') {
+    _reset_source_state(textToBlocks);
+    turtle_angle_units.add(2 * Math.PI);
+  }
+};
+if (typeof registerFieldAngle === "function") {
+  var _turtleAngleField = function _turtleAngleField(block, clockwise) {
+    var offset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 90;
+    if (block.type === 'ast_Num' && turtle_angle_units.size <= 1) {
+      if (turtle_angle_units.size === 0) {
+        return new FieldAngle(0, null, {
+          offset: offset,
+          clockwise: clockwise,
+          precision: .5
+        });
+      } else {
+        var value = turtle_angle_units.values().next().value;
+
+        // TODO other values not currently supported, defaults to standard field
+        if (value === 360) {
+          return new FieldAngle(0, null, {
+            offset: offset,
+            clockwise: clockwise,
+            precision: .5
+          });
+        } else if (value === 2 * Math.PI) {
+          return new FieldAngle(0, null, {
+            offset: offset,
+            clockwise: clockwise,
+            min: 0,
+            max: 2 * Math.PI,
+            displayMin: 0,
+            displayMax: 2 * Math.PI,
+            minorTick: Math.PI / 16,
+            majorTick: Math.PI / 8,
+            symbol: ' rad',
+            precision: 0.01
+          });
+        }
+      }
+    }
+  };
+  registerFieldAngle();
+  BlockMirrorTextToBlocks['turtleAngleFieldLeft'] = function (block, _fieldName) {
+    return _turtleAngleField(block, false);
+  };
+  BlockMirrorTextToBlocks['turtleAngleFieldRight'] = function (block, _fieldName) {
+    return _turtleAngleField(block, true);
+  };
+  BlockMirrorTextToBlocks['turtleAngleFieldHeading'] = function (block, _fieldName) {
+    return _turtleAngleField(block, false, 0);
+  };
+} else {
+  BlockMirrorTextToBlocks['turtleAngleFieldLeft'] = function (_block, _fieldName) {};
+  BlockMirrorTextToBlocks['turtleAngleFieldRight'] = function (_block, _fieldName) {};
+  BlockMirrorTextToBlocks['turtleAngleFieldHeading'] = function (_block, _fieldName) {};
+}
+if (typeof FieldColourHsvSliders === "function") {
+  BlockMirrorTextToBlocks['turtleColorField'] = function (block, _fieldName) {
+    if (block.type === 'ast_Str') {
+      return new FieldColourHsvSliders();
+    }
+  };
+} else {
+  BlockMirrorTextToBlocks['turtleColorField'] = function (_block, _fieldName) {};
+}
 var ZERO_BLOCK = BlockMirrorTextToBlocks.create_block('ast_Num', null, {
   'NUM': 0
 });
@@ -2530,7 +4070,7 @@ TOOLBOX_CATEGORY.CALCULATIONS = {
 TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {
   name: "Output",
   colour: "PLOTTING",
-  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.bar(___, ___, tick_label=___)", "plt.boxplot(___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)", "plt.hlines(___, ___, ___)", "plt.vlines(___, ___, ___)"]
+  blocks: ["print(___)", "plt.plot(___)", "plt.scatter(___, ___)", "plt.hist(___)", "plt.bar(___, ___)", "plt.boxplot(___)", "plt.show()", "plt.title(___)", "plt.xlabel(___)", "plt.ylabel(___)", "plt.hlines(___, ___, ___)", "plt.vlines(___, ___, ___)"]
 };
 TOOLBOX_CATEGORY.TURTLES = {
   name: "Turtles",
@@ -2738,8 +4278,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 python.pythonGenerator.forBlock['ast_For'] = function (block, generator) {
   // For each loop.
-  var argument0 = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
-  var argument1 = python.pythonGenerator.valueToCode(block, 'ITER', python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+  var argument0 = python.pythonGenerator.valueToCode(block, 'TARGET', python.Order.RELATIONAL) || python.pythonGenerator.blank;
+  var argument1 = python.pythonGenerator.valueToCode(block, 'ITER', python.Order.RELATIONAL) || python.pythonGenerator.blank;
   var branchBody = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   var code = 'for ' + argument0 + ' in ' + argument1 + ':\n' + branchBody;
   if (block.getInputTargetBlock('ELSE')) {
@@ -2774,12 +4314,12 @@ Blockly.Blocks['ast_If'] = {
   init: function init() {
     this.orelse_ = 0;
     this.elifs_ = 0;
-    this.appendValueInput('TEST').appendField("if");
+    this.appendValueInput('TEST').appendField(this.translateText("if"));
     this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.LOGIC);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.LOGIC));
     this.updateShape_();
   },
   // TODO: Not mutable currently
@@ -2798,7 +4338,7 @@ Blockly.Blocks['ast_If'] = {
       i++;
     }
     if (this.orelse_ && !this.getInput('ELSE')) {
-      this.appendDummyInput('ORELSETEST').appendField("else:");
+      this.appendDummyInput('ORELSETEST').appendField(this.translateText("else:"));
       this.appendStatementInput("ORELSEBODY").setCheck(null);
     } else if (!this.orelse_ && this.getInput('ELSE')) {
       block.removeInput('ORELSETEST');
@@ -2838,14 +4378,14 @@ Blockly.Blocks['ast_If'] = {
 };
 python.pythonGenerator.forBlock['ast_If'] = function (block, generator) {
   // Test
-  var test = "if " + (python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+  var test = "if " + (python.pythonGenerator.valueToCode(block, 'TEST', python.Order.NONE) || python.pythonGenerator.blank) + ":\n";
   // Body:
   var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   // Elifs
   var elifs = new Array(block.elifs_);
   for (var i = 0; i < block.elifs_; i++) {
     var elif = block.elifs_[i];
-    var clause = "elif " + (python.pythonGenerator.valueToCode(block, 'ELIFTEST' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+    var clause = "elif " + (python.pythonGenerator.valueToCode(block, 'ELIFTEST' + i, python.Order.NONE) || python.pythonGenerator.blank);
     clause += ":\n" + (python.pythonGenerator.statementToCode(block, 'ELIFBODY' + i) || python.pythonGenerator.PASS);
     elifs[i] = clause;
   }
@@ -2894,19 +4434,19 @@ BlockMirrorTextToBlocks.prototype['ast_If'] = function (node, parent) {
 Blockly.Blocks['ast_While'] = {
   init: function init() {
     this.orelse_ = 0;
-    this.appendValueInput('TEST').appendField("while");
+    this.appendValueInput('TEST').appendField(this.translateText("while"));
     this.appendStatementInput("BODY").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.CONTROL));
     this.updateShape_();
   },
   // TODO: Not mutable currently
   updateShape_: function updateShape_() {
     var latestInput = "BODY";
     if (this.orelse_ && !this.getInput('ELSE')) {
-      this.appendDummyInput('ORELSETEST').appendField("else:");
+      this.appendDummyInput('ORELSETEST').appendField(this.translateText("else:"));
       this.appendStatementInput("ORELSEBODY").setCheck(null);
     } else if (!this.orelse_ && this.getInput('ELSE')) {
       block.removeInput('ORELSETEST');
@@ -2935,7 +4475,7 @@ Blockly.Blocks['ast_While'] = {
 };
 python.pythonGenerator.forBlock['ast_While'] = function (block, generator) {
   // Test
-  var test = "while " + (python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+  var test = "while " + (python.pythonGenerator.valueToCode(block, 'TEST', python.Order.NONE) || python.pythonGenerator.blank) + ":\n";
   // Body:
   var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   // Orelse:
@@ -2964,29 +4504,45 @@ BlockMirrorTextToBlocks.prototype['ast_While'] = function (node, parent) {
     "@orelse": hasOrelse
   }, statements);
 };
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Num",
-  "message0": "%1",
-  "args0": [{
-    "type": "field_number",
-    "name": "NUM",
-    "value": 0
-  }],
-  "output": "Number",
-  "colour": BlockMirrorTextToBlocks.COLOR.MATH
-});
+Blockly.Blocks['ast_Num'] = {
+  init: function init() {
+    this.setOutput(true, "Number");
+    this.appendDummyInput('INPUT').appendField(new Blockly.FieldNumber(0), 'NUM');
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.MATH));
+    this.fieldFactory_ = "";
+    // TODO perhaps more numeric types to check, but this handles the most common scenarios.
+    initBlockFieldFactory(this, ["int", "float"]);
+  },
+  updateShape_: function updateShape_() {
+    var input = this.getInput('INPUT');
+    var field = null;
+    if (this.fieldFactory_) {
+      var resolvedFieldFactory = _resolveFunction(this.fieldFactory_);
+      if (resolvedFieldFactory) {
+        field = resolvedFieldFactory(this, 'NUM');
+      }
+    }
+    if (!field) {
+      field = new Blockly.FieldNumber(0);
+    }
+    var value = this.getFieldValue('NUM');
+    input.removeField('NUM');
+    field.setValue(value, false);
+    input.appendField(field, 'NUM');
+  }
+};
 python.pythonGenerator.forBlock['ast_Num'] = function (block) {
   // Numeric value.
   var code = parseFloat(block.getFieldValue('NUM'));
   var order;
-  if (code == Infinity) {
+  if (code === Infinity) {
     code = 'float("inf")';
-    order = python.pythonGenerator.ORDER_FUNCTION_CALL;
-  } else if (code == -Infinity) {
+    order = python.Order.FUNCTION_CALL;
+  } else if (code === -Infinity) {
     code = '-float("inf")';
-    order = python.pythonGenerator.ORDER_UNARY_SIGN;
+    order = python.Order.UNARY_SIGN;
   } else {
-    order = code < 0 ? python.pythonGenerator.ORDER_UNARY_SIGN : python.pythonGenerator.ORDER_ATOMIC;
+    order = code < 0 ? python.Order.UNARY_SIGN : python.Order.ATOMIC;
   }
   return [code, order];
 };
@@ -2996,7 +4552,7 @@ BlockMirrorTextToBlocks.prototype['ast_Num'] = function (node, parent) {
     "NUM": Sk.ffi.remapToJs(n)
   });
 };
-BlockMirrorTextToBlocks.BINOPS = [["+", "Add", python.pythonGenerator.ORDER_ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'], ["-", "Sub", python.pythonGenerator.ORDER_ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'], ["*", "Mult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'], ["/", "Div", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'], ["%", "Mod", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.', 'modulo', 'by'], ["**", "Pow", python.pythonGenerator.ORDER_EXPONENTIATION, 'Return the first number raised to the power of the second number.', 'raise', 'to'], ["//", "FloorDiv", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.', 'floor divide', 'by'], ["<<", "LShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number left shifted by the right number.', 'left shift', 'by'], [">>", "RShift", python.pythonGenerator.ORDER_BITWISE_SHIFT, 'Return the left number right shifted by the right number.', 'right shift', 'by'], ["|", "BitOr", python.pythonGenerator.ORDER_BITWISE_OR, 'Returns the bitwise OR of the two values.', 'bitwise OR', 'using'], ["^", "BitXor", python.pythonGenerator.ORDER_BITWISE_XOR, 'Returns the bitwise XOR of the two values.', 'bitwise XOR', 'using'], ["&", "BitAnd", python.pythonGenerator.ORDER_BITWISE_AND, 'Returns the bitwise AND of the two values.', 'bitwise AND', 'using'], ["@", "MatMult", python.pythonGenerator.ORDER_MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.', 'matrix multiply', 'by']];
+BlockMirrorTextToBlocks.BINOPS = [["+", "Add", python.Order.ADDITIVE, 'Return the sum of the two numbers.', 'increase', 'by'], ["-", "Sub", python.Order.ADDITIVE, 'Return the difference of the two numbers.', 'decrease', 'by'], ["*", "Mult", python.Order.MULTIPLICATIVE, 'Return the product of the two numbers.', 'multiply', 'by'], ["/", "Div", python.Order.MULTIPLICATIVE, 'Return the quotient of the two numbers.', 'divide', 'by'], ["%", "Mod", python.Order.MULTIPLICATIVE, 'Return the remainder of the first number divided by the second number.', 'modulo', 'by'], ["**", "Pow", python.Order.EXPONENTIATION, 'Return the first number raised to the power of the second number.', 'raise', 'to'], ["//", "FloorDiv", python.Order.MULTIPLICATIVE, 'Return the truncated quotient of the two numbers.', 'floor divide', 'by'], ["<<", "LShift", python.Order.BITWISE_SHIFT, 'Return the left number left shifted by the right number.', 'left shift', 'by'], [">>", "RShift", python.Order.BITWISE_SHIFT, 'Return the left number right shifted by the right number.', 'right shift', 'by'], ["|", "BitOr", python.Order.BITWISE_OR, 'Returns the bitwise OR of the two values.', 'bitwise OR', 'using'], ["^", "BitXor", python.Order.BITWISE_XOR, 'Returns the bitwise XOR of the two values.', 'bitwise XOR', 'using'], ["&", "BitAnd", python.Order.BITWISE_AND, 'Returns the bitwise AND of the two values.', 'bitwise AND', 'using'], ["@", "MatMult", python.Order.MULTIPLICATIVE, 'Return the matrix multiplication of the two numbers.', 'matrix multiply', 'by']];
 var BINOPS_SIMPLE = ['Add', 'Sub', 'Mult', 'Div', 'Mod', 'Pow'];
 var BINOPS_BLOCKLY_DISPLAY_FULL = BlockMirrorTextToBlocks.BINOPS.map(function (binop) {
   return [binop[0], binop[1]];
@@ -3081,103 +4637,107 @@ BlockMirrorTextToBlocks.prototype['ast_BinOp'] = function (node, parent) {
 };
 python.pythonGenerator.forBlock['ast_BinOpFull'] = python.pythonGenerator.forBlock['ast_BinOp'];
 BlockMirrorTextToBlocks.prototype['ast_BinOpFull'] = BlockMirrorTextToBlocks.prototype['ast_BinOp'];
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Name",
-  "message0": "%1",
-  "args0": [{
-    "type": "field_variable",
-    "name": "VAR",
-    "variable": "%{BKY_VARIABLES_DEFAULT_NAME}"
-  }],
-  "output": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.VARIABLES,
-  "extensions": ["contextMenu_variableSetterGetter_forBlockMirror"]
-});
-{
+Blockly.Blocks['ast_Name'] = {
+  init: function init() {
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.appendDummyInput('NAME').appendField(new Blockly.FieldTextInput('default'), 'VAR');
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
+    this.import_ = "";
+  },
+  mutationToDom: function mutationToDom() {
+    var container = document.createElement('mutation');
+    container.setAttribute('import', this.import_);
+    return container;
+  },
+  domToMutation: function domToMutation(xmlElement) {
+    this.import_ = xmlElement.getAttribute('import');
+  },
   /**
-   * Mixin to add context menu items to create getter/setter blocks for this
-   * setter/getter.
-   * Used by blocks 'ast_Name' and 'ast_Assign'.
-   * @mixin
-   * @augments Blockly.Block
-   * @package
-   * @readonly
+   * Add menu option to create getter/setter block for this setter/getter.
+   * @param {!Array} options List of menu options to add to.
+   * @this Blockly.Block
    */
-  var mixin = {
-    /**
-     * Add menu option to create getter/setter block for this setter/getter.
-     * @param {!Array} options List of menu options to add to.
-     * @this Blockly.Block
-     */
-    customContextMenu: function customContextMenu(options) {
-      var name;
-      if (!this.isInFlyout) {
-        // Getter blocks have the option to create a setter block, and vice versa.
-        var opposite_type, contextMenuMsg;
-        if (this.type === 'ast_Name') {
-          opposite_type = 'ast_Assign';
-          contextMenuMsg = Blockly.Msg['VARIABLES_GET_CREATE_SET'];
-        } else {
-          opposite_type = 'ast_Name';
-          contextMenuMsg = Blockly.Msg['VARIABLES_SET_CREATE_GET'];
-        }
-        var option = {
-          enabled: this.workspace.remainingCapacity() > 0
+  customContextMenu: function customContextMenu(options) {
+    var name;
+    if (!this.isInFlyout) {
+      // Getter blocks have the option to create a setter block, and vice versa.
+      var opposite_type, contextMenuMsg;
+      if (this.type === 'ast_Name') {
+        opposite_type = 'ast_Assign';
+        contextMenuMsg = Blockly.Msg['VARIABLES_GET_CREATE_SET'];
+      } else {
+        opposite_type = 'ast_Name';
+        contextMenuMsg = Blockly.Msg['VARIABLES_SET_CREATE_GET'];
+      }
+      var option = {
+        enabled: this.workspace.remainingCapacity() > 0
+      };
+      name = this.getField('VAR').getText();
+      option.text = contextMenuMsg.replace('%1', name);
+      var xmlField = document.createElement('field');
+      xmlField.setAttribute('name', 'VAR');
+      xmlField.appendChild(document.createTextNode(name));
+      var xmlBlock = document.createElement('block');
+      xmlBlock.setAttribute('type', opposite_type);
+      xmlBlock.appendChild(xmlField);
+      option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
+      options.push(option);
+      // Getter blocks have the option to rename or delete that variable.
+    } else {
+      if (this.type === 'ast_Name' || this.type === 'variables_get_reporter') {
+        var renameOption = {
+          text: Blockly.Msg.RENAME_VARIABLE,
+          enabled: true,
+          callback: Blockly.Constants.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
         };
         name = this.getField('VAR').getText();
-        option.text = contextMenuMsg.replace('%1', name);
-        var xmlField = document.createElement('field');
-        xmlField.setAttribute('name', 'VAR');
-        xmlField.appendChild(document.createTextNode(name));
-        var xmlBlock = document.createElement('block');
-        xmlBlock.setAttribute('type', opposite_type);
-        xmlBlock.appendChild(xmlField);
-        option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
-        options.push(option);
-        // Getter blocks have the option to rename or delete that variable.
-      } else {
-        if (this.type === 'ast_Name' || this.type === 'variables_get_reporter') {
-          var renameOption = {
-            text: Blockly.Msg.RENAME_VARIABLE,
-            enabled: true,
-            callback: Blockly.Constants.Variables.RENAME_OPTION_CALLBACK_FACTORY(this)
-          };
-          name = this.getField('VAR').getText();
-          var deleteOption = {
-            text: Blockly.Msg.DELETE_VARIABLE.replace('%1', name),
-            enabled: true,
-            callback: Blockly.Constants.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
-          };
-          options.unshift(renameOption);
-          options.unshift(deleteOption);
-        }
+        var deleteOption = {
+          text: Blockly.Msg.DELETE_VARIABLE.replace('%1', name),
+          enabled: true,
+          callback: Blockly.Constants.Variables.DELETE_OPTION_CALLBACK_FACTORY(this)
+        };
+        options.unshift(renameOption);
+        options.unshift(deleteOption);
       }
     }
-  };
-  Blockly.Extensions.registerMixin('contextMenu_variableSetterGetter_forBlockMirror', mixin);
-}
+  }
+};
 python.pythonGenerator.forBlock['ast_Name'] = function (block, generator) {
   // Variable getter.
+  if (block.import_) {
+    var _block$import_$split = block.import_.split(' as ', 2),
+      _block$import_$split2 = _slicedToArray(_block$import_$split, 2),
+      type = _block$import_$split2[0],
+      alias = _block$import_$split2[1];
+    if (type && !python.pythonGenerator.imports.hasType(type)) {
+      var name = alias !== null && alias !== void 0 ? alias : type;
+      python.pythonGenerator.imports.set(type, name);
+    }
+  }
   var code = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype['ast_Name'] = function (node, parent) {
   var id = node.id;
-  var ctx = node.ctx;
-  if (id.v == python.pythonGenerator.blank) {
+  if (id.v === python.pythonGenerator.blank) {
     return null;
-  } else {
-    return BlockMirrorTextToBlocks.create_block('ast_Name', node.lineno, {
-      "VAR": id.v
-    });
   }
+  var mutations = {};
+  var fromLibrary = this.resolveFromLibrary(node);
+  if (fromLibrary instanceof PythonClass || fromLibrary instanceof PythonModule) {
+    mutations["@import"] = fromLibrary.requiresImport;
+  }
+  return BlockMirrorTextToBlocks.create_block('ast_Name', node.lineno, {
+    "VAR": id.v
+  }, {}, {}, mutations);
 };
 Blockly.Blocks['ast_Assign'] = {
   init: function init() {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.targetCount_ = 1;
     this.simpleTarget_ = true;
     this.updateShape_();
@@ -3185,7 +4745,7 @@ Blockly.Blocks['ast_Assign'] = {
   },
   updateShape_: function updateShape_() {
     if (!this.getInput('VALUE')) {
-      this.appendDummyInput().appendField("set");
+      this.appendDummyInput().appendField(this.translateText("set"));
       this.appendValueInput('VALUE').appendField('=');
     }
     var i = 0;
@@ -3242,13 +4802,13 @@ Blockly.Blocks['ast_Assign'] = {
 };
 python.pythonGenerator.forBlock['ast_Assign'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
   var targets = new Array(block.targetCount_);
   if (block.targetCount_ === 1 && block.simpleTarget_) {
     targets[0] = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   } else {
     for (var i = 0; i < block.targetCount_; i++) {
-      targets[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      targets[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.Order.NONE) || python.pythonGenerator.blank;
     }
   }
   return targets.join(' = ') + " = " + value + "\n";
@@ -3258,10 +4818,15 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
   var value = node.value;
   var values;
   var fields = {};
-  var simpleTarget = targets.length === 1 && targets[0]._astname === 'Name';
+  var simpleTarget = targets.length === 1 && targets[0] instanceof Sk.astnodes.Name && targets[0].id.v !== python.pythonGenerator.blank;
   if (simpleTarget) {
     values = {};
-    fields['VAR'] = Sk.ffi.remapToJs(targets[0].id);
+    var variableName = Sk.ffi.remapToJs(targets[0].id);
+    fields['VAR'] = variableName;
+    var type = this.resolveFromLibrary(value);
+    if (type) {
+      this.variables.add(type, variableName);
+    }
   } else {
     values = this.convertElements("TARGET", targets, node);
   }
@@ -3280,7 +4845,7 @@ Blockly.Blocks['ast_AnnAssignFull'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.initialized_ = true;
     this.updateShape_();
   },
@@ -3325,7 +4890,7 @@ Blockly.Blocks['ast_AnnAssign'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.strAnnotations_ = false;
     this.initialized_ = true;
   },
@@ -3362,12 +4927,13 @@ Blockly.Blocks['ast_AnnAssign'] = {
 };
 python.pythonGenerator.forBlock['ast_AnnAssignFull'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var target = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-  var annotation = python.pythonGenerator.valueToCode(block, 'ANNOTATION', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  var target = python.pythonGenerator.valueToCode(block, 'TARGET', python.Order.NONE) || python.pythonGenerator.blank;
+  var annotation = python.pythonGenerator.valueToCode(block, 'ANNOTATION', python.Order.NONE) || python.pythonGenerator.blank;
   var value = "";
   if (this.initialized_) {
-    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
   }
+  python.pythonGenerator.variables.add(annotation, target);
   return target + ": " + annotation + value + "\n";
 };
 python.pythonGenerator.forBlock['ast_AnnAssign'] = function (block, generator) {
@@ -3379,8 +4945,9 @@ python.pythonGenerator.forBlock['ast_AnnAssign'] = function (block, generator) {
   }
   var value = "";
   if (this.initialized_) {
-    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    value = " = " + python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
   }
+  python.pythonGenerator.variables.add(annotation, target);
   return target + ": " + annotation + value + "\n";
 };
 BlockMirrorTextToBlocks.prototype.getBuiltinAnnotation = function (annotation) {
@@ -3421,8 +4988,10 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
   var builtinAnnotation = this.getBuiltinAnnotation(annotation);
   if (target._astname === 'Name' && target.id.v !== python.pythonGenerator.blank && builtinAnnotation !== false) {
     mutations['@str'] = annotation._astname === 'Str';
+    var variableName = target.id.v;
+    this.variables.add(builtinAnnotation, variableName);
     return BlockMirrorTextToBlocks.create_block("ast_AnnAssign", node.lineno, {
-      'TARGET': target.id.v,
+      'TARGET': variableName,
       'ANNOTATION': builtinAnnotation
     }, values, {
       "inline": "true"
@@ -3430,6 +4999,13 @@ BlockMirrorTextToBlocks.prototype['ast_AnnAssign'] = function (node, parent) {
   } else {
     values['TARGET'] = this.convert(target, node);
     values['ANNOTATION'] = this.convert(annotation, node);
+    if (target._astname === 'Name') {
+      var fullVariableType = this.resolveFromLibrary(annotation);
+      if (fullVariableType) {
+        var _variableName = target.id.v;
+        this.variables.add(fullVariableType, _variableName);
+      }
+    }
     return BlockMirrorTextToBlocks.create_block("ast_AnnAssignFull", node.lineno, {}, values, {
       "inline": "true"
     }, mutations);
@@ -3442,7 +5018,12 @@ Blockly.Blocks['ast_AugAssign'] = {
     this.allOptions_ = false;
     this.initialPreposition_ = "by";
     this.appendDummyInput("OP").appendField(new Blockly.FieldDropdown(function () {
-      return block.allOptions_ ? BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY_FULL : BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY;
+      return (block.allOptions_ ? BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY_FULL : BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY).map(function (_ref7) {
+        var _ref8 = _slicedToArray(_ref7, 2),
+          label = _ref8[0],
+          value = _ref8[1];
+        return [block.translateText(label), value];
+      });
     }, function (value) {
       var block = this.sourceBlock_;
       block.updatePreposition_(value);
@@ -3452,13 +5033,13 @@ Blockly.Blocks['ast_AugAssign'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.updateShape_();
     this.updatePreposition_(this.initialPreposition_);
   },
   updatePreposition_: function updatePreposition_(value) {
     var preposition = BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[value];
-    this.setFieldValue(preposition, 'PREPOSITION');
+    this.setFieldValue(this.translateText(preposition), 'PREPOSITION');
   },
   /**
    * Create XML to represent list inputs.
@@ -3512,10 +5093,10 @@ python.pythonGenerator.forBlock['ast_AugAssign'] = function (block, generator) {
   if (block.simpleTarget_) {
     target = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
   } else {
-    target = python.pythonGenerator.valueToCode(block, 'TARGET', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    target = python.pythonGenerator.valueToCode(block, 'TARGET', python.Order.NONE) || python.pythonGenerator.blank;
   }
   var operator = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP_NAME')][0];
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
   return target + operator + "= " + value + "\n";
 };
 BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
@@ -3532,7 +5113,7 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
   if (simpleTarget) {
     fields['VAR'] = Sk.ffi.remapToJs(target.id);
   } else {
-    values['TARGET'] = this.convert(value, node);
+    values['TARGET'] = this.convert(target, node);
   }
   var preposition = op;
   var allOptions = BINOPS_SIMPLE.indexOf(op) === -1;
@@ -3544,18 +5125,33 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
     "@preposition": preposition
   });
 };
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Str",
-  "message0": "%1",
-  "args0": [{
-    "type": "field_input",
-    "name": "TEXT",
-    "value": ''
-  }],
-  "output": "String",
-  "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
-  "extensions": ["text_quotes"]
-});
+Blockly.Blocks['ast_Str'] = {
+  init: function init() {
+    this.setOutput(true, "String");
+    this.appendDummyInput('INPUT').appendField(new Blockly.FieldTextInput(''), 'TEXT');
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
+    this.fieldFactory_ = "";
+    Blockly.Extensions.apply('text_quotes', this);
+    initBlockFieldFactory(this, ["str", "typing.Literal"]);
+  },
+  updateShape_: function updateShape_() {
+    var input = this.getInput('INPUT');
+    var field = null;
+    if (this.fieldFactory_) {
+      var resolvedFieldFactory = _resolveFunction(this.fieldFactory_);
+      if (resolvedFieldFactory) {
+        field = resolvedFieldFactory(this, 'TEXT');
+      }
+    }
+    if (!field) {
+      field = new Blockly.FieldTextInput('');
+    }
+    var value = this.getFieldValue('TEXT');
+    input.removeField('TEXT');
+    input.insertFieldAt(1, field, 'TEXT');
+    field.setValue(value, false);
+  }
+};
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_StrChar",
   "message0": "%1",
@@ -3608,7 +5204,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 }
 Blockly.Blocks['ast_Image'] = {
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.src_ = "loading.png";
     this.updateShape_();
     this.setOutput(true);
@@ -3654,23 +5250,23 @@ python.pythonGenerator.forBlock['ast_Str'] = function (block, generator) {
   // Text value
   var code = python.pythonGenerator.quote_(block.getFieldValue('TEXT'));
   code = code.replace("\n", "n");
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 python.pythonGenerator.forBlock['ast_StrChar'] = function (block, generator) {
   // Text value
   var value = block.getFieldValue('TEXT');
   switch (value) {
     case "\n":
-      return ["'\\n'", python.pythonGenerator.ORDER_ATOMIC];
+      return ["'\\n'", python.Order.ATOMIC];
     case "\t":
-      return ["'\\t'", python.pythonGenerator.ORDER_ATOMIC];
+      return ["'\\t'", python.Order.ATOMIC];
   }
 };
 python.pythonGenerator.forBlock['ast_Image'] = function (block, generator) {
   // Text value
   //python.pythonGenerator.definitions_["import_image"] = "from image import Image";
   var code = python.pythonGenerator.quote_(block.src_);
-  return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
+  return [code, python.Order.FUNCTION_CALL];
 };
 var multiline_quote = function multiline_quote(string) {
   // Can't use goog.string.quote since % must also be escaped.
@@ -3680,7 +5276,7 @@ var multiline_quote = function multiline_quote(string) {
 python.pythonGenerator.forBlock['ast_StrMultiline'] = function (block, generator) {
   // Text value
   var code = multiline_quote(block.getFieldValue('TEXT'));
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 python.pythonGenerator.forBlock['ast_StrDocstring'] = function (block, generator) {
   // Text value.
@@ -3697,7 +5293,7 @@ BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
   return text === "\n" || text === "\t";
 };
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
-  return parent._astname === 'Expr' && parent._parent && ['FunctionDef', 'ClassDef'].indexOf(parent._parent._astname) !== -1 && parent._parent.body[0] === parent;
+  return (parent === null || parent === void 0 ? void 0 : parent._astname) === 'Expr' && parent._parent && ['FunctionDef', 'ClassDef'].indexOf(parent._parent._astname) !== -1 && parent._parent.body[0] === parent;
 };
 BlockMirrorTextToBlocks.prototype.isSimpleString = function (text) {
   return text.split("\n").length <= 2 && text.length <= 40;
@@ -3779,23 +5375,21 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.PYTHON
 });
 python.pythonGenerator.forBlock['ast_Expr'] = function (block, generator) {
-  // Numeric value.
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
   // TODO: Assemble JavaScript into code variable.
   return value + "\n";
 };
 BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, parent) {
-  var value = node.value;
-  var converted = this.convert(value, node);
-  if (converted.constructor === Array) {
+  var converted = this.convert(node.value, node);
+  if ((converted === null || converted === void 0 ? void 0 : converted.constructor) === Array) {
     return converted[0];
-  } else if (this.isTopLevel(parent)) {
-    return [this.convert(value, node)];
-  } else {
-    return BlockMirrorTextToBlocks.create_block("ast_Expr", node.lineno, {}, {
-      "VALUE": this.convert(value, node)
-    });
+  } else if (this.isTopLevel(parent) && this.filename === "toolbox.py") {
+    // For toolbox only
+    return converted;
   }
+  return BlockMirrorTextToBlocks.create_block("ast_Expr", node.lineno, {}, {
+    "VALUE": converted
+  });
 };
 BlockMirrorTextToBlocks.UNARYOPS = [["+", "UAdd", 'Do nothing to the number'], ["-", "USub", 'Make the number negative'], ["not", "Not", 'Return the logical opposite of the value.'], ["~", "Invert", 'Take the bit inversion of the number']];
 BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
@@ -3810,12 +5404,12 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
       "name": "VALUE"
     }],
     "inputsInline": false,
-    "output": null,
+    "output": unaryop[1] === 'Not' ? "Boolean" : null,
     "colour": unaryop[1] === 'Not' ? BlockMirrorTextToBlocks.COLOR.LOGIC : BlockMirrorTextToBlocks.COLOR.MATH
   });
   python.pythonGenerator.forBlock[fullName] = function (block) {
     // Basic arithmetic operators, and power.
-    var order = unaryop[1] === 'Not' ? python.pythonGenerator.ORDER_LOGICAL_NOT : python.pythonGenerator.ORDER_UNARY_SIGN;
+    var order = unaryop[1] === 'Not' ? python.Order.LOGICAL_NOT : python.Order.UNARY_SIGN;
     var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
     var code = unaryop[0] + (unaryop[1] === 'Not' ? ' ' : '') + argument1;
     return [code, order];
@@ -3824,13 +5418,18 @@ BlockMirrorTextToBlocks.UNARYOPS.forEach(function (unaryop) {
 BlockMirrorTextToBlocks.prototype['ast_UnaryOp'] = function (node, parent) {
   var op = node.op.name;
   var operand = node.operand;
+  if (operand instanceof Sk.astnodes.Num && op === "USub") {
+    // Do not make the blocks more complex than needed, just make the number negative:
+    operand.n.v = -operand.n.v;
+    return this.convert(operand, node);
+  }
   return BlockMirrorTextToBlocks.create_block('ast_UnaryOp' + op, node.lineno, {}, {
     "VALUE": this.convert(operand, node)
   }, {
     "inline": false
   });
 };
-BlockMirrorTextToBlocks.BOOLOPS = [["and", "And", python.pythonGenerator.ORDER_LOGICAL_AND, 'Return whether the left and right both evaluate to True.'], ["or", "Or", python.pythonGenerator.ORDER_LOGICAL_OR, 'Return whether either the left or right evaluate to True.']];
+BlockMirrorTextToBlocks.BOOLOPS = [["and", "And", python.Order.LOGICAL_AND, 'Return whether the left and right both evaluate to True.'], ["or", "Or", python.Order.LOGICAL_OR, 'Return whether either the left or right evaluate to True.']];
 var BOOLOPS_BLOCKLY_DISPLAY = BlockMirrorTextToBlocks.BOOLOPS.map(function (boolop) {
   return [boolop[0], boolop[1]];
 });
@@ -3853,13 +5452,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "name": "B"
   }],
   "inputsInline": true,
-  "output": null,
+  "output": "Boolean",
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 python.pythonGenerator.forBlock['ast_BoolOp'] = function (block, generator) {
   // Operations 'and', 'or'.
   var operator = block.getFieldValue('OP') === 'And' ? 'and' : 'or';
-  var order = operator === 'and' ? python.pythonGenerator.ORDER_LOGICAL_AND : python.pythonGenerator.ORDER_LOGICAL_OR;
+  var order = operator === 'and' ? python.Order.LOGICAL_AND : python.Order.LOGICAL_OR;
   var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
   var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
   var code = argument0 + ' ' + operator + ' ' + argument1;
@@ -3904,14 +5503,14 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "name": "B"
   }],
   "inputsInline": true,
-  "output": null,
+  "output": "Boolean",
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 python.pythonGenerator.forBlock['ast_Compare'] = function (block, generator) {
   // Basic arithmetic operators, and power.
   var tuple = COMPARES_BLOCKLY_GENERATE[block.getFieldValue('OP')];
   var operator = ' ' + tuple + ' ';
-  var order = python.pythonGenerator.ORDER_RELATIONAL;
+  var order = python.Order.RELATIONAL;
   var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
   var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
   var code = argument0 + operator + argument1;
@@ -3962,12 +5561,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 python.pythonGenerator.forBlock['ast_Assert'] = function (block, generator) {
-  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.Order.ATOMIC) || python.pythonGenerator.blank;
   return "assert " + test + "\n";
 };
 python.pythonGenerator.forBlock['ast_AssertFull'] = function (block, generator) {
-  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
-  var msg = python.pythonGenerator.valueToCode(block, 'MSG', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.Order.ATOMIC) || python.pythonGenerator.blank;
+  var msg = python.pythonGenerator.valueToCode(block, 'MSG', python.Order.ATOMIC) || python.pythonGenerator.blank;
   return "assert " + test + ", " + msg + "\n";
 };
 BlockMirrorTextToBlocks.prototype['ast_Assert'] = function (node, parent) {
@@ -4004,13 +5603,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 python.pythonGenerator.forBlock['ast_NameConstantBoolean'] = function (block, generator) {
   // Boolean values true and false.
-  var code = block.getFieldValue('BOOL') == 'TRUE' ? 'True' : 'False';
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  var code = block.getFieldValue('BOOL') === 'TRUE' ? 'True' : 'False';
+  return [code, python.Order.ATOMIC];
 };
 python.pythonGenerator.forBlock['ast_NameConstantNone'] = function (block, generator) {
-  // Boolean values true and false.
   var code = 'None';
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) {
   var value = node.value;
@@ -4033,7 +5631,7 @@ Blockly.Blocks["ast_List"] = {
    */
   init: function init() {
     this.setHelpUrl(Blockly.Msg["LISTS_CREATE_WITH_HELPURL"]);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.LIST));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "List");
@@ -4099,9 +5697,9 @@ Blockly.Blocks["ast_List"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i;
-      (_connections$i = connections[i]) === null || _connections$i === void 0 || _connections$i.reconnect(this, "ADD" + i);
+    for (var _i7 = 0; _i7 < this.itemCount_; _i7++) {
+      var _connections$_i;
+      (_connections$_i = connections[_i7]) === null || _connections$_i === void 0 || _connections$_i.reconnect(this, "ADD" + _i7);
     }
   },
   /**
@@ -4128,14 +5726,14 @@ Blockly.Blocks["ast_List"] = {
     if (this.itemCount_ && this.getInput("EMPTY")) {
       this.removeInput("EMPTY");
     } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
-      this.appendDummyInput("EMPTY").appendField("create empty list []");
+      this.appendDummyInput("EMPTY").appendField(this.translateText("create empty list []"));
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
       if (!this.getInput("ADD" + i)) {
         var input = this.appendValueInput("ADD" + i);
         if (i == 0) {
-          input.appendField("create list with [");
+          input.appendField(this.translateText("create list with ["));
         } else {
           input.appendField(",").setAlign(Blockly.inputs.Align.RIGHT);
         }
@@ -4161,8 +5759,8 @@ Blockly.Blocks["ast_List_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
-    this.appendDummyInput().appendField("Add new list elements below");
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.LIST));
+    this.appendDummyInput().appendField(this.translateText("Add new list elements below"));
     this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
@@ -4173,7 +5771,7 @@ Blockly.Blocks["ast_List_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.LIST);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.LIST));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -4184,10 +5782,10 @@ python.pythonGenerator.forBlock["ast_List"] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   var code = "[" + elements.join(", ") + "]";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_List"] = function (node, parent) {
   var elts = node.elts;
@@ -4204,7 +5802,7 @@ Blockly.Blocks["ast_Tuple"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Tuple");
@@ -4263,16 +5861,16 @@ Blockly.Blocks["ast_Tuple"] = {
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
       var connection = this.getInput("ADD" + i).connection.targetConnection;
-      if (connection && connections.indexOf(connection) == -1) {
+      if (connection && connections.indexOf(connection) === -1) {
         connection.disconnect();
       }
     }
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i2;
-      (_connections$i2 = connections[i]) === null || _connections$i2 === void 0 || _connections$i2.reconnect(this, "ADD" + i);
+    for (var _i8 = 0; _i8 < this.itemCount_; _i8++) {
+      var _connections$_i2;
+      (_connections$_i2 = connections[_i8]) === null || _connections$_i2 === void 0 || _connections$_i2.reconnect(this, "ADD" + _i8);
     }
   },
   /**
@@ -4338,7 +5936,7 @@ Blockly.Blocks["ast_Tuple_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.appendDummyInput().appendField("Add new tuple elements below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -4350,7 +5948,7 @@ Blockly.Blocks["ast_Tuple_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -4361,14 +5959,14 @@ python.pythonGenerator.forBlock["ast_Tuple"] = function (block, generator) {
   // Create a tuple with any number of elements of any type.
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   var requiredComma = "";
-  if (block.itemCount_ == 1) {
+  if (block.itemCount_ === 1) {
     requiredComma = ", ";
   }
   var code = "(" + elements.join(", ") + requiredComma + ")";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_Tuple"] = function (node, parent) {
   var elts = node.elts;
@@ -4385,7 +5983,7 @@ Blockly.Blocks["ast_Set"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Set");
@@ -4451,9 +6049,9 @@ Blockly.Blocks["ast_Set"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i3;
-      (_connections$i3 = connections[i]) === null || _connections$i3 === void 0 || _connections$i3.reconnect(this, "ADD" + i);
+    for (var _i9 = 0; _i9 < this.itemCount_; _i9++) {
+      var _connections$_i3;
+      (_connections$_i3 = connections[_i9]) === null || _connections$_i3 === void 0 || _connections$_i3.reconnect(this, "ADD" + _i9);
     }
   },
   /**
@@ -4513,7 +6111,7 @@ Blockly.Blocks["ast_Set_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.appendDummyInput().appendField("Add new set elements below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -4525,7 +6123,7 @@ Blockly.Blocks["ast_Set_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SET);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SET));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -4535,14 +6133,14 @@ Blockly.Blocks["ast_Set_create_with_item"] = {
 python.pythonGenerator.forBlock["ast_Set"] = function (block, generator) {
   // Create a set with any number of elements of any type.
   if (block.itemCount_ === 0) {
-    return ["set()", python.pythonGenerator.ORDER_FUNCTION_CALL];
+    return ["set()", python.Order.FUNCTION_CALL];
   }
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, "ADD" + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   var code = "{" + elements.join(", ") + "}";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_Set"] = function (node, parent) {
   var elts = node.elts;
@@ -4558,7 +6156,7 @@ Blockly.Blocks["ast_DictItem"] = {
     this.appendValueInput("VALUE").setCheck(null).appendField(":");
     this.setInputsInline(true);
     this.setOutput(true, "DictPair");
-    this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.DICTIONARY));
   }
 };
 Blockly.Blocks["ast_Dict"] = {
@@ -4567,7 +6165,7 @@ Blockly.Blocks["ast_Dict"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.DICTIONARY));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Dict");
@@ -4626,7 +6224,7 @@ Blockly.Blocks["ast_Dict"] = {
     // Disconnect any children that don't belong.
     for (var i = 0; i < this.itemCount_; i++) {
       var connection = this.getInput("ADD" + i).connection.targetConnection;
-      if (connection && connections.indexOf(connection) == -1) {
+      if (connection && connections.indexOf(connection) === -1) {
         var key = connection.getSourceBlock().getInput("KEY");
         if (key.connection.targetConnection) {
           key.connection.targetConnection.getSourceBlock().unplug(true);
@@ -4642,15 +6240,15 @@ Blockly.Blocks["ast_Dict"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i4;
-      (_connections$i4 = connections[i]) === null || _connections$i4 === void 0 || _connections$i4.reconnect(this, "ADD" + i);
-      if (!connections[i]) {
+    for (var _i0 = 0; _i0 < this.itemCount_; _i0++) {
+      var _connections$_i4;
+      (_connections$_i4 = connections[_i0]) === null || _connections$_i4 === void 0 || _connections$_i4.reconnect(this, "ADD" + _i0);
+      if (!connections[_i0]) {
         var _itemBlock = this.workspace.newBlock("ast_DictItem");
         _itemBlock.setDeletable(false);
         _itemBlock.setMovable(false);
         _itemBlock.initSvg();
-        this.getInput("ADD" + i).connection.connect(_itemBlock.outputConnection);
+        this.getInput("ADD" + _i0).connection.connect(_itemBlock.outputConnection);
         _itemBlock.render();
         //this.get(itemBlock, 'ADD'+i)
       }
@@ -4680,14 +6278,14 @@ Blockly.Blocks["ast_Dict"] = {
     if (this.itemCount_ && this.getInput("EMPTY")) {
       this.removeInput("EMPTY");
     } else if (!this.itemCount_ && !this.getInput("EMPTY")) {
-      this.appendDummyInput("EMPTY").appendField("empty dictionary");
+      this.appendDummyInput("EMPTY").appendField(this.translateText("empty dictionary"));
     }
     // Add new inputs.
     for (var i = 0; i < this.itemCount_; i++) {
       if (!this.getInput("ADD" + i)) {
         var input = this.appendValueInput("ADD" + i).setCheck("DictPair");
         if (i === 0) {
-          input.appendField("create dict with").setAlign(Blockly.inputs.Align.RIGHT);
+          input.appendField(this.translateText("create dict with")).setAlign(Blockly.inputs.Align.RIGHT);
         }
       }
     }
@@ -4714,8 +6312,8 @@ Blockly.Blocks["ast_Dict_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
-    this.appendDummyInput().appendField("Add new dict elements below");
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.DICTIONARY));
+    this.appendDummyInput().appendField(this.translateText("Add new dict elements below"));
     this.appendStatementInput("STACK");
     this.contextMenu = false;
   }
@@ -4726,7 +6324,7 @@ Blockly.Blocks["ast_Dict_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.DICTIONARY);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.DICTIONARY));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -4738,16 +6336,16 @@ python.pythonGenerator.forBlock["ast_Dict"] = function (block, generator) {
   var elements = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
     var child = block.getInputTargetBlock("ADD" + i);
-    if (child === null || child.type != "ast_DictItem") {
+    if (child === null || child.type !== "ast_DictItem") {
       elements[i] = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       continue;
     }
-    var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-    var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var key = python.pythonGenerator.valueToCode(child, "KEY", python.Order.NONE) || python.pythonGenerator.blank;
+    var value = python.pythonGenerator.valueToCode(child, "VALUE", python.Order.NONE) || python.pythonGenerator.blank;
     elements[i] = key + ": " + value;
   }
   var code = "{" + elements.join(", ") + "}";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_Dict"] = function (node, parent) {
   var keys = node.keys;
@@ -4787,7 +6385,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 python.pythonGenerator.forBlock['ast_Starred'] = function (block, generator) {
   // Basic arithmetic operators, and power.
-  var order = python.pythonGenerator.ORDER_NONE;
+  var order = python.Order.NONE;
   var argument1 = python.pythonGenerator.valueToCode(block, 'VALUE', order) || python.pythonGenerator.blank;
   var code = "*" + argument1;
   return [code, order];
@@ -4852,7 +6450,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
    * Block for JoinedStr and FormattedValue
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setInputsInline(true);
@@ -4930,16 +6528,16 @@ Blockly.Blocks["ast_JoinedStr"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
-      var _connections$i5;
-      (_connections$i5 = connections[i]) === null || _connections$i5 === void 0 || _connections$i5.reconnect(this, "ADD" + i);
-      if (!connections[i]) {
-        var createName = blockTypes[i] === "ast_JoinedStr_create_with_item_S" ? "ast_JoinedStrStr" : blockTypes[i] === "ast_JoinedStr_create_with_item_FVF" ? "ast_FormattedValueFull" : "ast_FormattedValue";
+    for (var _i1 = 0; _i1 < this.itemCount_; _i1++) {
+      var _connections$_i5;
+      (_connections$_i5 = connections[_i1]) === null || _connections$_i5 === void 0 || _connections$_i5.reconnect(this, "ADD" + _i1);
+      if (!connections[_i1]) {
+        var createName = blockTypes[_i1] === "ast_JoinedStr_create_with_item_S" ? "ast_JoinedStrStr" : blockTypes[_i1] === "ast_JoinedStr_create_with_item_FVF" ? "ast_FormattedValueFull" : "ast_FormattedValue";
         var _itemBlock2 = this.workspace.newBlock(createName);
         _itemBlock2.setDeletable(false);
         _itemBlock2.setMovable(false);
         _itemBlock2.initSvg();
-        this.getInput("ADD" + i).connection.connect(_itemBlock2.outputConnection);
+        this.getInput("ADD" + _i1).connection.connect(_itemBlock2.outputConnection);
         _itemBlock2.render();
         //this.get(itemBlock, 'ADD'+i)
       }
@@ -5003,7 +6601,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.appendDummyInput().appendField("Add new values and strings below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -5015,7 +6613,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_S"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.appendDummyInput().appendField("Text");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -5028,7 +6626,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_FV"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.appendDummyInput().appendField("Expression");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -5041,7 +6639,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_FVF"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.appendDummyInput().appendField("Formatted Expression");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -5100,10 +6698,10 @@ python.pythonGenerator.forBlock["ast_JoinedStr"] = function (block, generator) {
     }
     code = "f" + quote + elements.join("") + quote;
   }
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
-  var _this7 = this;
+  var _this14 = this;
   var values = node.values;
   var elements = {};
   values.forEach(function (v, i) {
@@ -5111,8 +6709,8 @@ BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
       console.log(v);
       if (!v.conversion && !v.format_spec) {
         elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_FormattedValue", v.lineno, {}, {
-          "VALUE": _this7.convert(v.value, node)
-        }, _this7.LOCKED_BLOCK);
+          "VALUE": _this14.convert(v.value, node)
+        }, _this14.LOCKED_BLOCK);
       } else {
         var format_spec = v.format_spec ? chompExclamation(v.format_spec.values[0].s.v) : "";
         // Can there ever be a non-1 length format_spec?
@@ -5120,14 +6718,14 @@ BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {
           "FORMAT_SPEC": format_spec,
           "CONVERSION": v.conversion
         }, {
-          "VALUE": _this7.convert(v.value, node)
-        }, _this7.LOCKED_BLOCK);
+          "VALUE": _this14.convert(v.value, node)
+        }, _this14.LOCKED_BLOCK);
       }
     } else if (v._astname === "Str") {
       var text = Sk.ffi.remapToJs(v.s);
       elements["ADD" + i] = BlockMirrorTextToBlocks.create_block("ast_JoinedStrStr", v.lineno, {
         "TEXT": text
-      }, {}, _this7.LOCKED_BLOCK);
+      }, {}, _this14.LOCKED_BLOCK);
     }
   });
   return BlockMirrorTextToBlocks.create_block("ast_JoinedStr", node.lineno, {}, elements, {
@@ -5172,10 +6770,10 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 python.pythonGenerator.forBlock['ast_IfExp'] = function (block, generator) {
-  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
-  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
-  var orelse = python.pythonGenerator.valueToCode(block, 'ORELSE', python.pythonGenerator.ORDER_CONDITIONAL) || python.pythonGenerator.blank;
-  return [body + " if " + test + " else " + orelse + "\n", python.pythonGenerator.ORDER_CONDITIONAL];
+  var test = python.pythonGenerator.valueToCode(block, 'TEST', python.Order.CONDITIONAL) || python.pythonGenerator.blank;
+  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.Order.CONDITIONAL) || python.pythonGenerator.blank;
+  var orelse = python.pythonGenerator.valueToCode(block, 'ORELSE', python.Order.CONDITIONAL) || python.pythonGenerator.blank;
+  return [body + " if " + test + " else " + orelse + "\n", python.Order.CONDITIONAL];
 };
 BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
   var test = node.test;
@@ -5187,69 +6785,216 @@ BlockMirrorTextToBlocks.prototype['ast_IfExp'] = function (node, parent) {
     "ORELSE": this.convert(orelse, node)
   });
 };
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_AttributeFull",
-  "lastDummyAlign0": "RIGHT",
-  "message0": "%1 . %2",
-  "args0": [{
-    "type": "input_value",
-    "name": "VALUE"
-  }, {
-    "type": "field_input",
-    "name": "ATTR",
-    "text": "default"
-  }],
-  "inputsInline": true,
-  "output": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.OO
-});
-BlockMirrorTextToBlocks.BLOCKS.push({
-  "type": "ast_Attribute",
-  "message0": "%1 . %2",
-  "args0": [{
-    "type": "field_variable",
-    "name": "VALUE",
-    "variable": "variable"
-  }, {
-    "type": "field_input",
-    "name": "ATTR",
-    "text": "attribute"
-  }],
-  "inputsInline": true,
-  "output": null,
-  "colour": BlockMirrorTextToBlocks.COLOR.OO
-});
-python.pythonGenerator.forBlock['ast_Attribute'] = function (block, generator) {
-  // Text value.
-  var value = python.pythonGenerator.getVariableName(block.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
-  var attr = block.getFieldValue('ATTR');
-  var code = value + "." + attr;
-  return [code, python.pythonGenerator.ORDER_MEMBER];
+var LibraryLabelFieldTextInput = /*#__PURE__*/function (_Blockly$FieldTextInp) {
+  function LibraryLabelFieldTextInput(libraries, prefix, value, validator, config) {
+    var _this15;
+    _classCallCheck(this, LibraryLabelFieldTextInput);
+    _this15 = _callSuper(this, LibraryLabelFieldTextInput, [value, validator, config]);
+    _this15._libraries = libraries;
+    _this15.prefix = prefix;
+    return _this15;
+  }
+  _inherits(LibraryLabelFieldTextInput, _Blockly$FieldTextInp);
+  return _createClass(LibraryLabelFieldTextInput, [{
+    key: "getDisplayText_",
+    value: function getDisplayText_() {
+      var text = this.getText();
+      var fromLibrary = this._libraries.resolve(this.prefix + text);
+      if (fromLibrary instanceof PythonAttribute) {
+        text = fromLibrary.label;
+      }
+      if (text.length > this.maxDisplayLength) {
+        // Truncate displayed string and add an ellipsis ('...').
+        text = text.substring(0, this.maxDisplayLength - 2) + '…';
+      }
+      // Replace whitespace with non-breaking spaces so the text doesn't collapse.
+      text = text.replace(/\s/g, Blockly.Field.NBSP);
+      if (this.sourceBlock_ && this.sourceBlock_.RTL) {
+        // The SVG is LTR, force text to be RTL by adding an RLM.
+        text += "\u200F";
+      }
+      return text;
+    }
+  }]);
+}(Blockly.FieldTextInput);
+Blockly.Blocks['ast_Attribute'] = {
+  init: function init() {
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.premessage_ = "";
+    this.message_ = "";
+    this.postmessage_ = "";
+    this.returns_ = 'Any';
+    this.import_ = "";
+    this.isFull_ = false;
+    this.names_ = [];
+    this.labels_ = [];
+    this.fromLibrary_ = null;
+    this.givenColour_ = BlockMirrorTextToBlocks.COLOR.OO;
+    this.appendDummyInput('NAME').appendField(' ', 'premessage').appendField(new Blockly.FieldVariable('variable'), 'VALUE').appendField('.', 'message').appendField(new LibraryLabelFieldTextInput(this.workspace.libraries, "", 'attribute'), 'ATTR').appendField(' ', 'postmessage');
+  },
+  mutationToDom: function mutationToDom() {
+    var container = document.createElement('mutation');
+    container.setAttribute('premessage', this.premessage_);
+    container.setAttribute('message', this.message_);
+    container.setAttribute('postmessage', this.postmessage_);
+    container.setAttribute('returns', this.returns_);
+    container.setAttribute('import', this.import_);
+    container.setAttribute('full', this.isFull_);
+    container.setAttribute('names', this.names_.join('|'));
+    container.setAttribute('labels', this.labels_.join('|'));
+    container.setAttribute('fromlibrary', this.fromLibrary_);
+    container.setAttribute('colour', this.givenColour_);
+    return container;
+  },
+  domToMutation: function domToMutation(xmlElement) {
+    this.premessage_ = xmlElement.getAttribute('premessage');
+    this.message_ = xmlElement.getAttribute('message');
+    this.postmessage_ = xmlElement.getAttribute('postmessage');
+    this.returns_ = xmlElement.getAttribute('returns');
+    this.import_ = xmlElement.getAttribute('import');
+    this.isFull_ = "true" === xmlElement.getAttribute('full');
+    this.names_ = xmlElement.getAttribute('names').split('|');
+    this.labels_ = xmlElement.getAttribute('labels').split('|');
+    this.fromLibrary_ = xmlElement.getAttribute('fromlibrary');
+    var colour = xmlElement.getAttribute('colour');
+    this.givenColour_ = parseInt(colour, 10);
+    if (isNaN(this.givenColour_)) {
+      this.givenColour_ = colour;
+    }
+    this.updateShape_();
+  },
+  updateShape_: function updateShape_() {
+    var _this16 = this;
+    if (this.isFull_) {
+      var nameInput = this.getInput('NAME');
+      if (nameInput.removeField('premessage', true)) {
+        nameInput.removeField('VALUE');
+        this.appendValueInput('VALUE').appendField(' ', 'premessage');
+        this.moveInputBefore('VALUE', 'NAME');
+      }
+    } else {
+      if (this.removeInput('VALUE', true)) {
+        var _nameInput = this.getInput('NAME');
+        _nameInput.insertFieldAt(0, new Blockly.FieldVariable('variable'), 'VALUE');
+        _nameInput.insertFieldAt(0, new Blockly.FieldLabel(''), 'premessage');
+      }
+    }
+    var attrField = this.getField('ATTR');
+    if (attrField instanceof LibraryLabelFieldTextInput) {
+      if (this.names_.length > 1) {
+        var _nameInput2 = this.getInput('NAME');
+        _nameInput2.removeField('ATTR');
+        _nameInput2.insertFieldAt(this.isFull_ ? 1 : 3, new Blockly.FieldDropdown(this.names_.map(function (item, index) {
+          return [_this16.labels_[index], item];
+        })), 'ATTR');
+      } else {
+        attrField.prefix = this.fromLibrary_.replace(/[^.]+$/, '');
+      }
+    } else if (this.names_.length <= 1) {
+      var _nameInput3 = this.getInput('NAME');
+      _nameInput3.removeField('ATTR');
+      _nameInput3.insertFieldAt(this.isFull_ ? 1 : 3, new LibraryLabelFieldTextInput(this.workspace.libraries, this.fromLibrary_.replace(/[^.]+$/, ''), 'attribute'), 'ATTR');
+    }
+    this.getField('premessage').setValue(this.premessage_);
+    this.getField('message').setValue(this.message_);
+    this.getField('postmessage').setValue(this.postmessage_);
+    this.setColour(this.givenColour_);
+  }
 };
-python.pythonGenerator.forBlock['ast_AttributeFull'] = function (block, generator) {
-  // Text value.
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+python.pythonGenerator.forBlock['ast_Attribute'] = function (block, generator) {
+  if (block.import_) {
+    var _block$import_$split3 = block.import_.split(' as ', 2),
+      _block$import_$split4 = _slicedToArray(_block$import_$split3, 2),
+      type = _block$import_$split4[0],
+      alias = _block$import_$split4[1];
+    if (type && !python.pythonGenerator.imports.hasType(type)) {
+      var name = alias !== null && alias !== void 0 ? alias : type;
+      python.pythonGenerator.imports.set(type, name);
+    }
+  }
+  var value;
+  if (block.isFull_) {
+    value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
+  } else {
+    value = python.pythonGenerator.getVariableName(block.getFieldValue('VALUE'), Blockly.Variables.NAME_TYPE);
+  }
   var attr = block.getFieldValue('ATTR');
   var code = value + "." + attr;
-  return [code, python.pythonGenerator.ORDER_MEMBER];
+  if (block.outputConnection && block.outputConnection.targetBlock()) {
+    // Return as expression
+    return [code, python.Order.MEMBER];
+  }
+  return code + "\n";
 };
 BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {
+  var _fromLibrary$fullName;
   var value = node.value;
-  var attr = node.attr;
-
-  //if (value.constructor)
-  if (value._astname == "Name") {
-    return BlockMirrorTextToBlocks.create_block("ast_Attribute", node.lineno, {
-      "VALUE": Sk.ffi.remapToJs(value.id),
-      "ATTR": Sk.ffi.remapToJs(attr)
-    });
+  var attrStr = Sk.ffi.remapToJs(node.attr);
+  var returns = 'Any';
+  var fromLibrary = this.resolveFromLibrary(node);
+  var importAlias = null;
+  var mutations = {
+    "@returns": returns,
+    "@premessage": '',
+    "@message": '.',
+    "@postmessage": '',
+    "@import": '',
+    "@full": false,
+    "@names": '',
+    "@labels": '',
+    "@fromlibrary": (_fromLibrary$fullName = fromLibrary === null || fromLibrary === void 0 ? void 0 : fromLibrary.fullName) !== null && _fromLibrary$fullName !== void 0 ? _fromLibrary$fullName : ""
+  };
+  if (fromLibrary) {
+    // TODO support for custom behavior?
+    mutations["@colour"] = fromLibrary.colour;
+    if (fromLibrary instanceof PythonAttribute) {
+      var _fromLibrary$typeHint, _fromLibrary$typeHint2;
+      mutations["@premessage"] = fromLibrary.premessage;
+      mutations["@message"] = fromLibrary.message;
+      mutations["@postmessage"] = fromLibrary.postmessage;
+      mutations["@returns"] = (_fromLibrary$typeHint = (_fromLibrary$typeHint2 = fromLibrary.typeHint) === null || _fromLibrary$typeHint2 === void 0 ? void 0 : _fromLibrary$typeHint2.flattened().toString()) !== null && _fromLibrary$typeHint !== void 0 ? _fromLibrary$typeHint : returns;
+      mutations["@names"] = fromLibrary.names.join("|");
+      mutations["@labels"] = fromLibrary.labels.join("|");
+      if (fromLibrary.pythonClass === null) {
+        var _fromLibrary$pythonMo;
+        mutations["@import"] = (_fromLibrary$pythonMo = fromLibrary.pythonModule.requiresImport) !== null && _fromLibrary$pythonMo !== void 0 ? _fromLibrary$pythonMo : "";
+      }
+    } else if (fromLibrary instanceof PythonClass || fromLibrary instanceof PythonModule) {
+      if (fromLibrary.requiresImport) {
+        mutations["@import"] = fromLibrary.requiresImport;
+        var importType;
+        var _fromLibrary$requires = fromLibrary.requiresImport.split(' as ', 2);
+        var _fromLibrary$requires2 = _slicedToArray(_fromLibrary$requires, 2);
+        importType = _fromLibrary$requires2[0];
+        importAlias = _fromLibrary$requires2[1];
+      }
+    }
   } else {
-    return BlockMirrorTextToBlocks.create_block("ast_AttributeFull", node.lineno, {
-      "ATTR": Sk.ffi.remapToJs(attr)
+    mutations["@colour"] = this.blockMirror.configuration.convertColour("ast_Attribute", BlockMirrorTextToBlocks.COLOR.OO);
+  }
+  var newBlock;
+  if (importAlias !== null) {
+    // TODO colour from fromLibrary?
+    newBlock = BlockMirrorTextToBlocks.create_block('ast_Name', node.lineno, {
+      "VAR": attrStr
+    }, {}, {}, {
+      "@import": mutations["@import"]
+    });
+  } else if (this.blockMirror.configuration.preferFullAttributeBlocks || value._astname !== "Name") {
+    mutations["@full"] = true;
+    newBlock = BlockMirrorTextToBlocks.create_block("ast_Attribute", node.lineno, {
+      "ATTR": attrStr
     }, {
       "VALUE": this.convert(value, node)
-    });
+    }, {}, mutations);
+  } else {
+    newBlock = BlockMirrorTextToBlocks.create_block("ast_Attribute", node.lineno, {
+      "VALUE": Sk.ffi.remapToJs(value.id),
+      "ATTR": attrStr
+    }, {}, {}, mutations);
   }
+  return newBlock;
 };
 
 // TODO: Support stuff like "append" where the message is after the value input
@@ -5258,7 +7003,7 @@ BlockMirrorTextToBlocks.prototype['ast_Attribute'] = function (node, parent) {
 
 Blockly.Blocks['ast_Call'] = {
   /**
-   * Block for calling a procedure with no return value.
+   * Block for calling a procedure
    * @this Blockly.Block
    */
   init: function init() {
@@ -5274,14 +7019,17 @@ Blockly.Blocks['ast_Call'] = {
     // acbart: Show parameter names, if they exist
     this.showParameterNames_ = false;
     // acbart: Whether this block returns
-    this.returns_ = true;
+    this.returns_ = 'Any';
     // acbart: added simpleName to handle complex function calls (e.g., chained)
     this.isMethod_ = false;
     this.name_ = null;
     this.message_ = "function";
     this.premessage_ = "";
-    this.module_ = "";
-    this.updateShape_();
+    this.postmessage_ = "";
+    this.import_ = "";
+    this.fromLibrary_ = null;
+    var messageInput = this.appendDummyInput('MESSAGE_INPUT').setAlign(Blockly.inputs.Align.RIGHT);
+    messageInput.appendField(new Blockly.FieldLabel(), 'MESSAGE');
   },
   /**
    * Returns the name of the procedure this block calls.
@@ -5336,7 +7084,7 @@ Blockly.Blocks['ast_Call'] = {
     }
     // Test arguments (arrays of strings) for changes. '\n' is not a valid
     // argument name character, so it is a valid delimiter here.
-    if (paramNames.join('\n') == this.arguments_.join('\n')) {
+    if (paramNames.join('\n') === this.arguments_.join('\n')) {
       // No change.
       this.quarkIds_ = paramIds;
       return false;
@@ -5362,7 +7110,7 @@ Blockly.Blocks['ast_Call'] = {
         if (mutatorOpen && connection && paramIds.indexOf(this.quarkIds_[i]) === -1) {
           // This connection should no longer be attached to this block.
           connection.disconnect();
-          connection.getSourceBlock().bumpNeighbours_();
+          connection.getSourceBlock().bumpNeighbours();
         }
       }
     }
@@ -5386,11 +7134,11 @@ Blockly.Blocks['ast_Call'] = {
     this.quarkIds_ = paramIds;
     // Reconnect any child blocks.
     if (this.quarkIds_) {
-      for (var _i4 = 0; _i4 < this.arguments_.length; _i4++) {
-        var quarkId = this.quarkIds_[_i4];
+      for (var _i10 = 0; _i10 < this.arguments_.length; _i10++) {
+        var quarkId = this.quarkIds_[_i10];
         if (quarkId in this.quarkConnections_) {
           var _connection = this.quarkConnections_[quarkId];
-          if (!(_connection !== null && _connection !== void 0 && _connection.reconnect(this, 'ARG' + _i4))) {
+          if (!(_connection !== null && _connection !== void 0 && _connection.reconnect(this, 'ARG' + _i10))) {
             // Block no longer exists or has been attached elsewhere.
             delete this.quarkConnections_[quarkId];
           }
@@ -5403,6 +7151,102 @@ Blockly.Blocks['ast_Call'] = {
       this.render();
     }
     return true;
+  },
+  //defType_: 'procedures_defnoreturn',
+  parseArgument_: function parseArgument_(argument) {
+    if (argument.startsWith('KWARGS:')) {
+      // KWARG
+      return "unpack";
+    } else if (argument.startsWith('KEYWORD:')) {
+      var keywords = argument.substring(8);
+      return keywords + "=";
+    } else if (argument.startsWith("KNOWN_ARG:") && this.showParameterNames_) {
+      // FIXME KNOWN_ARG is not set anywhere?
+      return argument.substring(10) + "=";
+    }
+    return "";
+  },
+  updateShapeOfMessage: function updateShapeOfMessage(fromLibrary) {
+    var messageInput = this.getInput('MESSAGE_INPUT');
+    if (!fromLibrary) {
+      this.setFieldValue(this.message_ + this.postmessage_ + " (", "MESSAGE");
+      messageInput.removeField('MESSAGE_NAME', true);
+      messageInput.removeField('MESSAGE_POST', true);
+    } else {
+      this.setFieldValue(this.message_, "MESSAGE");
+      if (fromLibrary.labels.length === 1) {
+        this.setFieldValue(this.message_ + fromLibrary.label + this.postmessage_ + " (", "MESSAGE");
+        messageInput.removeField('MESSAGE_NAME', true);
+        messageInput.removeField('MESSAGE_POST', true);
+      } else if (messageInput.fieldRow.length === 1) {
+        this.setFieldValue(this.message_, "MESSAGE");
+        messageInput.appendField(new Blockly.FieldDropdown([[fromLibrary.label, fromLibrary.name]].concat(_toConsumableArray(fromLibrary.aliases.map(function (alias) {
+          return [alias.label, alias.name];
+        })))), "MESSAGE_NAME");
+        messageInput.appendField(new Blockly.FieldLabel(this.postmessage_ + " ("), "MESSAGE_POST");
+      }
+    }
+  },
+  updateShapeOfArguments: function updateShapeOfArguments(fromLibrary) {
+    // Process arguments
+    var drawnArgumentCount = this.getDrawnArgumentCount_();
+    var translateArgumentLabel = fromLibrary ? function (item) {
+      return fromLibrary.pythonModule.library.translate(item, item);
+    } : function (item) {
+      return item;
+    };
+    for (var i = 0; i < drawnArgumentCount; i++) {
+      var argument = this.arguments_[i];
+      var argumentName = this.parseArgument_(argument);
+      var argumentNames = [];
+      var postfix = '';
+      if (argumentName.endsWith('=')) {
+        argumentNames = argumentName.substring(0, argumentName.length - 1).split(' ');
+        argumentName = argumentNames[0];
+        postfix = '=';
+      }
+      var field = this.getField('ARGNAME' + i);
+      var postfixField = this.getField('ARGPOSTFIX' + i);
+      if (field) {
+        if (argumentNames.length > 1) {
+          if (field instanceof Blockly.FieldLabel) {
+            field = new Blockly.FieldDropdown(argumentNames.map(function (item) {
+              return [translateArgumentLabel(item), item];
+            }));
+            var input = input.getInput('ARG' + i);
+            input.removeField('ARGNAME' + i);
+            input.insertFieldAt(0, field);
+          } else {
+            field.setOptions(argumentNames.map(function (item) {
+              return [translateArgumentLabel(item), item];
+            }));
+          }
+          field.setValue(argumentName, false);
+        } else if (!(field instanceof Blockly.FieldLabel)) {
+          var label = postfix === "=" ? translateArgumentLabel(argumentName) : argumentName;
+          field = new Blockly.FieldLabel(label);
+          var _input = _input.getInput('ARG' + i);
+          _input.removeField('ARGNAME' + i);
+          _input.insertFieldAt(0, field);
+        }
+      } else {
+        // Add new input.
+        // For now, this assumes the function definition does not change.
+        if (argumentNames.length > 1) {
+          field = new Blockly.FieldDropdown(argumentNames.map(function (item) {
+            return [translateArgumentLabel(item), item];
+          }));
+        } else if (postfix === '=') {
+          field = new Blockly.FieldLabel(translateArgumentLabel(argumentName));
+        } else {
+          field = new Blockly.FieldLabel(argumentName);
+        }
+        postfixField = new Blockly.FieldLabel(postfix);
+        this.appendValueInput('ARG' + i).setAlign(Blockly.inputs.Align.RIGHT).appendField(field, 'ARGNAME' + i).appendField(postfixField, 'ARGPOSTFIX' + i).init();
+      }
+      field.setVisible(!!argumentName);
+      postfixField.setVisible(!!postfix);
+    }
   },
   /**
    * Modify this block to have the correct number of arguments.
@@ -5420,50 +7264,10 @@ Blockly.Blocks['ast_Call'] = {
     } else if (!this.isMethod_ && this.getInput('FUNC')) {
       this.removeInput('FUNC');
     }
-    var drawnArgumentCount = this.getDrawnArgumentCount_();
-    var message = this.getInput('MESSAGE_AREA');
-    // Zero arguments, just do {message()}
-    if (drawnArgumentCount === 0) {
-      if (message) {
-        message.removeField('MESSAGE');
-      } else {
-        message = this.appendDummyInput('MESSAGE_AREA').setAlign(Blockly.inputs.Align.RIGHT);
-      }
-      message.appendField(new Blockly.FieldLabel(this.message_ + "\ ("), 'MESSAGE');
-      // One argument, no MESSAGE_AREA
-    } else if (message) {
-      this.removeInput('MESSAGE_AREA');
-    }
-    // Process arguments
-    var i;
-    for (i = 0; i < drawnArgumentCount; i++) {
-      var argument = this.arguments_[i];
-      var argumentName = this.parseArgument_(argument);
-      if (i === 0) {
-        argumentName = this.message_ + "\ (" + argumentName;
-      }
-      var field = this.getField('ARGNAME' + i);
-      if (field) {
-        // Ensure argument name is up to date.
-        // The argument name field is deterministic based on the mutation,
-        // no need to fire a change event.
-        Blockly.Events.disable();
-        try {
-          field.setValue(argumentName);
-        } finally {
-          Blockly.Events.enable();
-        }
-      } else {
-        // Add new input.
-        field = new Blockly.FieldLabel(argumentName);
-        this.appendValueInput('ARG' + i).setAlign(Blockly.inputs.Align.RIGHT).appendField(field, 'ARGNAME' + i).init();
-      }
-      if (argumentName) {
-        field.setVisible(true);
-      } else {
-        field.setVisible(false);
-      }
-    }
+    var fromLibrary = this.fromLibrary_ === "" ? null : this.workspace.libraries.resolve(this.fromLibrary_);
+    this.updateShapeOfMessage(fromLibrary);
+    this.updateShapeOfArguments(fromLibrary);
+    var i = this.getDrawnArgumentCount_();
 
     // Closing parentheses
     if (!this.getInput('CLOSE_PAREN')) {
@@ -5471,22 +7275,25 @@ Blockly.Blocks['ast_Call'] = {
     }
 
     // Move everything into place
-    if (drawnArgumentCount === 0) {
-      if (this.isMethod_) {
-        this.moveInputBefore('FUNC', 'MESSAGE_AREA');
-      }
-      this.moveInputBefore('MESSAGE_AREA', 'CLOSE_PAREN');
-    } else {
-      if (this.isMethod_) {
-        this.moveInputBefore('FUNC', 'CLOSE_PAREN');
-      }
+    if (this.isMethod_) {
+      this.moveInputBefore('FUNC', 'MESSAGE_INPUT');
     }
+    this.moveInputBefore('MESSAGE_INPUT', 'CLOSE_PAREN');
     for (var j = 0; j < i; j++) {
       this.moveInputBefore('ARG' + j, 'CLOSE_PAREN');
     }
 
     // Set return state
-    this.setReturn_(this.returns_, false);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    if (this.returns_ === 'None') {
+      this.setOutput(false);
+    } else if (this.returns_ === 'bool') {
+      this.setOutput(true, 'Boolean');
+    } else {
+      this.setOutput(true);
+    }
+
     // Remove deleted inputs.
     while (this.getInput('ARG' + i)) {
       this.removeInput('ARG' + i);
@@ -5509,12 +7316,15 @@ Blockly.Blocks['ast_Call'] = {
     container.setAttribute('method', this.isMethod_);
     container.setAttribute('message', this.message_);
     container.setAttribute('premessage', this.premessage_);
-    container.setAttribute('module', this.module_);
+    container.setAttribute('postmessage', this.postmessage_);
+    container.setAttribute('import', this.import_);
+    container.setAttribute('fromlibrary', this.fromLibrary_);
     container.setAttribute('colour', this.givenColour_);
     for (var i = 0; i < this.arguments_.length; i++) {
       var parameter = document.createElement('arg');
       parameter.setAttribute('name', this.arguments_[i]);
       container.appendChild(parameter);
+      parameter.textContent = this.argumentInfo[i];
     }
     return container;
   },
@@ -5525,21 +7335,32 @@ Blockly.Blocks['ast_Call'] = {
    */
   domToMutation: function domToMutation(xmlElement) {
     this.name_ = xmlElement.getAttribute('name');
-    this.name_ = this.name_ === '*' ? null : this.name_;
+    if (this.name_ === '*') {
+      this.name_ = null;
+    }
     this.argumentCount_ = parseInt(xmlElement.getAttribute('arguments'), 10);
     this.showParameterNames_ = "true" === xmlElement.getAttribute('parameters');
-    this.returns_ = "true" === xmlElement.getAttribute('returns');
+    this.returns_ = xmlElement.getAttribute('returns');
     this.isMethod_ = "true" === xmlElement.getAttribute('method');
     this.message_ = xmlElement.getAttribute('message');
     this.premessage_ = xmlElement.getAttribute('premessage');
-    this.module_ = xmlElement.getAttribute('module');
-    this.givenColour_ = parseInt(xmlElement.getAttribute('colour'), 10);
+    this.postmessage_ = xmlElement.getAttribute('postmessage');
+    this.import_ = xmlElement.getAttribute('import');
+    this.fromLibrary_ = xmlElement.getAttribute('fromlibrary');
+    var colour = xmlElement.getAttribute('colour');
+    this.givenColour_ = parseInt(colour, 10);
+    if (isNaN(this.givenColour_)) {
+      this.givenColour_ = colour;
+    }
     var args = [];
     var paramIds = [];
-    for (var i = 0, childNode; childNode = xmlElement.childNodes[i]; i++) {
+    this.argumentInfo = [];
+    for (var i = 0; i < xmlElement.childNodes.length; i++) {
+      var childNode = xmlElement.childNodes[i];
       if (childNode.nodeName.toLowerCase() === 'arg') {
         args.push(childNode.getAttribute('name'));
         paramIds.push(childNode.getAttribute('paramId'));
+        this.argumentInfo.push(childNode.textContent);
       }
     }
     var result = this.setProcedureParameters_(args, paramIds);
@@ -5565,8 +7386,8 @@ Blockly.Blocks['ast_Call'] = {
    */
   customContextMenu: function customContextMenu(options) {
     if (!this.workspace.isMovable()) {
-      // If we center on the block and the workspace isn't movable we could
-      // loose blocks at the edges of the workspace.
+      // If we center on the block and the workspace is not movable,
+      // we could lose blocks at the edges of the workspace.
       return;
     }
     var workspace = this.workspace;
@@ -5597,178 +7418,196 @@ Blockly.Blocks['ast_Call'] = {
         block.render();
       }
     });
-
-    // Change Return Type
-    options.push({
-      enabled: true,
-      text: this.returns_ ? "Make statement" : "Make expression",
-      callback: function callback() {
-        block.returns_ = !block.returns_;
-        block.setReturn_(block.returns_, true);
-      }
-    });
-  },
-  /**
-   * Notification that the procedure's return state has changed.
-   * @param {boolean} returnState New return state
-   * @param forceRerender Whether to render
-   * @this Blockly.Block
-   */
-  setReturn_: function setReturn_(returnState, forceRerender) {
-    this.unplug(true);
-    if (returnState) {
-      this.setPreviousStatement(false);
-      this.setNextStatement(false);
-      this.setOutput(true);
-    } else {
-      this.setOutput(false);
-      this.setPreviousStatement(true);
-      this.setNextStatement(true);
-    }
-    if (forceRerender) {
-      if (this.rendered) {
-        this.render();
-      }
-    }
-  },
-  //defType_: 'procedures_defnoreturn',
-  parseArgument_: function parseArgument_(argument) {
-    if (argument.startsWith('KWARGS:')) {
-      // KWARG
-      return "unpack";
-    } else if (argument.startsWith('KEYWORD:')) {
-      return argument.substring(8) + "=";
-    } else {
-      if (this.showParameterNames_) {
-        if (argument.startsWith("KNOWN_ARG:")) {
-          return argument.substring(10) + "=";
-        }
-      }
-    }
-    return "";
   },
   getDrawnArgumentCount_: function getDrawnArgumentCount_() {
     return Math.min(this.argumentCount_, this.arguments_.length);
   }
 };
 python.pythonGenerator.forBlock['ast_Call'] = function (block, generator) {
-  // TODO: Handle import
-  if (block.module_) {
-    python.pythonGenerator.definitions_["import_" + block.module_] = BlockMirrorTextToBlocks.prototype.MODULE_FUNCTION_IMPORTS[block.module_];
+  var _block$getField;
+  if (block.import_) {
+    var _block$import_$split5 = block.import_.split(' as ', 2),
+      _block$import_$split6 = _slicedToArray(_block$import_$split5, 2),
+      type = _block$import_$split6[0],
+      alias = _block$import_$split6[1];
+    if (type && !python.pythonGenerator.imports.hasType(type)) {
+      var _name3 = alias !== null && alias !== void 0 ? alias : type;
+      python.pythonGenerator.imports.set(type, _name3);
+    }
   }
-  // python.pythonGenerator.definitions_['import_matplotlib'] = 'import matplotlib.pyplot as plt';
   // Get the caller
-  var funcName = "";
-  if (block.isMethod_) {
-    funcName = python.pythonGenerator.valueToCode(block, 'FUNC', python.pythonGenerator.ORDER_FUNCTION_CALL) || python.pythonGenerator.blank;
+  var funcName, fromLibrary;
+  var name = (_block$getField = block.getField('MESSAGE_NAME')) === null || _block$getField === void 0 ? void 0 : _block$getField.getValue();
+  if (name) {
+    name = this.name_.substring(0, this.name_.lastIndexOf('.') + 1) + name;
+  } else {
+    name = this.name_;
   }
-  funcName += this.name_;
+  if (block.isMethod_) {
+    var caller = python.pythonGenerator.valueToCode(block, 'FUNC', python.Order.FUNCTION_CALL) || python.pythonGenerator.blank;
+    var funcInputTargetBlock = block.getInputTargetBlock('FUNC');
+    if (funcInputTargetBlock !== null && funcInputTargetBlock !== void 0 && funcInputTargetBlock.returns_) {
+      fromLibrary = generator.libraries.resolve(funcInputTargetBlock.returns_ + name);
+      funcName = caller + name;
+    } else {
+      var _python$pythonGenerat, _python$pythonGenerat2;
+      var resolvedCaller = (_python$pythonGenerat = python.pythonGenerator.variables.getSingleType(caller)) !== null && _python$pythonGenerat !== void 0 ? _python$pythonGenerat : caller;
+      resolvedCaller = (_python$pythonGenerat2 = python.pythonGenerator.imports.getType(resolvedCaller)) !== null && _python$pythonGenerat2 !== void 0 ? _python$pythonGenerat2 : resolvedCaller;
+      fromLibrary = generator.libraries.resolve(resolvedCaller + name);
+      funcName = resolvedCaller + name;
+    }
+  } else {
+    funcName = name;
+    fromLibrary = generator.libraries.resolve(name);
+  }
+  if (fromLibrary) {
+    // Save library item to the block, in case it changed
+    block.fromLibrary_ = fromLibrary.fullName;
+  } else if (block.fromLibrary_) {
+    // Fall back to previously resolved library item
+    fromLibrary = generator.libraries.resolve(block.fromLibrary_);
+  }
+  if (fromLibrary instanceof PythonClass) {
+    var _fromLibrary$members$;
+    fromLibrary = (_fromLibrary$members$ = fromLibrary.members.get("__init__")) !== null && _fromLibrary$members$ !== void 0 ? _fromLibrary$members$ : fromLibrary;
+  }
+  if (fromLibrary instanceof PythonFunction) {
+    // Needed in case values were modified, but no blocks dragged.
+    fromLibrary.applyShadow(block);
+  }
+
   // Build the arguments
   var args = [];
   for (var i = 0; i < block.arguments_.length; i++) {
-    var value = python.pythonGenerator.valueToCode(block, 'ARG' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var argBlock = block.getInputTargetBlock('ARG' + i);
+    if (argBlock !== null && argBlock !== void 0 && argBlock.shadow) {
+      continue;
+    }
+    var value = python.pythonGenerator.valueToCode(block, 'ARG' + i, python.Order.NONE) || python.pythonGenerator.blank;
     var argument = block.arguments_[i];
     if (argument.startsWith('KWARGS:')) {
-      args[i] = "**" + value;
+      args.push("**" + value);
     } else if (argument.startsWith('KEYWORD:')) {
-      args[i] = argument.substring(8) + "=" + value;
+      var keyword = void 0;
+      if (block.getField('ARGNAME' + i) instanceof Blockly.FieldLabel) {
+        keyword = argument.substring(8);
+      } else {
+        keyword = block.getFieldValue('ARGNAME' + i);
+      }
+      args.push(keyword + "=" + value);
     } else {
-      args[i] = value;
+      args.push(value);
     }
   }
+
   // Return the result
   var code = funcName + '(' + args.join(', ') + ')';
-  if (block.returns_) {
-    return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
-  } else {
-    return code + "\n";
+  if (block.outputConnection && block.outputConnection.targetBlock()) {
+    // Return as expression
+    return [code, python.Order.FUNCTION_CALL];
   }
+  return code + "\n";
 };
-BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
-  if (node._astname === 'Name') {
-    return Sk.ffi.remapToJs(node.id);
-  } else if (node._astname === 'Attribute') {
-    var origin = this.getAsModule(node.value);
-    if (origin !== null) {
-      return origin + '.' + Sk.ffi.remapToJs(node.attr);
-    }
-  } else {
-    return null;
-  }
-};
-
-//                              messageBefore, message, name
-// function call: print() -> "print" ([message]) ; print
-// Module function: plt.show() -> "show plot" ([plot]) ; plt.show
-// Method call: "test".title() -> "make" [str] "title case" () ; .title ; isMethod = true
-
 BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
+  var _fromLibrary$fullName2,
+    _fromLibrary,
+    _this17 = this;
   var func = node.func;
   var args = node.args;
   var keywords = node.keywords;
-
-  // Can we make any guesses about this based on its name?
-  var signature = null;
   var isMethod = false;
-  var module = null;
+  var import_ = null;
   var premessage = "";
-  var message = "";
-  var name = "";
+  var postmessage = "";
+  var message;
+  var name;
   var caller = null;
-  var colour = BlockMirrorTextToBlocks.COLOR.FUNCTIONS;
+  var returns = 'Any';
+  var fromLibrary = this.resolveFromLibrary(func);
   if (func._astname === 'Name') {
     message = name = Sk.ffi.remapToJs(func.id);
-    if (name in this.FUNCTION_SIGNATURES) {
-      signature = this.FUNCTION_SIGNATURES[Sk.ffi.remapToJs(func.id)];
-    }
   } else if (func._astname === 'Attribute') {
     isMethod = true;
     caller = func.value;
-    var potentialModule = this.getAsModule(caller);
     var attributeName = Sk.ffi.remapToJs(func.attr);
-    message = "." + attributeName;
-    if (potentialModule in this.MODULE_FUNCTION_SIGNATURES) {
-      signature = this.MODULE_FUNCTION_SIGNATURES[potentialModule][attributeName];
-      module = potentialModule;
-      message = name = potentialModule + message;
-      isMethod = false;
-    } else if (attributeName in this.METHOD_SIGNATURES) {
-      signature = this.METHOD_SIGNATURES[attributeName];
-      name = message;
-    } else {
-      name = message;
-    }
+    name = "." + attributeName;
+    message = name;
   } else {
     isMethod = true;
+    caller = func;
     message = "";
     name = "";
-    caller = func;
     // (lambda x: x)()
   }
-  var returns = true;
-  if (signature !== null && signature !== undefined) {
-    if (signature.custom) {
+  if (fromLibrary) {
+    if (fromLibrary instanceof PythonClass) {
+      var _fromLibrary$members$2;
+      fromLibrary = (_fromLibrary$members$2 = fromLibrary.members.get("__init__")) !== null && _fromLibrary$members$2 !== void 0 ? _fromLibrary$members$2 : fromLibrary;
+    }
+    if (fromLibrary instanceof PythonFunction) {
+      if (fromLibrary instanceof PythonMethod && !(fromLibrary instanceof PythonConstructorMethod) && !(fromLibrary.classmethod || fromLibrary.staticmethod)) {
+        // Regular instance method, no import needed
+        import_ = "";
+      } else {
+        var _fromLibrary$pythonCl, _fromLibrary$pythonCl2;
+        import_ = (_fromLibrary$pythonCl = (_fromLibrary$pythonCl2 = fromLibrary.pythonClass) === null || _fromLibrary$pythonCl2 === void 0 ? void 0 : _fromLibrary$pythonCl2.requiresImport) !== null && _fromLibrary$pythonCl !== void 0 ? _fromLibrary$pythonCl : fromLibrary.pythonModule.requiresImport;
+      }
+      name = fromLibrary.name;
+      premessage = fromLibrary.premessage;
+      postmessage = fromLibrary.postmessage;
+      message = fromLibrary.message;
+      if (fromLibrary.typeHint) {
+        returns = fromLibrary.typeHint.flattened().toString();
+      }
+      if (fromLibrary instanceof PythonConstructorMethod) {
+        // For constructor methods, the caller is fixed.
+        isMethod = false;
+        name = fromLibrary.pythonClass.name;
+        returns = fromLibrary.pythonClass.fullName;
+      } else if (fromLibrary instanceof PythonMethod) {
+        // For static and class methods, the caller is fixed.
+        isMethod = !fromLibrary.staticmethod && !fromLibrary.classmethod;
+        if (isMethod) {
+          caller = func.value;
+          name = "." + fromLibrary.name;
+        } else {
+          name = fromLibrary.pythonClass.name + "." + fromLibrary.name;
+        }
+      } else {
+        // For functions, the caller is fixed.
+        isMethod = false;
+        if (fromLibrary.pythonModule.name === "") {
+          name = fromLibrary.name;
+        } else {
+          name = fromLibrary.pythonModule.name + "." + fromLibrary.name;
+          if (message === ".") {
+            var _this$imports$getName;
+            var moduleName = (_this$imports$getName = this.imports.getName(fromLibrary.pythonModule.fullName)) !== null && _this$imports$getName !== void 0 ? _this$imports$getName : fromLibrary.pythonModule.name;
+            message = moduleName + message;
+          }
+        }
+      }
+    } else {
+      throw new TypeError("Unexpected type from library: " + fromLibrary.constructor.name + " for " + this.getAsModule(func.value));
+    }
+  }
+  var colour;
+  if (fromLibrary) {
+    if (fromLibrary.custom) {
       try {
-        return signature.custom(node, parent, this);
+        var result = fromLibrary.custom(node, parent, this);
+        if (result !== null && result !== undefined) {
+          return result;
+        }
       } catch (e) {
         console.error(e);
         // We tried to be fancy and failed, better fall back to default behavior!
       }
     }
-    if ('returns' in signature) {
-      returns = signature.returns;
-    }
-    if ('message' in signature) {
-      message = signature.message;
-    }
-    if ('premessage' in signature) {
-      premessage = signature.premessage;
-    }
-    if ('colour' in signature) {
-      colour = signature.colour;
-    }
+    colour = fromLibrary.colour;
+  } else {
+    colour = this.blockMirror.configuration.convertColour("ast_Call", BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
   }
-  returns = returns || parent._astname !== 'Expr';
   var argumentsNormal = {};
   // TODO: do I need to be limiting only the *args* length, not keywords?
   var argumentsMutation = {
@@ -5779,48 +7618,106 @@ BlockMirrorTextToBlocks.prototype['ast_Call'] = function (node, parent) {
     "@name": name,
     "@message": message,
     "@premessage": premessage,
+    "@postmessage": postmessage,
     "@colour": colour,
-    "@module": module || ""
+    "@import": import_ !== null && import_ !== void 0 ? import_ : "",
+    "@fromlibrary": (_fromLibrary$fullName2 = (_fromLibrary = fromLibrary) === null || _fromLibrary === void 0 ? void 0 : _fromLibrary.fullName) !== null && _fromLibrary$fullName2 !== void 0 ? _fromLibrary$fullName2 : ""
   };
   // Handle arguments
   var overallI = 0;
   if (args !== null) {
     for (var i = 0; i < args.length; i += 1, overallI += 1) {
-      argumentsNormal["ARG" + overallI] = this.convert(args[i], node);
-      argumentsMutation["UNKNOWN_ARG:" + overallI] = null;
+      argumentsNormal["ARG" + i] = this.convert(args[i], node);
+      argumentsMutation["UNKNOWN_ARG:" + i] = null;
     }
   }
-  if (keywords !== null) {
-    for (var _i5 = 0; _i5 < keywords.length; _i5 += 1, overallI += 1) {
-      var keyword = keywords[_i5];
-      var arg = keyword.arg;
-      var value = keyword.value;
-      if (arg === null) {
-        argumentsNormal["ARG" + overallI] = this.convert(value, node);
-        argumentsMutation["KWARGS:" + overallI] = null;
-      } else {
-        argumentsNormal["ARG" + overallI] = this.convert(value, node);
-        argumentsMutation["KEYWORD:" + Sk.ffi.remapToJs(arg)] = null;
+  if (fromLibrary instanceof PythonFunction) {
+    if (args !== null) {
+      for (var _i11 = 0; _i11 < args.length; _i11 += 1) {
+        argumentsMutation["UNKNOWN_ARG:" + _i11] = document.createTextNode(fromLibrary.fullName);
+      }
+    }
+    if (this.blockMirror.configuration.showDefaultArguments) {
+      for (var _i12 = overallI; _i12 < fromLibrary.parameters.length - fromLibrary.argumentOffset; _i12 += 1) {
+        var pythonParameter = fromLibrary.parameters[_i12 + fromLibrary.argumentOffset];
+        if (pythonParameter.keyword || pythonParameter.preferKeyword) {
+          break;
+        }
+        if (pythonParameter.defaultValue !== "") {
+          argumentsNormal["ARG" + _i12] = pythonParameter.defaultValueBlocks(this);
+        }
+        argumentsMutation["UNKNOWN_ARG:" + _i12] = document.createTextNode(fromLibrary.fullName);
+        overallI += 1;
       }
     }
   }
-  // Build actual block
-  var newBlock;
+  var foundKeywords = new Set();
+  var overallIBeforeKeywords = overallI;
+  if (keywords !== null) {
+    var _loop5 = function _loop5() {
+      var keyword = keywords[_i13];
+      var arg = keyword.arg;
+      var value = keyword.value;
+      if (arg === null) {
+        argumentsNormal["ARG" + overallI] = _this17.convert(value, node);
+        argumentsMutation["KWARGS:" + overallI] = null;
+      } else {
+        argumentsNormal["ARG" + overallI] = _this17.convert(value, node);
+        var keywordName = Sk.ffi.remapToJs(arg);
+        if (fromLibrary instanceof PythonFunction) {
+          var parameter = fromLibrary.parameters.findByKeyword(keywordName);
+          foundKeywords.add(keywordName);
+          var keywordNames = keywordName;
+          if ((parameter === null || parameter === void 0 ? void 0 : parameter.names.length) > 1) {
+            var otherNames = _toConsumableArray(parameter.names).filter(function (item) {
+              return item !== keywordName;
+            });
+            keywordNames = keywordName + ' ' + otherNames;
+            otherNames.forEach(foundKeywords.add, foundKeywords);
+          }
+          argumentsMutation["KEYWORD:" + keywordNames] = document.createTextNode(fromLibrary.fullName + " " + keywordName);
+        } else {
+          argumentsMutation["KEYWORD:" + keywordName] = null;
+        }
+      }
+    };
+    for (var _i13 = 0; _i13 < keywords.length; _i13 += 1, overallI += 1) {
+      _loop5();
+    }
+  }
+  if (this.blockMirror.configuration.showDefaultArguments && fromLibrary instanceof PythonFunction) {
+    for (var _i14 = overallIBeforeKeywords; _i14 < fromLibrary.parameters.length - fromLibrary.argumentOffset; _i14 += 1) {
+      var _pythonParameter = fromLibrary.parameters[_i14 + fromLibrary.argumentOffset];
+      if (!(_pythonParameter.keyword || _pythonParameter.preferKeyword) || foundKeywords.has(_pythonParameter.name)) {
+        continue;
+      }
+      if (_pythonParameter.variableLength) {
+        continue;
+      }
+      if (_pythonParameter.defaultValue !== "") {
+        argumentsNormal["ARG" + overallI] = _pythonParameter.defaultValueBlocks(this);
+      }
+      argumentsMutation["KEYWORD:" + _pythonParameter.names.join(' ')] = document.createTextNode(fromLibrary.fullName + " " + _pythonParameter.name);
+      overallI += 1;
+    }
+  }
   if (isMethod) {
     argumentsNormal['FUNC'] = this.convert(caller, node);
-    newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {}, argumentsNormal, {
-      inline: true
-    }, argumentsMutation);
-  } else {
-    newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {}, argumentsNormal, {
-      inline: true
-    }, argumentsMutation);
   }
-  // Return as either statement or expression
-  if (returns) {
-    return newBlock;
-  } else {
+
+  // Build actual block
+  var newBlock = BlockMirrorTextToBlocks.create_block("ast_Call", node.lineno, {}, argumentsNormal, {
+    inline: true
+  }, argumentsMutation);
+  if (fromLibrary instanceof PythonFunction) {
+    fromLibrary.applyShadow(newBlock);
+  }
+  if (returns === 'None' || this.isStatement(node)) {
+    // Return as statement
     return [newBlock];
+  } else {
+    // Return as expression
+    return newBlock;
   }
 };
 Blockly.Blocks['ast_Raise'] = {
@@ -5828,7 +7725,7 @@ Blockly.Blocks['ast_Raise'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.EXCEPTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.EXCEPTIONS));
     this.exc_ = true;
     this.cause_ = false;
     this.appendDummyInput().appendField("raise");
@@ -5873,9 +7770,9 @@ Blockly.Blocks['ast_Raise'] = {
 };
 python.pythonGenerator.forBlock['ast_Raise'] = function (block, generator) {
   if (this.exc_) {
-    var exc = python.pythonGenerator.valueToCode(block, 'EXC', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var exc = python.pythonGenerator.valueToCode(block, 'EXC', python.Order.NONE) || python.pythonGenerator.blank;
     if (this.cause_) {
-      var cause = python.pythonGenerator.valueToCode(block, 'CAUSE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      var cause = python.pythonGenerator.valueToCode(block, 'CAUSE', python.Order.NONE) || python.pythonGenerator.blank;
       return "raise " + exc + " from " + cause + "\n";
     } else {
       return "raise " + exc + "\n";
@@ -5908,9 +7805,9 @@ Blockly.Blocks['ast_Delete'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.targetCount_ = 1;
-    this.appendDummyInput().appendField("delete");
+    this.appendDummyInput().appendField(this.translateText("delete"));
     this.updateShape_();
   },
   updateShape_: function updateShape_() {
@@ -5953,7 +7850,7 @@ python.pythonGenerator.forBlock['ast_Delete'] = function (block, generator) {
   // Create a list with any number of elements of any type.
   var elements = new Array(block.targetCount_);
   for (var i = 0; i < block.targetCount_; i++) {
-    elements[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    elements[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   var code = 'del ' + elements.join(', ') + "\n";
   return code;
@@ -5970,7 +7867,7 @@ Blockly.Blocks['ast_Subscript'] = {
   init: function init() {
     this.setInputsInline(true);
     this.setOutput(true);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.sliceKinds_ = ["I"];
     this.appendValueInput("VALUE").setCheck(null);
     this.appendDummyInput('OPEN_BRACKET').appendField("[");
@@ -6084,28 +7981,28 @@ Blockly.Blocks['ast_Subscript'] = {
 };
 python.pythonGenerator.forBlock['ast_Subscript'] = function (block, generator) {
   // Create a list with any number of elements of any type.
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.MEMBER) || python.pythonGenerator.blank;
   var slices = new Array(block.sliceKinds_.length);
   for (var i = 0; i < block.sliceKinds_.length; i++) {
     var kind = block.sliceKinds_[i];
     if (kind.charAt(0) === 'I') {
-      slices[i] = python.pythonGenerator.valueToCode(block, 'INDEX' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+      slices[i] = python.pythonGenerator.valueToCode(block, 'INDEX' + i, python.Order.MEMBER) || python.pythonGenerator.blank;
     } else {
       slices[i] = "";
       if (kind.charAt(1) === '1') {
-        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICELOWER' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICELOWER' + i, python.Order.MEMBER) || python.pythonGenerator.blank;
       }
       slices[i] += ":";
       if (kind.charAt(2) === '1') {
-        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICEUPPER' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+        slices[i] += python.pythonGenerator.valueToCode(block, 'SLICEUPPER' + i, python.Order.MEMBER) || python.pythonGenerator.blank;
       }
       if (kind.charAt(3) === '1') {
-        slices[i] += ":" + python.pythonGenerator.valueToCode(block, 'SLICESTEP' + i, python.pythonGenerator.ORDER_MEMBER) || python.pythonGenerator.blank;
+        slices[i] += ":" + python.pythonGenerator.valueToCode(block, 'SLICESTEP' + i, python.Order.MEMBER) || python.pythonGenerator.blank;
       }
     }
   }
   var code = value + '[' + slices.join(', ') + "]";
-  return [code, python.pythonGenerator.ORDER_MEMBER];
+  return [code, python.Order.MEMBER];
 };
 var isWeirdSliceCase = function isWeirdSliceCase(slice) {
   return slice.lower == null && slice.upper == null && slice.step !== null && slice.step._astname === 'NameConstant' && slice.step.value === Sk.builtin.none.none$;
@@ -6188,7 +8085,7 @@ Blockly.Blocks["ast_Comp_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("Add new comprehensions below");
     this.appendDummyInput().appendField("   For clause");
     this.appendStatementInput("STACK");
@@ -6201,7 +8098,7 @@ Blockly.Blocks["ast_Comp_create_with_for"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("For clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -6214,7 +8111,7 @@ Blockly.Blocks["ast_Comp_create_with_if"] = {
    * @this Blockly.Block
    */
   init: function init() {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("If clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -6251,7 +8148,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      */
     init: function init() {
       this.setStyle("loop_blocks");
-      this.setColour(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color);
+      this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color));
       this.itemCount_ = 3;
       var input = this.appendValueInput("ELT").appendField(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start);
       if (kind === "DictComp") {
@@ -6354,24 +8251,24 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       this.itemCount_ = connections.length;
       this.updateShape_();
       // Reconnect any child blocks.
-      for (var i = 1; i < this.itemCount_; i++) {
-        var _connections$i6;
-        (_connections$i6 = connections[i]) === null || _connections$i6 === void 0 || _connections$i6.reconnect(this, "GENERATOR" + i);
+      for (var _i15 = 1; _i15 < this.itemCount_; _i15++) {
+        var _connections$_i6;
+        (_connections$_i6 = connections[_i15]) === null || _connections$_i6 === void 0 || _connections$_i6.reconnect(this, "GENERATOR" + _i15);
         // TODO: glitch when inserting into middle, deletes children values
-        if (!connections[i]) {
+        if (!connections[_i15]) {
           var createName = void 0;
-          if (blockTypes[i] === "ast_Comp_create_with_if") {
+          if (blockTypes[_i15] === "ast_Comp_create_with_if") {
             createName = "ast_comprehensionIf";
-          } else if (blockTypes[i] === "ast_Comp_create_with_for") {
+          } else if (blockTypes[_i15] === "ast_Comp_create_with_for") {
             createName = "ast_comprehensionFor";
           } else {
-            throw Error("Unknown block type: " + blockTypes[i]);
+            throw Error("Unknown block type: " + blockTypes[_i15]);
           }
           var _itemBlock3 = this.workspace.newBlock(createName);
           _itemBlock3.setDeletable(false);
           _itemBlock3.setMovable(false);
           _itemBlock3.initSvg();
-          this.getInput("GENERATOR" + i).connection.connect(_itemBlock3.outputConnection);
+          this.getInput("GENERATOR" + _i15).connection.connect(_itemBlock3.outputConnection);
           _itemBlock3.render();
           //this.get(itemBlock, 'ADD'+i)
         }
@@ -6426,12 +8323,12 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       if (child === null || child.type !== "ast_DictItem") {
         elt = python.pythonGenerator.blank + ": " + python.pythonGenerator.blank;
       } else {
-        var key = python.pythonGenerator.valueToCode(child, "KEY", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-        var value = python.pythonGenerator.valueToCode(child, "VALUE", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var key = python.pythonGenerator.valueToCode(child, "KEY", python.Order.NONE) || python.pythonGenerator.blank;
+        var value = python.pythonGenerator.valueToCode(child, "VALUE", python.Order.NONE) || python.pythonGenerator.blank;
         elt = key + ": " + value;
       }
     } else {
-      elt = python.pythonGenerator.valueToCode(block, "ELT", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      elt = python.pythonGenerator.valueToCode(block, "ELT", python.Order.NONE) || python.pythonGenerator.blank;
     }
     // generators
     var elements = new Array(block.itemCount_);
@@ -6441,11 +8338,11 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       if (_child === null) {
         elements[i] = BAD_DEFAULT;
       } else if (_child.type === "ast_comprehensionIf") {
-        var test = python.pythonGenerator.valueToCode(_child, "TEST", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var test = python.pythonGenerator.valueToCode(_child, "TEST", python.Order.NONE) || python.pythonGenerator.blank;
         elements[i] = "if " + test;
       } else if (_child.type === "ast_comprehensionFor") {
-        var target = python.pythonGenerator.valueToCode(_child, "TARGET", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-        var iter = python.pythonGenerator.valueToCode(_child, "ITER", python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        var target = python.pythonGenerator.valueToCode(_child, "TARGET", python.Order.NONE) || python.pythonGenerator.blank;
+        var iter = python.pythonGenerator.valueToCode(_child, "ITER", python.Order.NONE) || python.pythonGenerator.blank;
         elements[i] = "for " + target + " in " + iter;
       } else {
         elements[i] = BAD_DEFAULT;
@@ -6453,7 +8350,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
     }
     // Put it all together
     var code = BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start + elt + " " + elements.join(" ") + BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    return [code, python.Order.ATOMIC];
   };
   BlockMirrorTextToBlocks.prototype["ast_" + kind] = function (node, parent) {
     var generators = node.generators;
@@ -6530,11 +8427,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 
 // The elements you can put into the mutator
 [['Parameter', 'Parameter', '', false, false], ['ParameterType', 'Parameter with type', '', true, false], ['ParameterDefault', 'Parameter with default value', '', false, true], ['ParameterDefaultType', 'Parameter with type and default value', '', true, true], ['ParameterVararg', 'Variable length parameter', '*', false, false], ['ParameterVarargType', 'Variable length parameter with type', '*', true, false], ['ParameterKwarg', 'Keyworded Variable length parameter', '**', false], ['ParameterKwargType', 'Keyworded Variable length parameter with type', '**', true, false]].forEach(function (parameterTypeTuple) {
-  var parameterType = parameterTypeTuple[0],
-    parameterDescription = parameterTypeTuple[1],
-    parameterPrefix = parameterTypeTuple[2],
-    parameterTyped = parameterTypeTuple[3],
-    parameterDefault = parameterTypeTuple[4];
+  var _parameterTypeTuple = _slicedToArray(parameterTypeTuple, 5),
+    parameterType = _parameterTypeTuple[0],
+    parameterDescription = _parameterTypeTuple[1],
+    parameterPrefix = _parameterTypeTuple[2],
+    parameterTyped = _parameterTypeTuple[3],
+    parameterDefault = _parameterTypeTuple[4];
   BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_FunctionMutant" + parameterType,
     "message0": parameterDescription,
@@ -6575,13 +8473,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     var name = python.pythonGenerator.getVariableName(block.getFieldValue('NAME'), Blockly.Variables.NAME_TYPE);
     var typed = "";
     if (parameterTyped) {
-      typed = ": " + (python.pythonGenerator.valueToCode(block, 'TYPE', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+      typed = ": " + (python.pythonGenerator.valueToCode(block, 'TYPE', python.Order.NONE) || python.pythonGenerator.blank);
     }
     var defaulted = "";
     if (parameterDefault) {
-      defaulted = "=" + (python.pythonGenerator.valueToCode(block, 'DEFAULT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+      defaulted = "=" + (python.pythonGenerator.valueToCode(block, 'DEFAULT', python.Order.NONE) || python.pythonGenerator.blank);
     }
-    return [parameterPrefix + name + typed + defaulted, python.pythonGenerator.ORDER_ATOMIC];
+    return [parameterPrefix + name + typed + defaulted, python.Order.ATOMIC];
   };
 });
 
@@ -6589,7 +8487,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 
 Blockly.Blocks['ast_FunctionDef'] = {
   init: function init() {
-    this.appendDummyInput().appendField("define").appendField(new Blockly.FieldTextInput("function"), "NAME");
+    this.appendDummyInput().appendField(this.translateText("define")).appendField(new Blockly.FieldTextInput("function"), "NAME");
     this.decoratorsCount_ = 0;
     this.parametersCount_ = 0;
     this.hasReturn_ = false;
@@ -6598,7 +8496,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
     this.updateShape_();
     this.setMutator(new Blockly.icons.MutatorIcon(['ast_FunctionMutantParameter', 'ast_FunctionMutantParameterType'], this));
   },
@@ -6629,7 +8527,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
     var currentReturn = this.getInput('RETURNS');
     if (status) {
       if (!currentReturn) {
-        this.appendValueInput("RETURNS").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField("returns");
+        this.appendValueInput("RETURNS").setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField(this.translateText("returns"));
       }
       this.moveInputBefore('RETURNS', 'BODY');
     } else if (!status && currentReturn) {
@@ -6731,16 +8629,16 @@ Blockly.Blocks['ast_FunctionDef'] = {
     this.parametersCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var _i6 = 0; _i6 < this.parametersCount_; _i6++) {
-      var _connections$_i;
-      (_connections$_i = connections[_i6]) === null || _connections$_i === void 0 || _connections$_i.reconnect(this, 'PARAMETER' + _i6);
-      if (!connections[_i6]) {
-        var createName = 'ast_Function' + blockTypes[_i6].substring('ast_FunctionMutant'.length);
+    for (var _i16 = 0; _i16 < this.parametersCount_; _i16++) {
+      var _connections$_i7;
+      (_connections$_i7 = connections[_i16]) === null || _connections$_i7 === void 0 || _connections$_i7.reconnect(this, 'PARAMETER' + _i16);
+      if (!connections[_i16]) {
+        var createName = 'ast_Function' + blockTypes[_i16].substring('ast_FunctionMutant'.length);
         var _itemBlock4 = this.workspace.newBlock(createName);
         _itemBlock4.setDeletable(false);
         _itemBlock4.setMovable(false);
         _itemBlock4.initSvg();
-        this.getInput('PARAMETER' + _i6).connection.connect(_itemBlock4.outputConnection);
+        this.getInput('PARAMETER' + _i16).connection.connect(_itemBlock4.outputConnection);
         _itemBlock4.render();
         //this.get(itemBlock, 'ADD'+i)
       }
@@ -6761,7 +8659,7 @@ Blockly.Blocks['ast_FunctionDef'] = {
           if (this.returnConnection_) {
             var returnBlock = returnConnection.targetBlock();
             returnBlock.unplug();
-            returnBlock.bumpNeighbours_();
+            returnBlock.bumpNeighbours();
           }
           this.setReturnAnnotation_(false);
         }
@@ -6790,18 +8688,18 @@ python.pythonGenerator.forBlock['ast_FunctionDef'] = function (block, generator)
   // Decorators
   var decorators = new Array(block.decoratorsCount_);
   for (var i = 0; i < block.decoratorsCount_; i++) {
-    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.Order.NONE) || python.pythonGenerator.blank;
     decorators[i] = "@" + decorator + "\n";
   }
   // Parameters
   var parameters = new Array(block.parametersCount_);
-  for (var _i7 = 0; _i7 < block.parametersCount_; _i7++) {
-    parameters[_i7] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + _i7, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  for (var _i17 = 0; _i17 < block.parametersCount_; _i17++) {
+    parameters[_i17] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + _i17, python.Order.NONE) || python.pythonGenerator.blank;
   }
   // Return annotation
   var returns = "";
   if (this.hasReturn_) {
-    returns = " -> " + python.pythonGenerator.valueToCode(block, 'RETURNS', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    returns = " -> " + python.pythonGenerator.valueToCode(block, 'RETURNS', python.Order.NONE) || python.pythonGenerator.blank;
   }
   // Body
   var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
@@ -6853,14 +8751,14 @@ BlockMirrorTextToBlocks.prototype.parseArgs = function (args, values, lineno, no
   }
   // keyword arguments that must be referenced by name
   if (kwonlyargs !== null) {
-    for (var _i8 = 0; _i8 < kwonlyargs.length; _i8++) {
+    for (var _i18 = 0; _i18 < kwonlyargs.length; _i18++) {
       var _childValues = {};
       var _type = 'ast_FunctionParameter';
-      if (kw_defaults[_i8]) {
-        _childValues['DEFAULT'] = this.convert(kw_defaults[_i8], node);
+      if (kw_defaults[_i18]) {
+        _childValues['DEFAULT'] = this.convert(kw_defaults[_i18], node);
         _type += "Default";
       }
-      values['PARAMETER' + totalArgs] = this.parseArg(kwonlyargs[_i8], _type, lineno, _childValues, node);
+      values['PARAMETER' + totalArgs] = this.parseArg(kwonlyargs[_i18], _type, lineno, _childValues, node);
       totalArgs += 1;
     }
   }
@@ -6880,7 +8778,11 @@ BlockMirrorTextToBlocks.prototype['ast_FunctionDef'] = function (node, parent) {
   var values = {};
   if (decorator_list !== null) {
     for (var i = 0; i < decorator_list.length; i++) {
-      values['DECORATOR' + i] = this.convert(decorator_list[i], node);
+      var converted = this.convert(decorator_list[i], node);
+      if (converted.constructor === Array) {
+        converted = converted[0];
+      }
+      values['DECORATOR' + i] = converted;
     }
   }
   var parsedArgs = 0;
@@ -6912,7 +8814,7 @@ Blockly.Blocks['ast_Lambda'] = {
     this.appendValueInput("BODY").appendField("body").setAlign(Blockly.inputs.Align.RIGHT).setCheck(null);
     this.setInputsInline(false);
     this.setOutput(true);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
     this.updateShape_();
   },
   mutationToDom: Blockly.Blocks['ast_FunctionDef'].mutationToDom,
@@ -6924,11 +8826,11 @@ python.pythonGenerator.forBlock['ast_Lambda'] = function (block, generator) {
   // Parameters
   var parameters = new Array(block.parametersCount_);
   for (var i = 0; i < block.parametersCount_; i++) {
-    parameters[i] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    parameters[i] = python.pythonGenerator.valueToCode(block, 'PARAMETER' + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   // Body
-  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.PASS;
-  return ["lambda " + parameters.join(', ') + ": " + body, python.pythonGenerator.ORDER_LAMBDA];
+  var body = python.pythonGenerator.valueToCode(block, 'BODY', python.Order.LAMBDA) || python.pythonGenerator.PASS;
+  return ["lambda " + parameters.join(', ') + ": " + body, python.Order.LAMBDA];
 };
 BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
   var args = node.args;
@@ -6950,26 +8852,13 @@ BlockMirrorTextToBlocks.prototype['ast_Lambda'] = function (node, parent) {
 };
 Blockly.Blocks['ast_ReturnFull'] = {
   init: function init() {
-    this.appendValueInput('VALUE').appendField('return');
+    this.appendValueInput('VALUE').appendField(this.translateText('return'));
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
   }
 };
-// Blockly.common.defineBlocks({ast_ReturnFull: ast_ReturnFull});
-
-// BlockMirrorTextToBlocks.BLOCKS.push({
-//     "message0": "return %1",
-//     "args0": [
-//         {"type": "input_value", "name": "VALUE"}
-//     ],
-//     "inputsInline": true,
-//     "previousStatement": null,
-//     "nextStatement": null,
-//     "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
-// });
-
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_Return",
   "message0": "return",
@@ -6982,7 +8871,7 @@ python.pythonGenerator.forBlock['ast_Return'] = function (block, generator) {
   return "return\n";
 };
 python.pythonGenerator.forBlock['ast_ReturnFull'] = function (block, generator) {
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.ATOMIC) || python.pythonGenerator.blank;
   return "return " + value + "\n";
 };
 BlockMirrorTextToBlocks.prototype['ast_Return'] = function (node, parent) {
@@ -7014,11 +8903,11 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
 });
 python.pythonGenerator.forBlock['ast_Yield'] = function (block, generator) {
-  return ["yield", python.pythonGenerator.ORDER_LAMBDA];
+  return ["yield", python.Order.LAMBDA];
 };
 python.pythonGenerator.forBlock['ast_YieldFull'] = function (block, generator) {
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
-  return ["yield " + value, python.pythonGenerator.ORDER_LAMBDA];
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.LAMBDA) || python.pythonGenerator.blank;
+  return ["yield " + value, python.Order.LAMBDA];
 };
 BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {
   var value = node.value;
@@ -7042,8 +8931,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
 });
 python.pythonGenerator.forBlock['ast_YieldFrom'] = function (block, generator) {
-  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
-  return ["yield from " + value, python.pythonGenerator.ORDER_LAMBDA];
+  var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.LAMBDA) || python.pythonGenerator.blank;
+  return ["yield from " + value, python.Order.LAMBDA];
 };
 BlockMirrorTextToBlocks.prototype['ast_YieldFrom'] = function (node, parent) {
   var value = node.value;
@@ -7056,7 +8945,7 @@ Blockly.Blocks['ast_Global'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.nameCount_ = 1;
     this.appendDummyInput('GLOBAL').appendField("make global", "START_GLOBALS");
     this.updateShape_();
@@ -7169,7 +9058,7 @@ Blockly.Blocks['ast_Try'] = {
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.EXCEPTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.EXCEPTIONS));
     this.updateShape_();
   },
   // TODO: Not mutable currently
@@ -7238,7 +9127,7 @@ python.pythonGenerator.forBlock['ast_Try'] = function (block, generator) {
     var level = block.handlers_[i];
     var clause = "except";
     if (level !== BlockMirrorTextToBlocks.HANDLERS_CATCH_ALL) {
-      clause += " " + python.pythonGenerator.valueToCode(block, 'TYPE' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+      clause += " " + python.pythonGenerator.valueToCode(block, 'TYPE' + i, python.Order.NONE) || python.pythonGenerator.blank;
       if (level === BlockMirrorTextToBlocks.HANDLERS_COMPLETE) {
         clause += " as " + python.pythonGenerator.getVariableName(block.getFieldValue('NAME' + i), Blockly.Variables.NAME_TYPE);
       }
@@ -7308,7 +9197,7 @@ Blockly.Blocks['ast_ClassDef'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.OO);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.OO));
     this.updateShape_();
   },
   // TODO: Not mutable currently
@@ -7320,16 +9209,16 @@ Blockly.Blocks['ast_ClassDef'] = {
       }
       this.moveInputBefore('DECORATOR' + i, 'BODY');
     }
-    for (var _i9 = 0; _i9 < this.bases_; _i9++) {
-      var _input = this.appendValueInput("BASE" + _i9).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
-      if (_i9 === 0) {
-        _input.appendField("inherits from");
+    for (var _i19 = 0; _i19 < this.bases_; _i19++) {
+      var _input2 = this.appendValueInput("BASE" + _i19).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT);
+      if (_i19 === 0) {
+        _input2.appendField("inherits from");
       }
-      this.moveInputBefore('BASE' + _i9, 'BODY');
+      this.moveInputBefore('BASE' + _i19, 'BODY');
     }
-    for (var _i10 = 0; _i10 < this.keywords_; _i10++) {
-      this.appendValueInput("KEYWORDVALUE" + _i10).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField(new Blockly.FieldTextInput("metaclass"), "KEYWORDNAME" + _i10).appendField("=");
-      this.moveInputBefore('KEYWORDVALUE' + _i10, 'BODY');
+    for (var _i20 = 0; _i20 < this.keywords_; _i20++) {
+      this.appendValueInput("KEYWORDVALUE" + _i20).setCheck(null).setAlign(Blockly.inputs.Align.RIGHT).appendField(new Blockly.FieldTextInput("metaclass"), "KEYWORDNAME" + _i20).appendField("=");
+      this.moveInputBefore('KEYWORDVALUE' + _i20, 'BODY');
     }
   },
   /**
@@ -7362,23 +9251,23 @@ python.pythonGenerator.forBlock['ast_ClassDef'] = function (block, generator) {
   // Decorators
   var decorators = new Array(block.decorators_);
   for (var i = 0; i < block.decorators_; i++) {
-    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    var decorator = python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.Order.NONE) || python.pythonGenerator.blank;
     decorators[i] = "@" + decorator + "\n";
   }
   // Bases
   var bases = new Array(block.bases_);
-  for (var _i11 = 0; _i11 < block.bases_; _i11++) {
-    bases[_i11] = python.pythonGenerator.valueToCode(block, 'BASE' + _i11, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+  for (var _i21 = 0; _i21 < block.bases_; _i21++) {
+    bases[_i21] = python.pythonGenerator.valueToCode(block, 'BASE' + _i21, python.Order.NONE) || python.pythonGenerator.blank;
   }
   // Keywords
   var keywords = new Array(block.keywords_);
-  for (var _i12 = 0; _i12 < block.keywords_; _i12++) {
-    var _name = block.getFieldValue('KEYWORDNAME' + _i12);
-    var value = python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + _i12, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-    if (_name == '**') {
-      keywords[_i12] = '**' + value;
+  for (var _i22 = 0; _i22 < block.keywords_; _i22++) {
+    var _name4 = block.getFieldValue('KEYWORDNAME' + _i22);
+    var value = python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + _i22, python.Order.NONE) || python.pythonGenerator.blank;
+    if (_name4 == '**') {
+      keywords[_i22] = '**' + value;
     } else {
-      keywords[_i12] = _name + '=' + value;
+      keywords[_i22] = _name4 + '=' + value;
     }
   }
   // Body:
@@ -7404,18 +9293,18 @@ BlockMirrorTextToBlocks.prototype['ast_ClassDef'] = function (node, parent) {
     }
   }
   if (bases !== null) {
-    for (var _i13 = 0; _i13 < bases.length; _i13++) {
-      values['BASE' + _i13] = this.convert(bases[_i13], node);
+    for (var _i23 = 0; _i23 < bases.length; _i23++) {
+      values['BASE' + _i23] = this.convert(bases[_i23], node);
     }
   }
   if (keywords !== null) {
-    for (var _i14 = 0; _i14 < keywords.length; _i14++) {
-      values['KEYWORDVALUE' + _i14] = this.convert(keywords[_i14].value, node);
-      var arg = keywords[_i14].arg;
+    for (var _i24 = 0; _i24 < keywords.length; _i24++) {
+      values['KEYWORDVALUE' + _i24] = this.convert(keywords[_i24].value, node);
+      var arg = keywords[_i24].arg;
       if (arg === null) {
-        fields['KEYWORDNAME' + _i14] = "**";
+        fields['KEYWORDNAME' + _i24] = "**";
       } else {
-        fields['KEYWORDNAME' + _i14] = Sk.ffi.remapToJs(arg);
+        fields['KEYWORDNAME' + _i24] = Sk.ffi.remapToJs(arg);
       }
     }
   }
@@ -7443,7 +9332,7 @@ Blockly.Blocks['ast_Import'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.PYTHON);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.PYTHON));
     this.updateShape_();
   },
   // TODO: Not mutable currently
@@ -7520,23 +9409,22 @@ Blockly.Blocks['ast_Import'] = {
 python.pythonGenerator.forBlock['ast_Import'] = function (block, generator) {
   // Optional from part
   var from = "";
+  var moduleName = "";
   if (this.from_) {
-    var moduleName = block.getFieldValue('MODULE');
+    moduleName = block.getFieldValue('MODULE');
     from = "from " + moduleName + " ";
-    python.pythonGenerator.imported_["import_" + moduleName] = moduleName;
   }
   // Create a list with any number of elements of any type.
   var elements = new Array(block.nameCount_);
   for (var i = 0; i < block.nameCount_; i++) {
-    var name = block.getFieldValue('NAME' + i);
+    var type = block.getFieldValue('NAME' + i);
+    var name = type;
     elements[i] = name;
     if (!this.regulars_[i]) {
       name = python.pythonGenerator.getVariableName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
       elements[i] += " as " + name;
     }
-    if (!from) {
-      python.pythonGenerator.imported_["import_" + name] = name;
-    }
+    python.pythonGenerator.imports.set(moduleName + (moduleName ? '.' : '') + type, name);
   }
   return from + 'import ' + elements.join(', ') + "\n";
 };
@@ -7548,27 +9436,31 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
   };
   var regulars = [];
   var simpleName = "";
+  var fromModule = "";
+  if (node._astname === 'ImportFrom') {
+    // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt
+    mutations['@from'] = true;
+    fromModule = '.'.repeat(node.level) + Sk.ffi.remapToJs(node.module);
+    fields['MODULE'] = fromModule;
+  } else {
+    mutations['@from'] = false;
+  }
   for (var i = 0; i < names.length; i++) {
-    fields["NAME" + i] = Sk.ffi.remapToJs(names[i].name);
+    var type = Sk.ffi.remapToJs(names[i].name);
+    fields["NAME" + i] = type;
     var isRegular = names[i].asname === null;
     if (!isRegular) {
       fields["ASNAME" + i] = Sk.ffi.remapToJs(names[i].asname);
       simpleName = fields["ASNAME" + i];
     } else {
-      simpleName = fields["NAME" + i];
+      simpleName = type;
     }
+    this.imports.set(fromModule + (fromModule ? '.' : '') + type, simpleName);
     regulars.push(isRegular);
   }
   mutations['regular'] = regulars;
   if (this.hiddenImports.indexOf(simpleName) !== -1) {
     return null;
-  }
-  if (node._astname === 'ImportFrom') {
-    // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt
-    mutations['@from'] = true;
-    fields['MODULE'] = '.'.repeat(node.level) + Sk.ffi.remapToJs(node.module);
-  } else {
-    mutations['@from'] = false;
   }
   return BlockMirrorTextToBlocks.create_block("ast_Import", node.lineno, fields, {}, {
     "inline": true
@@ -7590,8 +9482,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "inputsInline": false
 });
 python.pythonGenerator.forBlock["ast_WithItem"] = function (block) {
-  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-  return [context, python.pythonGenerator.ORDER_NONE];
+  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.Order.NONE) || python.pythonGenerator.blank;
+  return [context, python.Order.NONE];
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
   "type": "ast_WithItemAs",
@@ -7609,9 +9501,9 @@ BlockMirrorTextToBlocks.BLOCKS.push({
   "inputsInline": true
 });
 python.pythonGenerator.forBlock["ast_WithItemAs"] = function (block) {
-  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-  var as = python.pythonGenerator.valueToCode(block, 'AS', python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-  return [context + " as " + as, python.pythonGenerator.ORDER_NONE];
+  var context = python.pythonGenerator.valueToCode(block, 'CONTEXT', python.Order.NONE) || python.pythonGenerator.blank;
+  var as = python.pythonGenerator.valueToCode(block, 'AS', python.Order.NONE) || python.pythonGenerator.blank;
+  return [context + " as " + as, python.Order.NONE];
 };
 Blockly.Blocks['ast_With'] = {
   init: function init() {
@@ -7622,7 +9514,7 @@ Blockly.Blocks['ast_With'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.CONTROL));
     this.updateShape_();
   },
   /**
@@ -7678,7 +9570,7 @@ python.pythonGenerator.forBlock['ast_With'] = function (block, generator) {
   // Contexts
   var items = new Array(block.itemCount_);
   for (var i = 0; i < block.itemCount_; i++) {
-    items[i] = python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+    items[i] = python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.Order.NONE) || python.pythonGenerator.blank;
   }
   // Body
   var body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
@@ -7768,3 +9660,470 @@ python.pythonGenerator.forBlock['ast_Raw'] = function (block, generator) {
   var code = block.getFieldValue('TEXT') + "\n";
   return code;
 };
+BlockMirror.LIBRARIES['cisc108'] = {
+  "__colour": "PYTHON",
+  "__toolbox": false,
+  "cisc108": [
+    "assert_equal(x: Any, y: Any, precision: int = 4, exact_strings: bool = False, *args): bool"
+  ]
+};
+
+BlockMirror.LIBRARIES['image'] = {
+  "__toolbox": false,
+  "class Image": [
+    {
+      "signature": "__init__(self, src: str, /): None",
+      "custom": "BlockMirrorTextToBlocks.ast_Image"
+    }
+  ]
+};
+
+BlockMirror.LIBRARIES['matplotlib'] = {
+  "__toolbox": false,
+  "__colour": "PLOTTING",
+  "matplotlib.pyplot as plt": [
+    "show(*, block: bool | None = None): None // show plot canvas",
+    "hist(x, bins=None, *, range=None, density=False, weights=None, cumulative: bool = False, bottom=None, histtype: str = 'bar', align: str = 'mid', orientation: str = 'vertical', rwidth: float | None = None, log: bool = False, color=None, label=None, stacked: bool = False, data=None, **kwargs): Any // plot histogram",
+    "bar(x, height, width=0.8, bottom=None, *, align: typing.Literal['center', 'edge'] = 'center', data=None, tick_label: str | list[str] | None = None, **kwargs): Any // plot bar chart",
+    "plot(*args, scalex: bool = True, scaley: bool = True, data=None, **kwargs): list // plot line",
+    "boxplot(x, *, notch=None, sym=None, vert=None, orientation='vertical', whis=None, positions=None, widths=None, patch_artist=None, bootstrap=None, usermedians=None, conf_intervals=None, meanline=None, showmeans=None, showcaps=None, showbox=None, showfliers=None, boxprops=None, tick_labels=None, flierprops=None, medianprops=None, meanprops=None, capprops=None, whiskerprops=None, manage_ticks=True, autorange=False, zorder=None, capwidths=None, label=None, data=None): dict // plot boxplot",
+    "hlines(y, xmin, xmax, colors=None, linestyles='solid', *, label='', data=None, **kwargs): Any // plot horizontal line",
+    "vlines(x, ymin, ymax, colors=None, linestyles='solid', *, label='', data=None, **kwargs): Any // plot vertical line",
+    "scatter(x, y, s=None, c=None, *, marker=None, cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, edgecolors=None, colorizer=None, plotnonfinite=False, data=None, **kwargs) // plot scatter",
+    "title(label: str, fontdict=None, loc=None, pad=None, *, y=None, **kwargs): Any // make plot's title",
+    "xlabel(xlabel: str, fontdict=None, labelpad=None, *, loc=None, **kwargs): None // make plot's x-axis label",
+    "ylabel(ylabel, fontdict=None, labelpad=None, *, loc=None, **kwargs) // make plot's y-axis label",
+    "xticks(ticks=None, labels=None, *, minor=False, **kwargs) // make x ticks",
+    "yticks(ticks=None, labels=None, *, minor=False, **kwargs) // make y ticks"
+  ]
+};
+
+BlockMirror.LIBRARIES['turtle'] = {
+    "__toolbox": false,
+    "__colour": "PLOTTING",
+    "turtle": [
+      {
+        "signature": "type _AngleLeft = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldLeft"
+      },
+      {
+        "signature": "type _AngleRight = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldRight"
+      },
+      {
+        "signature": "type _AngleHeading = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldHeading"
+      },
+      {
+        "signature": "type _Color = str | tuple[float, float, float]",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleColorField"
+      },
+        "forward fd(amount: float): None // move turtle forward by(50)",
+        "backward bd(amount: float): None // move turtle backward by(50)",
+        "left lt(angle: turtle._AngleLeft): None // turn turtle left by(90)",
+        "right rt(angle: turtle._AngleRight): None // turn turtle right by(90)",
+        "goto setpos setposition(x: float, y: float | None = None): None // move turtle to position(0, 0)",
+        "teleport(x: float, y: float | None = None, *, fill_gap: bool = False): None // teleport turtle to position(0, 0)",
+        "setx(x: float): None // set turtle's x position to(100)",
+        "sety(y: float): None // set turtle's y position to(100)",
+        "setheading seth(angle: turtle._AngleHeading): None // set turtle's heading to(270)",
+        "home(): None // move turtle to origin",
+        "circle(radius: float, extent: float | None = None, steps: int | None=None): None // move the turtle in a circle",
+        "dot(size: float | None = None, color: turtle._Color | None=None): None // turtle draws a dot(0)",
+        "stamp(): int // stamp a copy of the turtle shape",
+        "clearstamp(stampid: int): None // delete stamp with id",
+        "clearstamps(n: int | None = None): None // delete all stamps",
+        "undo(): None // undo last turtle action",
+        "speed(speed: int | None = None): int | None // set or get turtle speed",
+
+        "position pos(): tuple[float, float] // get turtle's position",
+        "towards(x: float, y: float): float // get the angle from the turtle to the point",
+        "xcor(): float // get turtle's x position",
+        "ycor(): float // get turtle's y position",
+        "heading(): float // get turtle's heading",
+        "distance(x: float, y: float): float // get the distance from turtle's position to",
+
+        {
+          "signature": "degrees(fullcircle: float = 360.0): None // set turtle mode to degrees",
+          "custom": "BlockMirrorTextToBlocks.turtleDegrees"
+        },
+
+        {
+          "signature": "radians(): None // set turtle mode to radians",
+          "custom": "BlockMirrorTextToBlocks.turtleRadians"
+        },
+
+        "pendown pd down(): None // pull turtle pen down",
+        "penup pu up(): None // pull turtle pen up",
+        "pensize(width: float | None = None): float | None // set or get the pen size",
+        "isdown(): bool // check if the pen is down",
+
+        "pencolor(color: turtle._Color | None = None): turtle._Color | None // set or get the pen color('blue')",
+        "fillcolor(color: turtle._Color | None = None): turtle._Color | None // set or get the fill color('yellow')",
+
+        "reset(): None // reset drawing",
+        "clear(): None // clear drawing",
+        "write(arg: str, move: bool = False, align: typing.Literal['left', 'center', 'right'] = 'left', font: tuple[str, int, str] = ('Arial', 8, 'normal')): None // write text(___)",
+
+        "bgpic(picname: str | None = None): None // set background to(___)",
+        "done mainloop(): None // start the turtle loop",
+        "setup(width: float, height: float): None // set drawing area size",
+        "title(titlestring: str): None // set title of drawing area(___)",
+        "bye(): None // say goodbye to turtles"
+    ]
+}
+;
+
+BlockMirror.LIBRARIES['builtin dict'] = {
+  "__colour": "DICTIONARY",
+  "__toolbox": false,
+  "class collections.abc.Mapping": [
+    "get(self, key, default=None, /): Any",
+    "items(self): Any",
+    "keys(self): Any",
+    "values(self): Any"
+  ],
+  "class collections.abc.MutableMapping(collections.abc.Mapping)": [
+    "popitem(self): Any",
+    "setdefault(self, key, default=None, /): Any"
+  ],
+  "class dict(collections.abc.MutableMapping)": [
+    "__init__(self, mapping=None, /, **kwargs)",
+    "fromkeys(cls, iterable, value=None, /): dict"
+  ]
+}
+;
+
+BlockMirror.LIBRARIES['builtin file'] = {
+  "__colour": "FILE",
+  "__toolbox": false,
+  "": [
+    "input(prompt: str | None = None, /): str",
+    "open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None): Any",
+    "print(*objects, sep: str = ' ', end: str ='\\n', file=None, flush: bool = False): None"
+  ]
+}
+;
+
+BlockMirror.LIBRARIES['builtin list'] = {
+  "__colour": "LIST",
+  "__toolbox": false,
+  "class collections.abc.Sequence": [
+    "count(self, item, /): int",
+    "index(self, item, /): int"
+  ],
+  "class collections.abc.MutableSequence(collections.abc.Sequence)": [
+    "append(self, value, /): None // to list {} append (___)",
+    "extend(self, other: collections.abc.Sequence, /): None",
+    "insert(self, pos, elmnt, /): None // to list {} insert at (___, ___)",
+    "reverse(self): collections.abc.MutableSequence"
+  ],
+  "class list(collections.abc.MutableSequence)": [
+    "__init__(self, iterable = None, /)",
+    "copy(self): list",
+    "sort(self, *, reverse: bool = False, key = None)",
+    {
+      "signatures": [
+        "clear(self): None",
+        "pop(self, pos: int = -1, /): Any",
+        "remove(self, value: Any, /): None"
+      ],
+      "colour": "SEQUENCES"
+    }
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin math'] = {
+  "__colour": "MATH",
+  "__toolbox": false,
+  "": [
+    "abs(x: numbers.Number, /): numbers.Number",
+    "bin(x: Any, /): str",
+    "hash(object, /): int",
+    "hex(int, /): str",
+    "min(iterable, /, *, key=None): Any",
+    "max(iterable, /, *, key=None): Any",
+    "oct(int, /): str",
+    "pow(base, exp, mod=None): Any",
+    "round(number: float | int, ndigits: int | None = None): float | int // round(___)",
+    "sum(iterable, /, start: float | int = 0): float | int",
+    "divmod(a: float | int, b: float | int, /): tuple[int, float]"
+  ],
+  "random": [
+    "choice(seq: collections.abc.Sequence): Any",
+    "shuffle(x: collections.abc.Sequence): None",
+    "randrange(start: int, stop: int, step: int=1, /): int",
+    "randint(a: int, b: int): int",
+    "getrandbits(k: int, /): int"
+  ],
+  "math": [
+    "e: numbers.Number",
+    "exp(x: numbers.Number): numbers.Number",
+    "ceil floor(x): numbers.Integral",
+    "sin cos tan asin acos atan(x: numbers.Number): numbers.Number",
+    "log(x: numbers.Number, base=math.e): numbers.Number"
+  ],
+  "class numbers.Number": [],
+  "class numbers.Complex(numbers.Number)": [
+    "conjugate(self): numbers.Complex"
+  ],
+  "class numbers.Real(numbers.Complex)": [],
+  "class numbers.Rational(numbers.Real)": [],
+  "class numbers.Integral(numbers.Rational)": [],
+  "class complex(numbers.Complex)": [
+    "__init__(self, real=0, /, imag=0): "
+  ],
+  "class float(numbers.Real)": [
+    "__init__(self, value: float | str = 0.0, /): None",
+    "as_integer_ratio(self): tuple[int, int]",
+    "fromhex(cls, string: str, /): float",
+    "hex(): str",
+    "is_integer(self): bool"
+  ],
+  "class int(numbers.Integral)": [
+    "__init__(self, value: int | str = 0, /, base: int = 10): None",
+    "as_integer_ratio(self): tuple[int, int]",
+    "bit_length(self): int",
+    "from_bytes(cls, bytes, byteorder: typing.Literal['big', 'little'] = 'big', *, signed: bool = False): int // {}.from_bytes(___)",
+    "to_bytes(self, length: int = 1, byteorder: typing.Literal['big', 'little'] = 'big', *, signed: bool = False): bytes",
+    "is_integer(self): bool"
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin oo'] = {
+  "__colour": "OO",
+  "__toolbox": false,
+  "": [
+    "callable(object: Any, /): bool",
+    "classmethod(method, /): Any",
+    "getattr(object, name: str, /): Any",
+    "hasattr(object, name: str, /): bool",
+    "isinstance(object, classinfo, /): bool",
+    "issubclass(object, classinfo, /): bool",
+    "setattr(object, name, value, /): None",
+    "staticmethod(method, /): Any",
+    {
+      "signatures": [
+        "all(iterable, /): bool",
+        "any(iterable, /): bool"
+      ],
+      "colour": "LOGIC"
+    }
+  ],
+  "class bool": [
+    {
+      "signature": "__init__(self, object: Any = False, /): None",
+      "colour": "LOGIC"
+    }
+  ],
+  "class object": [
+    {
+      "signatures": [
+        "__enter__(self): Any",
+        "__exit__(self, exc_type, exc_value, traceback): None"
+      ],
+      "color": "CONTROL"
+    },
+    {
+      "signature": "__iter__(self): iterator",
+      "color": "SEQUENCES"
+    },
+    {
+      "signatures": [
+        "__lt__(self, other): bool",
+        "__le__(self, other): bool",
+        "__eq__(self, other): bool",
+        "__ne__(self, other): bool",
+        "__gt__(self, other): bool",
+        "__ge__(self, other): bool"
+      ],
+      "color": "LOGIC"
+    }
+  ],
+  "class property": [
+    "__init__(self, fget=None, fset=None, fdel=None, doc=None): None"
+  ],
+  "class super": [
+    "__init__(self, type, object_or_type=None, /): None"
+  ],
+  "class type": [
+    "mro(): Any",
+    "__subclasses__(): None"
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin python'] = {
+  "__colour": "PYTHON",
+  "__toolbox": false,
+  "": [
+    "breakpoint(*args, **kws): None",
+    "compile(source, filename, mode, flags: int = 0, dont_inherit: bool = False, optimize: int = -1)",
+    "dir(object = None, /): list",
+    "eval(source, globals: dict | None = None, locals=None, /): Any",
+    "exec(source, globals: dict | None = None, locals=None, *, closure=None, /): None",
+    "help(request = None): Any",
+    "id(object, /): int",
+    "__import__(name, globals=None, locals=None, fromlist=(), level: int = 0)"
+  ],
+  "class memoryview": [
+    "__init__(self, object): None",
+    "tobytes(self, order: str = \"C\"): bytes",
+    "tolist(self): list",
+    "release(self): None",
+    "cast(self, format: str, shape: list[int] | None = None, /): list"
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin sequences'] = {
+  "__colour": "SEQUENCES",
+  "__toolbox": false,
+  "": [
+    "enumerate(iterable, start: int = 0): iterator",
+    "filter(function, iterable, /): iterator",
+    "iter(object, sentinel = ___, /): iterator",
+    "len(s, /): int",
+    "map(function, iterable, *iterables): iterator",
+    "next(iterator, default = ___, /): Any",
+    "reversed(seq, /): iterator",
+    "sorted(iterable, /, *, key = None, reverse: boolean = False): list",
+    "zip(*iterables, strict: boolean = False): iterator"
+  ],
+  "class bytes": [
+    {
+      "signatures": [
+        "__init__(self, source, encoding = None, errors = None): None",
+        "decode(encoding: str = \"utf-8\", errors: str = \"strict\"): str"
+      ],
+      "colour": "TEXT"
+    },
+    {
+      "signature": "fromhex(cls, string: str, /): bytes",
+      "colour": "MATH"
+    }
+  ],
+  "class iterator": [
+    "__next__(self): Any"
+  ],
+  "class range": [
+    "__init__(self, startOrStop: int, stop: int | None = None, step: int = 1, /): None"
+  ],
+  "class slice": [
+    "__init__(self, startOrStop: int, stop: int | None = None, step:int | None = None, /): None"
+  ]
+}
+;
+
+BlockMirror.LIBRARIES['builtin set'] = {
+  "__colour": "SET",
+  "__toolbox": false,
+  "class collections.abc.Collection": [],
+  "class collections.abc.Set(collections.abc.Collection)": [
+    "isdisjoint(self, other, /): bool",
+    "issubset(self, other, /): bool",
+    "issuperset(self, other, /): bool"
+  ],
+  "class collections.abc.MutableSet(collections.abc.Set)": [
+  ],
+  "class set(collections.abc.MutableSet)": [
+    "__init__(self, iterable = None, /): None",
+    "add(self, elem, /): None",
+    "difference(self, *others, /): set",
+    "difference_update(self, *others, /): None",
+    "discard(self, elem, /): None",
+    "intersection(self, *others, /): set",
+    "intersection_update(self, *others, /): None",
+    "symmetric_difference(self, others, /): set",
+    "symmetric_difference_update(self, others, /): None",
+    "union(self, *others, /): set",
+    "update(self, *others, /): None"
+  ],
+  "class frozenset(collections.abc.Set)": [
+    {
+      "signature": "__init__(self, iterable = None, /): None",
+      "colour": "SEQUENCES"
+    }
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin text'] = {
+  "__colour": "TEXT",
+  "__toolbox": false,
+  "": [
+    "ascii(object: Any, /): str",
+    "chr(i: int, /): str",
+    "format(value: Any, format_spec='', /): Any",
+    "ord(c: str, /): int",
+    "repr(object: Any, /): str"
+  ],
+  "class bytearray": [
+    "__init__(self, source = None, encoding = None, errors = None, /): None"
+  ],
+  "class str": [
+    "__init__(self, object: str = '', encoding: str = 'utf-8', errors: str = 'strict'): None // str(___)",
+    "capitalize(self): str",
+    "casefold(self): str",
+    "center(self, width: int, fillchar: str = \" \", /): str",
+    "count(self, sub, start: int | None = None, end: int | None = None, /): int",
+    "encode(self, encoding: str = \"utf-8\", errors: str = \"strict\"): str",
+    "endswith(self, suffix, start: int | None = None, end: int | None = None, /): bool",
+    "expandtabs(self, tabsize: int = 8): self",
+    "find(self, sub, start: int | None = None, end: int | None = None, /): int",
+    "format(self, *args, **kwargs): str",
+    "format_map(self, mapping, /): str",
+    "index(self, sub, start: int | None = None, end: int | None = None, /): int",
+    "isalnum(self): bool",
+    "isalpha(self): bool",
+    "isdecimal(self): bool",
+    "isdigit(self): bool",
+    "isidentifier(self): bool",
+    "islower(self): bool",
+    "isnumeric(self): bool",
+    "isprintable(self): bool",
+    "isspace(self): bool",
+    "istitle(self): bool",
+    "isupper(self): bool",
+    "join(self, iterable, /): str",
+    "ljust(self, width: int, fillchar: str = \" \", /): str",
+    "lower(self): str",
+    "lstrip(self, chars: str | None = None, /): str",
+    "maketrans(self, x, y: str | None = None, z: str | None = None, /): str",
+    "partition(self, sep: str, /): tuple[str, str, str]",
+    "replace(self, old: str, new: str, count: int = -1, /): str",
+    "rfind(self, sub, start: int | None = None, end: int | None = None, /): int",
+    "rindex(self, sub, start: int | None = None, end: int | None = None, /): int",
+    "rjust(self, width: int, fillchar: str = \" \", /): str",
+    "rpartition(self, sep: str, /): tuple[str, str, str]",
+    "rsplit(self, sep: str | None = None, maxsplit: int = -1): list[str]",
+    "rstrip(self, chars: str | None = None, /): str",
+    "split(self, sep: str | None = None, maxsplit: int = -1): list[str]",
+    "splitlines(self, keepends: bool = False): list[str]",
+    "startswith(self, prefix, start: int | None = None, end: int | None = None, /): bool",
+    "strip(self, chars: str | None = None, /): str",
+    "swapcase(self): str",
+    "title(self): str",
+    "translate(self, table, /): str",
+    "upper(self): str",
+    "zfill(self, width: int, /): str"
+  ]
+};
+
+BlockMirror.LIBRARIES['builtin tuple'] = {
+  "__colour": "TUPLE",
+  "__toolbox": false,
+  "class tuple": [
+    "__init__(self, iterable = None, /): None"
+  ]
+}
+;
+
+BlockMirror.LIBRARIES['builtin variables'] = {
+  "__colour": "VARIABLES",
+  "__toolbox": false,
+  "": [
+    "delattr(object, name: str, /): None",
+    "globals(): dict",
+    "locals(): dict",
+    "vars(object = None, /): dict"
+  ]
+}
+;

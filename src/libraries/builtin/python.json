@@ -1,0 +1,21 @@
+{
+  "__colour": "PYTHON",
+  "__toolbox": false,
+  "": [
+    "breakpoint(*args, **kws): None",
+    "compile(source, filename, mode, flags: int = 0, dont_inherit: bool = False, optimize: int = -1)",
+    "dir(object = None, /): list",
+    "eval(source, globals: dict | None = None, locals=None, /): Any",
+    "exec(source, globals: dict | None = None, locals=None, *, closure=None, /): None",
+    "help(request = None): Any",
+    "id(object, /): int",
+    "__import__(name, globals=None, locals=None, fromlist=(), level: int = 0)"
+  ],
+  "class memoryview": [
+    "__init__(self, object): None",
+    "tobytes(self, order: str = \"C\"): bytes",
+    "tolist(self): list",
+    "release(self): None",
+    "cast(self, format: str, shape: list[int] | None = None, /): list"
+  ]
+}

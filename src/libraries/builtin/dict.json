@@ -1,0 +1,18 @@
+{
+  "__colour": "DICTIONARY",
+  "__toolbox": false,
+  "class collections.abc.Mapping": [
+    "get(self, key, default=None, /): Any",
+    "items(self): Any",
+    "keys(self): Any",
+    "values(self): Any"
+  ],
+  "class collections.abc.MutableMapping(collections.abc.Mapping)": [
+    "popitem(self): Any",
+    "setdefault(self, key, default=None, /): Any"
+  ],
+  "class dict(collections.abc.MutableMapping)": [
+    "__init__(self, mapping=None, /, **kwargs)",
+    "fromkeys(cls, iterable, value=None, /): dict"
+  ]
+}

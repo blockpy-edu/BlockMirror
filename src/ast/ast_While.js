@@ -2,14 +2,14 @@ Blockly.Blocks['ast_While'] = {
     init: function () {
         this.orelse_ = 0;
         this.appendValueInput('TEST')
-            .appendField("while");
+            .appendField(this.translateText("while"));
         this.appendStatementInput("BODY")
             .setCheck(null)
             .setAlign(Blockly.inputs.Align.RIGHT);
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.CONTROL));
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -18,7 +18,7 @@ Blockly.Blocks['ast_While'] = {
 
         if (this.orelse_ && !this.getInput('ELSE')) {
             this.appendDummyInput('ORELSETEST')
-                .appendField("else:");
+                .appendField(this.translateText("else:"));
             this.appendStatementInput("ORELSEBODY")
                 .setCheck(null);
         } else if (!this.orelse_ && this.getInput('ELSE')) {
@@ -50,7 +50,7 @@ Blockly.Blocks['ast_While'] = {
 python.pythonGenerator.forBlock['ast_While'] = function(block, generator) {
     // Test
     let test = "while " + (python.pythonGenerator.valueToCode(block, 'TEST',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank) + ":\n";
+        python.Order.NONE) || python.pythonGenerator.blank) + ":\n";
     // Body:
     let body = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
     // Orelse:

@@ -1,0 +1,9 @@
+{
+  "__toolbox": false,
+  "class Image": [
+    {
+      "signature": "__init__(self, src: str, /): None",
+      "custom": "BlockMirrorTextToBlocks.ast_Image"
+    }
+  ]
+}

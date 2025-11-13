@@ -9,8 +9,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 python.pythonGenerator.forBlock["ast_WithItem"] = function (block) {
     let context = python.pythonGenerator.valueToCode(block, 'CONTEXT',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-    return [context, python.pythonGenerator.ORDER_NONE];
+        python.Order.NONE) || python.pythonGenerator.blank;
+    return [context, python.Order.NONE];
 };
 BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_WithItemAs",
@@ -24,10 +24,10 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 python.pythonGenerator.forBlock["ast_WithItemAs"] = function (block) {
     let context = python.pythonGenerator.valueToCode(block, 'CONTEXT',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        python.Order.NONE) || python.pythonGenerator.blank;
     let as = python.pythonGenerator.valueToCode(block, 'AS',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
-    return [context + " as " + as, python.pythonGenerator.ORDER_NONE];
+        python.Order.NONE) || python.pythonGenerator.blank;
+    return [context + " as " + as, python.Order.NONE];
 };
 
 Blockly.Blocks['ast_With'] = {
@@ -41,7 +41,7 @@ Blockly.Blocks['ast_With'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.CONTROL);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.CONTROL));
         this.updateShape_();
     },
     /**
@@ -98,7 +98,7 @@ python.pythonGenerator.forBlock['ast_With'] = function(block, generator) {
     // Contexts
     let items = new Array(block.itemCount_);
     for (let i = 0; i < block.itemCount_; i++) {
-        items[i] = (python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.pythonGenerator.ORDER_NONE) ||
+        items[i] = (python.pythonGenerator.valueToCode(block, 'ITEM' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
     }
     // Body

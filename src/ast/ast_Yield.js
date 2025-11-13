@@ -18,12 +18,12 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 python.pythonGenerator.forBlock['ast_Yield'] = function(block, generator) {
-    return ["yield", python.pythonGenerator.ORDER_LAMBDA];
+    return ["yield", python.Order.LAMBDA];
 };
 
 python.pythonGenerator.forBlock['ast_YieldFull'] = function(block, generator) {
-    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
-    return ["yield " + value, python.pythonGenerator.ORDER_LAMBDA];
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.LAMBDA) || python.pythonGenerator.blank;
+    return ["yield " + value, python.Order.LAMBDA];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Yield'] = function (node, parent) {

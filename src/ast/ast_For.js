@@ -33,9 +33,9 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 python.pythonGenerator.forBlock['ast_For'] = function(block, generator) {
   // For each loop.
   var argument0 = python.pythonGenerator.valueToCode(block, 'TARGET',
-      python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+      python.Order.RELATIONAL) || python.pythonGenerator.blank;
   var argument1 = python.pythonGenerator.valueToCode(block, 'ITER',
-      python.pythonGenerator.ORDER_RELATIONAL) || python.pythonGenerator.blank;
+      python.Order.RELATIONAL) || python.pythonGenerator.blank;
   var branchBody = python.pythonGenerator.statementToCode(block, 'BODY') || python.pythonGenerator.PASS;
   var code = 'for ' + argument0 + ' in ' + argument1 + ':\n' + branchBody;
 

@@ -5784,7 +5784,7 @@ function astForArguments(c, n) {
 
   /* This function handles both typedargslist (function definition)
      and varargslist (lambda definition).
-       parameters: '(' [typedargslist] ')'
+      parameters: '(' [typedargslist] ')'
      typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [',' [
              '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]
            | '**' tfpdef [',']]]
@@ -5798,7 +5798,7 @@ function astForArguments(c, n) {
        | '**' vfpdef [',']
      )
      vfpdef: NAME
-    */
+   */
   if (n.type === SYM.parameters) {
     if (NCH(n) === 2) {
       // () as arglist

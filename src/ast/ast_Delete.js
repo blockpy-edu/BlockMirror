@@ -3,11 +3,11 @@ Blockly.Blocks['ast_Delete'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
         this.targetCount_ = 1;
 
         this.appendDummyInput()
-            .appendField("delete");
+            .appendField(this.translateText("delete"));
         this.updateShape_();
     },
     updateShape_: function () {
@@ -52,7 +52,7 @@ python.pythonGenerator.forBlock['ast_Delete'] = function(block, generator) {
     var elements = new Array(block.targetCount_);
     for (var i = 0; i < block.targetCount_; i++) {
         elements[i] = python.pythonGenerator.valueToCode(block, 'TARGET' + i,
-            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+            python.Order.NONE) || python.pythonGenerator.blank;
     }
     var code = 'del ' + elements.join(', ') + "\n";
     return code;

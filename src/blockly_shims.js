@@ -1,38 +1,57 @@
-{
-    let orig_init = python.pythonGenerator.init
+python.pythonGenerator.imports = new TypeRegistry();
+python.pythonGenerator.variables = new TypesRegistry();
 
-    /**
-     * Initialise the database of variable names.
-     * @param {!Blockly.Workspace} workspace Workspace to generate code from.
-     */
-    python.pythonGenerator.init = function (workspace) {
-        // Keep track of datasets that are already imported
-        python.pythonGenerator.imported_ = Object.create(null);
-        orig_init.bind(this)(workspace);
-    };
-}
+// Hook for cases where custom scrubbing needs to be undone
+python.pythonGenerator.descrub_ = line => line
 
 python.pythonGenerator.finish = function(code) {
-    // Convert the definitions dictionary into a list.
-    var imports = [];
-    var definitions = [];
-    for (let name in this.definitions_) {
-      var def = this.definitions_[name];
-      if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
-        imports.push(def);
-      } else {
-        definitions.push(def);
-      }
+    let importRegExp = /^(from\s+\S+\s+)?import\s+\S+/
+    let lines = code.split('\n')
+    let descrubbed_lines = lines.map(python.pythonGenerator.descrub_);
+    let code_lines = []
+    let imports = []
+    let descrubbed_imports = []
+
+    for (let [index, descrubbed_line] of descrubbed_lines.entries()) {
+        if (descrubbed_line.match(importRegExp)) {
+            descrubbed_imports.push(descrubbed_line)
+            imports.push(lines[index])
+        } else {
+            code_lines.push(lines[index])
+        }
     }
+
+    for (let [name, type] of [...this.imports.entries()].sort()) {
+        // Only add imports from the registry if not already defined in code
+        if (!descrubbed_imports.some(function(item) {
+            return item.match(new RegExp(`\\s+${name}\\s*(,.*)?$`));
+        })) {
+            if (name === type) {
+                imports.push(`import ${type}`);
+            } else {
+                let lastIndexOfDot = type.lastIndexOf('.')
+                let simpleType = type.substring(lastIndexOfDot + 1)
+                if (simpleType === name) {
+                    // TODO gather from statements first
+                    let fromModule = type.substring(0, lastIndexOfDot)
+                    imports.push(`from ${fromModule} import ${name}`)
+                } else {
+                    imports.push(`import ${type} as ${name}`);
+                }
+            }
+        }
+    }
+
     this.definitions_ = Object.create(null);
     this.functionNames_ = Object.create(null);
-    this.imported_ = Object.create(null);
     this.isInitialized = false;
+    this.imports.clear();
+    this.variables.clear();
 
     this.nameDB_.reset();
     // acbart: Don't actually inject initializations - we don't need 'em.
-    var allDefs = imports.join('\n') + '\n\n' // + definitions.join('\n\n');
-    return allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n\n') + code;
+    var allDefs = [...new Set(imports)].join('\n') + '\n\n';
+    return allDefs.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n\n\n') + code_lines.join('\n').trimStart();
 }
 
 python.pythonGenerator.INDENT = '    ';
@@ -55,71 +74,8 @@ python.pythonGenerator.scrubNakedValue = function (line) {
     return line;
 };
 
-
-/**
- * Construct the blocks required by the flyout for the variable category.
- * @param {!Blockly.Workspace} workspace The workspace containing variables.
- * @return {!Array.<!Element>} Array of XML block elements.
- */
-Blockly.Variables.flyoutCategoryBlocks = function (workspace) {
-    var variableModelList = workspace.getVariablesOfType('');
-
-    var xmlList = [];
-    if (variableModelList.length > 0) {
-        // New variables are added to the end of the variableModelList.
-        var mostRecentVariableFieldXmlString =
-                variableModelList[variableModelList.length - 1];
-        if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_Assign']) {
-            var gap = Blockly.Blocks['ast_AugAssign'] ? 8 : 24;
-            var blockText = '<xml>' +
-                '<block type="ast_Assign" gap="' + gap + '">' +
-                mostRecentVariableFieldXmlString +
-                '</block>' +
-                '</xml>';
-            var block = Blockly.utils.xml.textToDom(blockText).firstChild;
-            xmlList.push(block);
-        }
-        if (!Blockly.Variables._HIDE_GETTERS_SETTERS && Blockly.Blocks['ast_AugAssign']) {
-            var gap = Blockly.Blocks['ast_Name'] ? 20 : 8;
-            var blockText = '<xml>' +
-                '<block type="ast_AugAssign" gap="' + gap + '">' +
-                mostRecentVariableFieldXmlString +
-                '<value name="VALUE">' +
-                '<shadow type="ast_Num">' +
-                '<field name="NUM">1</field>' +
-                '</shadow>' +
-                '</value>' +
-                '<mutation options="false" simple="true"></mutation>' +
-                '</block>' +
-                '</xml>';
-            var block = Blockly.utils.xml.textToDom(blockText).firstChild;
-            xmlList.push(block);
-        }
-
-        if (Blockly.Blocks['ast_Name']) {
-            variableModelList.sort(Blockly.VariableModel.compareByName);
-            for (let i = 0, variable; variable = variableModelList[i]; i++) {
-                if (!Blockly.Variables._HIDE_GETTERS_SETTERS) {
-                    let block = Blockly.utils.xml.createElement('block');
-                    block.setAttribute('type', 'ast_Name');
-                    block.setAttribute('gap', 8);
-                    block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
-                    xmlList.push(block);
-                } else {
-                    block = Blockly.utils.xml.createElement('label');
-                    block.setAttribute('text', variable.name);
-                    block.setAttribute('web-class', 'blockmirror-toolbox-variable');
-                    //block.setAttribute('gap', 8);
-                    xmlList.push(block);
-                }
-            }
-        }
-    }
-    return xmlList;
-};
-
 //******************************************************************************
-// Hacks to make variable names case sensitive
+// Hacks to make variable names case-sensitive
 
 /**
  * A custom compare function for the VariableModel objects.
@@ -191,3 +147,13 @@ Blockly.Variables.nameUsedWithAnyType = function(name, workspace) {
   }
   return null;
 };
+
+Blockly.BlockSvg.prototype.translateText = function(identifier, defaultValue, namespace) {
+  // Find the main workspace and call the function on that.
+  return this.workspace.themeManager_.workspace.translateText(identifier, defaultValue, namespace);
+}
+
+Blockly.BlockSvg.prototype.convertColour = function(type, defaultValue, fromLibrary) {
+  // Find the main workspace and call the function on that.
+  return this.workspace.themeManager_.workspace.convertColour(type, defaultValue, fromLibrary);
+}

@@ -3,7 +3,7 @@ Blockly.Blocks['ast_Global'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
         this.nameCount_ = 1;
         this.appendDummyInput('GLOBAL')
             .appendField("make global", "START_GLOBALS");

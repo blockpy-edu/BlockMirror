@@ -1,0 +1,9 @@
+{
+  "__colour": "FILE",
+  "__toolbox": false,
+  "": [
+    "input(prompt: str | None = None, /): str",
+    "open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None): Any",
+    "print(*objects, sep: str = ' ', end: str ='\\n', file=None, flush: bool = False): None"
+  ]
+}

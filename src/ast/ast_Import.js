@@ -11,7 +11,7 @@ Blockly.Blocks['ast_Import'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.PYTHON);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.PYTHON));
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -94,23 +94,22 @@ Blockly.Blocks['ast_Import'] = {
 python.pythonGenerator.forBlock['ast_Import'] = function(block, generator) {
     // Optional from part
     let from = "";
+    let moduleName = "";
     if (this.from_) {
-        let moduleName = block.getFieldValue('MODULE');
-        from = "from "+moduleName + " ";
-        python.pythonGenerator.imported_["import_" + moduleName] = moduleName;
+        moduleName = block.getFieldValue('MODULE');
+        from = "from " + moduleName + " ";
     }
     // Create a list with any number of elements of any type.
     let elements = new Array(block.nameCount_);
     for (let i = 0; i < block.nameCount_; i++) {
-        let name = block.getFieldValue('NAME' + i);
+        let type = block.getFieldValue('NAME' + i);
+        let name = type;
         elements[i] = name;
         if (!this.regulars_[i]) {
             name = python.pythonGenerator.getVariableName(block.getFieldValue('ASNAME' + i), Blockly.Variables.NAME_TYPE);
             elements[i] += " as " + name;
         }
-        if (!from) {
-            python.pythonGenerator.imported_["import_" + name] = name;
-        }
+        python.pythonGenerator.imports.set(moduleName + (moduleName ? '.' : '') + type, name);
     }
     return from + 'import ' + elements.join(', ') + "\n";
 };
@@ -123,29 +122,35 @@ BlockMirrorTextToBlocks.prototype['ast_Import'] = function (node, parent) {
 
     let regulars = [];
     let simpleName = "";
+    let fromModule = "";
+
+    if (node._astname === 'ImportFrom') {
+        // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt
+        mutations['@from'] = true;
+        fromModule = ('.'.repeat(node.level)) + Sk.ffi.remapToJs(node.module);
+        fields['MODULE'] = fromModule;
+    } else {
+        mutations['@from'] = false;
+    }
+
     for (let i = 0; i < names.length; i++) {
-        fields["NAME" + i] = Sk.ffi.remapToJs(names[i].name);
+        let type = Sk.ffi.remapToJs(names[i].name);
+        fields["NAME" + i] = type;
         let isRegular = (names[i].asname === null);
         if (!isRegular) {
             fields["ASNAME" + i] = Sk.ffi.remapToJs(names[i].asname);
             simpleName = fields["ASNAME"+i];
         } else {
-            simpleName = fields["NAME"+i];
+            simpleName = type;
         }
+        this.imports.set(fromModule + (fromModule ? '.' : '') + type, simpleName);
         regulars.push(isRegular);
     }
+
     mutations['regular'] = regulars;
 
     if (this.hiddenImports.indexOf(simpleName) !== -1) {
         return null;
-    }
-
-    if (node._astname === 'ImportFrom') {
-        // acbart: GTS suggests module can be None for '.' but it's an empty string in Skulpt
-        mutations['@from'] = true;
-        fields['MODULE'] = ('.'.repeat(node.level)) + Sk.ffi.remapToJs(node.module);
-    } else {
-        mutations['@from'] = false;
     }
 
     return BlockMirrorTextToBlocks.create_block("ast_Import", node.lineno, fields,

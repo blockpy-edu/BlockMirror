@@ -10,8 +10,8 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 python.pythonGenerator.forBlock['ast_YieldFrom'] = function(block, generator) {
-    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_LAMBDA) || python.pythonGenerator.blank;
-    return ["yield from " + value, python.pythonGenerator.ORDER_LAMBDA];
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.LAMBDA) || python.pythonGenerator.blank;
+    return ["yield from " + value, python.Order.LAMBDA];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_YieldFrom'] = function (node, parent) {

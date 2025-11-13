@@ -1,13 +1,35 @@
-BlockMirrorTextToBlocks.BLOCKS.push({
-    "type": "ast_Str",
-    "message0": "%1",
-    "args0": [
-        {"type": "field_input", "name": "TEXT", "value": ''}
-    ],
-    "output": "String",
-    "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
-    "extensions": ["text_quotes"]
-});
+Blockly.Blocks['ast_Str'] = {
+    init: function () {
+        this.setOutput(true, "String");
+        this.appendDummyInput('INPUT')
+            .appendField(new Blockly.FieldTextInput(''), 'TEXT');
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
+        this.fieldFactory_ = "";
+        Blockly.Extensions.apply('text_quotes', this);
+        initBlockFieldFactory(this, ["str", "typing.Literal"])
+    },
+    updateShape_: function () {
+        let input = this.getInput('INPUT')
+        let field = null
+
+        if (this.fieldFactory_) {
+            let resolvedFieldFactory = _resolveFunction(this.fieldFactory_)
+
+            if (resolvedFieldFactory) {
+                field = resolvedFieldFactory(this, 'TEXT')
+            }
+        }
+
+        if (!field) {
+            field = new Blockly.FieldTextInput('');
+        }
+
+        let value = this.getFieldValue('TEXT');
+        input.removeField('TEXT')
+        input.insertFieldAt(1, field, 'TEXT')
+        field.setValue(value, false);
+    },
+};
 
 BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_StrChar",
@@ -21,7 +43,6 @@ BlockMirrorTextToBlocks.BLOCKS.push({
     "colour": BlockMirrorTextToBlocks.COLOR.TEXT,
     "extensions": ["text_quotes"]
 });
-
 
 {
     let multiline_input_type = "field_multilinetext";
@@ -62,7 +83,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 
 Blockly.Blocks['ast_Image'] = {
     init: function () {
-        this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
         this.src_ = "loading.png";
         this.updateShape_();
         this.setOutput(true);
@@ -105,15 +126,15 @@ python.pythonGenerator.forBlock['ast_Str'] = function(block, generator) {
     // Text value
     let code = python.pythonGenerator.quote_(block.getFieldValue('TEXT'));
     code = code.replace("\n", "n");
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    return [code, python.Order.ATOMIC];
 };
 
 python.pythonGenerator.forBlock['ast_StrChar'] = function(block, generator) {
     // Text value
     let value = block.getFieldValue('TEXT');
     switch (value) {
-        case "\n": return ["'\\n'", python.pythonGenerator.ORDER_ATOMIC];
-        case "\t": return ["'\\t'", python.pythonGenerator.ORDER_ATOMIC];
+        case "\n": return ["'\\n'", python.Order.ATOMIC];
+        case "\t": return ["'\\t'", python.Order.ATOMIC];
     }
 };
 
@@ -121,7 +142,7 @@ python.pythonGenerator.forBlock['ast_Image'] = function(block, generator) {
     // Text value
     //python.pythonGenerator.definitions_["import_image"] = "from image import Image";
     let code = python.pythonGenerator.quote_(block.src_);
-    return [code, python.pythonGenerator.ORDER_FUNCTION_CALL];
+    return [code, python.Order.FUNCTION_CALL];
 };
 
 const multiline_quote = function (string) {
@@ -133,7 +154,7 @@ const multiline_quote = function (string) {
 python.pythonGenerator.forBlock['ast_StrMultiline'] = function(block, generator) {
     // Text value
     let code = multiline_quote(block.getFieldValue('TEXT'));
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    return [code, python.Order.ATOMIC];
 };
 
 python.pythonGenerator.forBlock['ast_StrDocstring'] = function(block, generator) {
@@ -153,7 +174,7 @@ BlockMirrorTextToBlocks.prototype.isSingleChar = function (text) {
 };
 
 BlockMirrorTextToBlocks.prototype.isDocString = function (node, parent) {
-    return (parent._astname === 'Expr' &&
+    return (parent?._astname === 'Expr' &&
         parent._parent &&
         ['FunctionDef', 'ClassDef'].indexOf(parent._parent._astname) !== -1 &&
         parent._parent.body[0] === parent);

@@ -1,0 +1,37 @@
+{
+  "__colour": "SEQUENCES",
+  "__toolbox": false,
+  "": [
+    "enumerate(iterable, start: int = 0): iterator",
+    "filter(function, iterable, /): iterator",
+    "iter(object, sentinel = ___, /): iterator",
+    "len(s, /): int",
+    "map(function, iterable, *iterables): iterator",
+    "next(iterator, default = ___, /): Any",
+    "reversed(seq, /): iterator",
+    "sorted(iterable, /, *, key = None, reverse: boolean = False): list",
+    "zip(*iterables, strict: boolean = False): iterator"
+  ],
+  "class bytes": [
+    {
+      "signatures": [
+        "__init__(self, source, encoding = None, errors = None): None",
+        "decode(encoding: str = \"utf-8\", errors: str = \"strict\"): str"
+      ],
+      "colour": "TEXT"
+    },
+    {
+      "signature": "fromhex(cls, string: str, /): bytes",
+      "colour": "MATH"
+    }
+  ],
+  "class iterator": [
+    "__next__(self): Any"
+  ],
+  "class range": [
+    "__init__(self, startOrStop: int, stop: int | None = None, step: int = 1, /): None"
+  ],
+  "class slice": [
+    "__init__(self, startOrStop: int, stop: int | None = None, step:int | None = None, /): None"
+  ]
+}

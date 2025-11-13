@@ -6,9 +6,11 @@ Blockly.Blocks['ast_AugAssign'] = {
         this.initialPreposition_ = "by";
         this.appendDummyInput("OP")
             .appendField(new Blockly.FieldDropdown(function () {
-                return block.allOptions_ ?
+                return (block.allOptions_ ?
                     BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY_FULL :
-                    BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY
+                    BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_DISPLAY).map(
+                      ([label, value]) => [block.translateText(label), value]
+                    );
             }, function (value) {
                 let block = this.sourceBlock_;
                 block.updatePreposition_(value);
@@ -21,14 +23,14 @@ Blockly.Blocks['ast_AugAssign'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
         this.updateShape_();
         this.updatePreposition_(this.initialPreposition_);
     },
 
     updatePreposition_: function(value) {
         let preposition = BlockMirrorTextToBlocks.BINOPS_AUGASSIGN_PREPOSITION[value];
-        this.setFieldValue(preposition, 'PREPOSITION')
+        this.setFieldValue(this.translateText(preposition), 'PREPOSITION')
     },
     /**
      * Create XML to represent list inputs.
@@ -57,6 +59,7 @@ Blockly.Blocks['ast_AugAssign'] = {
     updateShape_: function (block) {
         // Add new inputs.
         this.getField("OP_NAME").getOptions(false);
+
         if (this.simpleTarget_) {
             if (!this.getInput('VAR_ANCHOR')) {
                 this.appendDummyInput('VAR_ANCHOR')
@@ -86,13 +89,13 @@ python.pythonGenerator.forBlock['ast_AugAssign'] = function(block, generator) {
             Blockly.Variables.NAME_TYPE);
     } else {
         target = python.pythonGenerator.valueToCode(block, 'TARGET',
-            python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+            python.Order.NONE) || python.pythonGenerator.blank;
     }
 
     let operator = BINOPS_BLOCKLY_GENERATE[block.getFieldValue('OP_NAME')][0];
 
     let value = python.pythonGenerator.valueToCode(block, 'VALUE',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        python.Order.NONE) || python.pythonGenerator.blank;
     return target + operator + "= " + value + "\n";
 };
 
@@ -105,10 +108,11 @@ BlockMirrorTextToBlocks.prototype['ast_AugAssign'] = function (node, parent) {
     let values = {'VALUE': this.convert(value, node)};
     let fields = {'OP_NAME': op};
     let simpleTarget = target._astname === 'Name';
+
     if (simpleTarget) {
         fields['VAR'] = Sk.ffi.remapToJs(target.id);
     } else {
-        values['TARGET'] = this.convert(value, node);
+        values['TARGET'] = this.convert(target, node);
     }
 
     let preposition = op;

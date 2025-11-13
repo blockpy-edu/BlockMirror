@@ -27,13 +27,18 @@
  */
 
 /**
+ * Location to register default libraries.
+ */
+BlockMirror.LIBRARIES = {};
+
+/**
  *
  */
 function BlockMirror(configuration) {
     this.validateConfiguration(configuration);
     this.initializeVariables();
 
-    if (!this.configuration.skipSkulpt) {
+  if (!this.configuration.skipSkulpt) {
         this.loadSkulpt();
     }
 
@@ -71,31 +76,39 @@ BlockMirror.prototype.validateConfiguration = function (configuration) {
     }
 
     // readOnly
-    this.configuration['readOnly'] = configuration['readOnly'] || false;
+    this.configuration['readOnly'] = configuration['readOnly'] ?? false;
 
     // height
-    this.configuration.height = configuration.height || 500;
+    this.configuration.height = configuration.height ?? 500;
 
     // viewMode
-    this.configuration.viewMode = configuration.viewMode || 'split';
+    this.configuration.viewMode = configuration.viewMode ?? 'split';
 
     // Need to load skulpt?
-    this.configuration.skipSkulpt = configuration.skipSkulpt || false;
+    this.configuration.skipSkulpt = configuration.skipSkulpt ?? false;
 
     // Delay?
-    this.configuration.blockDelay = configuration.blockDelay || false;
+    this.configuration.blockDelay = configuration.blockDelay ?? false;
 
     // Toolbox
-    this.configuration.toolbox = configuration.toolbox || "normal";
+    this.configuration.toolbox = configuration.toolbox ?? "normal";
 
-    this.configuration.renderer = configuration.renderer || 'Thrasos';
+    this.configuration.renderer = configuration.renderer ?? 'Thrasos';
 
     // Convert image URLs?
-    this.configuration.imageUploadHook = configuration.imageUploadHook || (old => Promise.resolve(old));
-    this.configuration.imageDownloadHook = configuration.imageDownloadHook || (old => old);
-    this.configuration.imageLiteralHook = configuration.imageLiteralHook || (old => old);
-    this.configuration.imageDetection = configuration.imageDetection || 'string';
-    this.configuration.imageMode = configuration.imageMode || false;
+    this.configuration.imageUploadHook = configuration.imageUploadHook ?? (old => Promise.resolve(old));
+    this.configuration.imageDownloadHook = configuration.imageDownloadHook ?? (old => old);
+    this.configuration.imageLiteralHook = configuration.imageLiteralHook ?? (old => old);
+    this.configuration.imageDetection = configuration.imageDetection ?? 'string';
+    this.configuration.imageMode = configuration.imageMode ?? false;
+    this.configuration.libraries = configuration.libraries ?? BlockMirror.LIBRARIES;
+    this.configuration.translate = configuration.translate ?? ((identifier, defaultValue, _namespace) =>
+        defaultValue === undefined || defaultValue === null ? identifier : defaultValue);
+    this.configuration.preferFullAttributeBlocks = configuration.preferFullAttributeBlocks ?? false;
+    this.configuration.showDefaultArguments = configuration.showDefaultArguments ?? false;
+    this.configuration.move = configuration.move ?? {};
+    this.configuration.zoom = configuration.zoom ?? {controls: true};
+    this.configuration.convertColour = configuration.convertColour ?? ((type, defaultValue, name) => defaultValue);
 };
 
 BlockMirror.prototype.initializeVariables = function () {
@@ -142,6 +155,7 @@ BlockMirror.prototype.initializeVariables = function () {
 
     // Listeners
     this.listeners_ = [];
+    this.libraries = new Libraries(this.configuration.libraries, this.configuration.translate, this.configuration.convertColour);
 };
 
 BlockMirror.prototype.loadSkulpt = function () {

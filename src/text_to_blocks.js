@@ -2,10 +2,29 @@ function BlockMirrorTextToBlocks(blockMirror) {
     this.blockMirror = blockMirror;
     this.hiddenImports = ["plt"];
     this.strictAnnotations = ['int', 'float', 'str', 'bool'];
+
     if (!BlockMirrorTextToBlocks.LOADED) {
-        Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
-        BlockMirrorTextToBlocks.LOADED = true;
+      for (const blockElement of BlockMirrorTextToBlocks.BLOCKS) {
+        blockElement.colour = blockMirror.configuration.convertColour(blockElement.type, blockElement.colour);
+
+        if (blockElement.message0) {
+          blockElement.message0 = blockMirror.configuration.translate(blockElement.message0)
+        }
+        if (blockElement.args0) {
+          for (const arg of blockElement.args0) {
+            if (arg.type === 'field_dropdown') {
+              arg.options = arg.options.map(
+                ([label, value]) => [blockMirror.configuration.translate(label), value]
+              );
+            }
+          }
+        }
+      }
+      Blockly.common.defineBlocksWithJsonArray(BlockMirrorTextToBlocks.BLOCKS);
+      BlockMirrorTextToBlocks.LOADED = true;
     }
+    this.imports = new TypeRegistry();
+    this.variables = new TypesRegistry();
 }
 
 BlockMirrorTextToBlocks.xmlToString = function (xml) {
@@ -34,6 +53,7 @@ BlockMirrorTextToBlocks.prototype.convertSource = function (filename, python_sou
     let parse, ast = null, symbol_table, error;
     let badChunks = [];
     let originalSource = python_source;
+    this.filename = filename
     this.source = python_source.split("\n");
     let previousLine = 1+this.source.length;
     let startLine = 1;
@@ -291,9 +311,9 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     // Handle comments that are on the very last line
     var lastLineNumber = lineNumberInProgram + 1;
     if (lastLineNumber in this.comments) {
-        var comment = this.comments[lastLineNumber].split("|", 2)
+        let comment = this.comments[lastLineNumber].split("|", 2)
 
-        if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
+        if (parseInt(comment[0], 10) / 4 === this.levelIndex - 1) {
             var lastComment = comment[1];
 
             let commentChild = this.ast_Comment(lastComment, lastLineNumber);
@@ -311,7 +331,7 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     // Handle any extra comments that stuck around
     if (is_top_level) {
         for (var commentLineInProgram in this.comments) {
-            var comment = this.comments[commentLineInProgram].split("|", 2)
+            let comment = this.comments[commentLineInProgram].split("|", 2)
 
             if (parseInt(comment[0], 10) / 4 == this.levelIndex - 1) {
               var commentInProgram = comment[1];
@@ -342,12 +362,26 @@ BlockMirrorTextToBlocks.prototype.convertBody = function (node, parent) {
     return children;
 };
 
-BlockMirrorTextToBlocks.prototype.TOP_LEVEL_NODES = ['Module', 'Expression', 'Interactive', 'Suite'];
+BlockMirrorTextToBlocks.prototype.isTopLevel = function (ast) {
 
-BlockMirrorTextToBlocks.prototype.isTopLevel = function (parent) {
-
-    return !parent || this.TOP_LEVEL_NODES.indexOf(parent._astname) !== -1;
+    return !ast || (
+        ast instanceof Sk.astnodes.Module ||
+        ast instanceof Sk.astnodes.Expression ||
+        ast instanceof Sk.astnodes.Interactive ||
+        ast instanceof Sk.astnodes.Suite
+    )
 };
+
+BlockMirrorTextToBlocks.prototype.isStatementContainer = function(ast) {
+    return this.isTopLevel(ast) || ast instanceof Sk.astnodes.FunctionDef || ast instanceof Sk.astnodes.Expr && this.isStatementContainer(ast._parent)
+}
+
+BlockMirrorTextToBlocks.prototype.isStatement = function(ast) {
+    if (ast instanceof Sk.astnodes.FunctionDef) {
+        return ast.decorator_list.includes(ast)
+    }
+    return this.isStatementContainer(ast._parent)
+}
 
 BlockMirrorTextToBlocks.prototype.convert = function (node, parent) {
     let functionName = 'ast_' + node._astname;
@@ -383,16 +417,16 @@ BlockMirrorTextToBlocks.prototype.convertStatement = function (node, full_source
 
 BlockMirrorTextToBlocks.prototype.getChunkHeights = function (node) {
     let lineNumbers = [];
-    if (node.hasOwnProperty("lineno")) {
+    if (Object.hasOwn(node, "lineno")) {
         lineNumbers.push(node.lineno);
     }
-    if (node.hasOwnProperty("body")) {
+    if (Object.hasOwn(node, "body")) {
         for (let i = 0; i < node.body.length; i += 1) {
             let subnode = node.body[i];
             lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
         }
     }
-    if (node.hasOwnProperty("orelse")) {
+    if (Object.hasOwn(node, "orelse")) {
         for (let i = 0; i < node.orelse.length; i += 1) {
             let subnode = node.orelse[i];
             lineNumbers = lineNumbers.concat(this.getChunkHeights(subnode));
@@ -460,9 +494,7 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     if (statements !== undefined && Object.keys(statements).length > 0) {
         for (let statement in statements) {
             let statementValue = statements[statement];
-            if (statementValue == null) {
-                continue;
-            } else {
+            if (statementValue !== null) {
                 for (let i = 0; i < statementValue.length; i += 1) {
                     // In most cases, you really shouldn't ever have more than
                     //  one statement in this list. I'm not sure Blockly likes
@@ -478,8 +510,8 @@ BlockMirrorTextToBlocks.create_block = function (type, lineNumber, fields, value
     return newBlock;
 };
 
-BlockMirrorTextToBlocks.raw_block = function (txt, lineno) {
-    return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno || 0, {"TEXT": txt});
+BlockMirrorTextToBlocks.raw_block = function (txt, lineno=0) {
+    return BlockMirrorTextToBlocks.create_block("ast_Raw", lineno, {"TEXT": txt});
 };
 
 BlockMirrorTextToBlocks.BLOCKS = [];
@@ -534,3 +566,81 @@ BlockMirrorTextToBlocks.COLOR = {
     SET: 10,
     TUPLE: 20
 };
+
+
+BlockMirrorTextToBlocks.prototype.getAsModule = function (node) {
+    if (node._astname === 'Name') {
+        return Sk.ffi.remapToJs(node.id);
+    } else if (node._astname === 'Call') {
+        return this.getAsModule(node.func)
+    } else if (node._astname === 'Attribute') {
+        let origin = this.getAsModule(node.value);
+        if (origin !== null) {
+            return origin + '.' + Sk.ffi.remapToJs(node.attr);
+        }
+    } else {
+        return null;
+    }
+};
+
+BlockMirrorTextToBlocks.prototype.resolveFromLibrary = function(node) {
+    if (node._astname === 'Name') {
+        let name = Sk.ffi.remapToJs(node.id);
+
+        // First check if this may be a globally known variable
+        let resolved = this.blockMirror.libraries.resolve(name)
+
+        if (resolved) {
+          return resolved;
+        }
+        let fullTypeName = this.imports.getType(name) ?? name
+        return this.blockMirror.libraries.resolve(fullTypeName)
+    } else if (node._astname === 'Call') {
+        let name = Sk.ffi.remapToJs(node.func.id)
+        let fullTypeName = this.imports.getType(name) ?? name
+        let resolved = this.blockMirror.libraries.resolve(fullTypeName)
+
+        if (resolved instanceof PythonClass) {
+            return resolved
+        } else if (resolved instanceof PythonFunction && resolved.typeHint) {
+            return resolved.typeHint.resolveSingleClass()
+        }
+    } else if (node._astname === 'Attribute') {
+        let caller = node.value;
+        let potentialModule = this.getAsModule(caller);
+
+        if (potentialModule) {
+          let resolvedFromLibrary = this.variables.getSingleType(potentialModule) ?? this.blockMirror.libraries.resolve(potentialModule);
+
+          let fullTypeName
+
+          if (resolvedFromLibrary instanceof PythonAttribute) {
+            fullTypeName = resolvedFromLibrary.typeHint.value;
+          } else if (resolvedFromLibrary) {
+            fullTypeName = resolvedFromLibrary.fullName;
+          } else {
+            fullTypeName = this.imports.getType(potentialModule) ?? potentialModule;
+          }
+
+          let attributeName = Sk.ffi.remapToJs(node.attr);
+          return this.blockMirror.libraries.resolve(
+            fullTypeName + "." + attributeName,
+          );
+        }
+        let callerBlock = this.convert(caller, node._parent) // TODO caller node
+
+        if (!callerBlock?.children) {
+            return null
+        }
+
+        let mutationElement = callerBlock.children[0]
+
+        // TODO is this clean/reliable enough?
+        if (mutationElement && (/^mutation$/i).test(mutationElement.tagName)) {
+            let attributeName = Sk.ffi.remapToJs(node.attr);
+            return this.blockMirror.libraries.resolve(mutationElement.getAttribute('returns') + "." + attributeName)
+        }
+    }
+
+    return null
+}

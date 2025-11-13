@@ -21,7 +21,7 @@ TOOLBOX_CATEGORY.OUTPUT_WITH_PLOTTING = {name: "Output", colour: "PLOTTING", blo
     "plt.plot(___)",
     "plt.scatter(___, ___)",
     "plt.hist(___)",
-    "plt.bar(___, ___, tick_label=___)",
+    "plt.bar(___, ___)",
     "plt.boxplot(___)",
     "plt.show()",
     "plt.title(___)",

@@ -28,7 +28,7 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         {"type": "input_value", "name": "B"}
     ],
     "inputsInline": true,
-    "output": null,
+    "output": "Boolean",
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
@@ -36,7 +36,7 @@ python.pythonGenerator.forBlock['ast_Compare'] = function(block, generator) {
     // Basic arithmetic operators, and power.
     var tuple = COMPARES_BLOCKLY_GENERATE[block.getFieldValue('OP')];
     var operator = ' ' + tuple + ' ';
-    var order = python.pythonGenerator.ORDER_RELATIONAL;
+    var order = python.Order.RELATIONAL;
     var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
     var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
     var code = argument0 + operator + argument1;

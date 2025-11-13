@@ -1,0 +1,10 @@
+{
+  "__colour": "VARIABLES",
+  "__toolbox": false,
+  "": [
+    "delattr(object, name: str, /): None",
+    "globals(): dict",
+    "locals(): dict",
+    "vars(object = None, /): dict"
+  ]
+}

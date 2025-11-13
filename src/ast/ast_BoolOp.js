@@ -1,6 +1,6 @@
 BlockMirrorTextToBlocks.BOOLOPS = [
-    ["and", "And", python.pythonGenerator.ORDER_LOGICAL_AND, 'Return whether the left and right both evaluate to True.'],
-    ["or", "Or", python.pythonGenerator.ORDER_LOGICAL_OR, 'Return whether either the left or right evaluate to True.']
+    ["and", "And", python.Order.LOGICAL_AND, 'Return whether the left and right both evaluate to True.'],
+    ["or", "Or", python.Order.LOGICAL_OR, 'Return whether either the left or right evaluate to True.']
 ];
 var BOOLOPS_BLOCKLY_DISPLAY = BlockMirrorTextToBlocks.BOOLOPS.map(
     boolop => [boolop[0], boolop[1]]
@@ -19,15 +19,15 @@ BlockMirrorTextToBlocks.BLOCKS.push({
         {"type": "input_value", "name": "B"}
     ],
     "inputsInline": true,
-    "output": null,
+    "output": "Boolean",
     "colour": BlockMirrorTextToBlocks.COLOR.LOGIC
 });
 
 python.pythonGenerator.forBlock['ast_BoolOp'] = function(block, generator) {
     // Operations 'and', 'or'.
     var operator = (block.getFieldValue('OP') === 'And') ? 'and' : 'or';
-    var order = (operator === 'and') ? python.pythonGenerator.ORDER_LOGICAL_AND :
-        python.pythonGenerator.ORDER_LOGICAL_OR;
+    var order = (operator === 'and') ? python.Order.LOGICAL_AND :
+        python.Order.LOGICAL_OR;
     var argument0 = python.pythonGenerator.valueToCode(block, 'A', order) || python.pythonGenerator.blank;
     var argument1 = python.pythonGenerator.valueToCode(block, 'B', order) || python.pythonGenerator.blank;
     var code = argument0 + ' ' + operator + ' ' + argument1;

@@ -11,24 +11,22 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 });
 
 python.pythonGenerator.forBlock['ast_Expr'] = function(block, generator) {
-    // Numeric value.
-    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.NONE) || python.pythonGenerator.blank;
     // TODO: Assemble JavaScript into code variable.
-    return value+"\n";
+    return value + "\n";
 };
 
 BlockMirrorTextToBlocks.prototype['ast_Expr'] = function (node, parent) {
-    var value = node.value;
+    let converted = this.convert(node.value, node);
 
-    var converted = this.convert(value, node);
-
-    if (converted.constructor === Array) {
+    if (converted?.constructor === Array) {
         return converted[0];
-    } else if (this.isTopLevel(parent)) {
-        return [this.convert(value, node)];
-    } else {
-        return BlockMirrorTextToBlocks.create_block("ast_Expr", node.lineno, {}, {
-            "VALUE": this.convert(value, node)
-        });
+    } else if (this.isTopLevel(parent) && this.filename === "toolbox.py") {
+        // For toolbox only
+        return converted;
     }
+
+    return BlockMirrorTextToBlocks.create_block("ast_Expr", node.lineno, {}, {
+        "VALUE": converted
+    });
 };

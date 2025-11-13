@@ -3,7 +3,7 @@ Blockly.Blocks['ast_Assign'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
         this.targetCount_ = 1;
         this.simpleTarget_ = true;
         this.updateShape_();
@@ -12,7 +12,7 @@ Blockly.Blocks['ast_Assign'] = {
     updateShape_: function () {
         if (!this.getInput('VALUE')) {
             this.appendDummyInput()
-                .appendField("set");
+                .appendField(this.translateText("set"));
             this.appendValueInput('VALUE')
                 .appendField('=');
         }
@@ -73,14 +73,14 @@ Blockly.Blocks['ast_Assign'] = {
 python.pythonGenerator.forBlock['ast_Assign'] = function(block, generator) {
     // Create a list with any number of elements of any type.
     let value = python.pythonGenerator.valueToCode(block, 'VALUE',
-        python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank;
+        python.Order.NONE) || python.pythonGenerator.blank;
     let targets = new Array(block.targetCount_);
     if (block.targetCount_ === 1 && block.simpleTarget_) {
         targets[0] = python.pythonGenerator.getVariableName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
     } else {
         for (var i = 0; i < block.targetCount_; i++) {
             targets[i] = (python.pythonGenerator.valueToCode(block, 'TARGET' + i,
-                python.pythonGenerator.ORDER_NONE) || python.pythonGenerator.blank);
+                python.Order.NONE) || python.pythonGenerator.blank);
         }
     }
     return targets.join(' = ') + " = " + value + "\n";
@@ -92,10 +92,16 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
 
     let values;
     let fields = {};
-    let simpleTarget = (targets.length === 1 && targets[0]._astname === 'Name');
+    let simpleTarget = (targets.length === 1 && targets[0] instanceof Sk.astnodes.Name && targets[0].id.v !== python.pythonGenerator.blank);
     if (simpleTarget) {
         values = {};
-        fields['VAR'] = Sk.ffi.remapToJs(targets[0].id);
+        let variableName = Sk.ffi.remapToJs(targets[0].id)
+        fields['VAR'] = variableName;
+        let type = this.resolveFromLibrary(value);
+
+        if (type) {
+            this.variables.add(type, variableName)
+        }
     } else {
         values = this.convertElements("TARGET", targets, node);
     }
@@ -108,5 +114,5 @@ BlockMirrorTextToBlocks.prototype['ast_Assign'] = function (node, parent) {
         }, {
             "@targets": targets.length,
             "@simple": simpleTarget
-        });
+  });
 };

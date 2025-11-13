@@ -1,0 +1,75 @@
+{
+    "__toolbox": false,
+    "__colour": "PLOTTING",
+    "turtle": [
+      {
+        "signature": "type _AngleLeft = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldLeft"
+      },
+      {
+        "signature": "type _AngleRight = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldRight"
+      },
+      {
+        "signature": "type _AngleHeading = float",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleAngleFieldHeading"
+      },
+      {
+        "signature": "type _Color = str | tuple[float, float, float]",
+        "fieldFactory": "BlockMirrorTextToBlocks.turtleColorField"
+      },
+        "forward fd(amount: float): None // move turtle forward by(50)",
+        "backward bd back(amount: float): None // move turtle backward by(50)",
+        "left lt(angle: turtle._AngleLeft): None // turn turtle left by(90)",
+        "right rt(angle: turtle._AngleRight): None // turn turtle right by(90)",
+        "goto setpos setposition(x: float, y: float | None = None): None // move turtle to position(0, 0)",
+        "teleport(x: float, y: float | None = None, *, fill_gap: bool = False): None // teleport turtle to position(0, 0)",
+        "setx(x: float): None // set turtle's x position to(100)",
+        "sety(y: float): None // set turtle's y position to(100)",
+        "setheading seth(angle: turtle._AngleHeading): None // set turtle's heading to(270)",
+        "home(): None // move turtle to origin",
+        "circle(radius: float, extent: float | None = None, steps: int | None=None): None // move the turtle in a circle",
+        "dot(size: float | None = None, color: turtle._Color | None=None): None // turtle draws a dot(0)",
+        "stamp(): int // stamp a copy of the turtle shape",
+        "clearstamp(stampid: int): None // delete stamp with id",
+        "clearstamps(n: int | None = None): None // delete all stamps",
+        "undo(): None // undo last turtle action",
+        "speed(speed: int | None = None): int | None // set or get turtle speed",
+
+        "position pos(): tuple[float, float] // get turtle's position",
+        "towards(x: float, y: float): float // get the angle from the turtle to the point",
+        "xcor(): float // get turtle's x position",
+        "ycor(): float // get turtle's y position",
+        "heading(): float // get turtle's heading",
+        "distance(x: float, y: float): float // get the distance from turtle's position to",
+
+        {
+          "signature": "degrees(fullcircle: float = 360.0): None // set turtle mode to degrees",
+          "custom": "BlockMirrorTextToBlocks.turtleDegrees"
+        },
+
+        {
+          "signature": "radians(): None // set turtle mode to radians",
+          "custom": "BlockMirrorTextToBlocks.turtleRadians"
+        },
+
+        "pendown pd down(): None // pull turtle pen down",
+        "penup pu up(): None // pull turtle pen up",
+        "pensize(width: float | None = None): float | None // set or get the pen size",
+        "isdown(): bool // check if the pen is down",
+
+        "bgcolor(color: turtle._Color | None = None): turtle._Color | None // set or get the background color('green')",
+        "pencolor(color: turtle._Color | None = None): turtle._Color | None // set or get the pen color('blue')",
+        "fillcolor(color: turtle._Color | None = None): turtle._Color | None // set or get the fill color('yellow')",
+
+        "reset(): None // reset drawing",
+        "clear(): None // clear drawing",
+        "write(arg: str, move: bool = False, align: typing.Literal['left', 'center', 'right'] = 'left', font: tuple[str, int, str] = ('Arial', 8, 'normal')): None // write text(___)",
+
+        "bgpic(picname: str | None = None): None // set background to(___)",
+        "done mainloop(): None // start the turtle loop",
+        "setup(width: float, height: float): None // set drawing area size",
+        "title(titlestring: str): None // set title of drawing area(___)",
+        "bye(): None // say goodbye to turtles"
+    ]
+}

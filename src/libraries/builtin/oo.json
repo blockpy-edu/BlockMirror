@@ -1,0 +1,61 @@
+{
+  "__colour": "OO",
+  "__toolbox": false,
+  "": [
+    "callable(object: Any, /): bool",
+    "classmethod(method, /): Any",
+    "getattr(object, name: str, /): Any",
+    "hasattr(object, name: str, /): bool",
+    "isinstance(object, classinfo, /): bool",
+    "issubclass(object, classinfo, /): bool",
+    "setattr(object, name, value, /): None",
+    "staticmethod(method, /): Any",
+    {
+      "signatures": [
+        "all(iterable, /): bool",
+        "any(iterable, /): bool"
+      ],
+      "colour": "LOGIC"
+    }
+  ],
+  "class bool": [
+    {
+      "signature": "__init__(self, object: Any = False, /): None",
+      "colour": "LOGIC"
+    }
+  ],
+  "class object": [
+    {
+      "signatures": [
+        "__enter__(self): Any",
+        "__exit__(self, exc_type, exc_value, traceback): None"
+      ],
+      "color": "CONTROL"
+    },
+    {
+      "signature": "__iter__(self): iterator",
+      "color": "SEQUENCES"
+    },
+    {
+      "signatures": [
+        "__lt__(self, other): bool",
+        "__le__(self, other): bool",
+        "__eq__(self, other): bool",
+        "__ne__(self, other): bool",
+        "__gt__(self, other): bool",
+        "__ge__(self, other): bool"
+      ],
+      "color": "LOGIC"
+    }
+  ],
+  "class property": [
+    "__init__(self, fget=None, fset=None, fdel=None, doc=None): None"
+  ],
+  "class super": [
+    "__init__(self, type, object_or_type=None, /): None"
+  ],
+  "class type": [
+    "mro(): Any",
+    "__subclasses__(): None"
+  ]
+}

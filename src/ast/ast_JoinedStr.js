@@ -72,7 +72,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
      * Block for JoinedStr and FormattedValue
      */
     init: function () {
-        this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
         this.itemCount_ = 3;
         this.updateShape_();
         this.setInputsInline(true);
@@ -146,7 +146,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
         itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
     // Disconnect any children that don't belong.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       var connection = this.getInput("ADD" + i).connection.targetConnection;
       if (connection && connections.indexOf(connection) == -1) {
         let value = connection.getSourceBlock().getInput("VALUE");
@@ -160,7 +160,7 @@ Blockly.Blocks["ast_JoinedStr"] = {
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       connections[i]?.reconnect(this, "ADD" + i);
       if (!connections[i]) {
           const createName = blockTypes[i] === "ast_JoinedStr_create_with_item_S" ? "ast_JoinedStrStr" :
@@ -240,7 +240,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.appendDummyInput().appendField("Add new values and strings below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -253,7 +253,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_S"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TEXT);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TEXT));
     this.appendDummyInput().appendField("Text");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -267,7 +267,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_FV"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.appendDummyInput().appendField("Expression");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -281,7 +281,7 @@ Blockly.Blocks["ast_JoinedStr_create_with_item_FVF"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.VARIABLES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.VARIABLES));
     this.appendDummyInput().appendField("Formatted Expression");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -336,7 +336,7 @@ python.pythonGenerator.forBlock["ast_JoinedStr"] = function (block, generator) {
       }
       code = "f" + quote + elements.join("") + quote;
   }
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype["ast_JoinedStr"] = function (node, parent) {

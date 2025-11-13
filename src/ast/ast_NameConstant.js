@@ -23,14 +23,13 @@ BlockMirrorTextToBlocks.BLOCKS.push({
 
 python.pythonGenerator.forBlock['ast_NameConstantBoolean'] = function(block, generator) {
     // Boolean values true and false.
-    var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'True' : 'False';
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    var code = (block.getFieldValue('BOOL') === 'TRUE') ? 'True' : 'False';
+    return [code, python.Order.ATOMIC];
 };
 
 python.pythonGenerator.forBlock['ast_NameConstantNone'] = function(block, generator) {
-    // Boolean values true and false.
     var code = 'None';
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    return [code, python.Order.ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype['ast_NameConstant'] = function (node, parent) {

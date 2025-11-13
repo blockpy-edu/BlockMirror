@@ -25,7 +25,7 @@ Blockly.Blocks["ast_Comp_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("Add new comprehensions below");
     this.appendDummyInput().appendField("   For clause");
     this.appendStatementInput("STACK");
@@ -39,7 +39,7 @@ Blockly.Blocks["ast_Comp_create_with_for"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("For clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -53,7 +53,7 @@ Blockly.Blocks["ast_Comp_create_with_if"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.SEQUENCES);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.SEQUENCES));
     this.appendDummyInput().appendField("If clause");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -84,7 +84,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
      */
     init: function () {
       this.setStyle("loop_blocks");
-      this.setColour(BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color);
+      this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COMP_SETTINGS[kind].color));
       this.itemCount_ = 3;
       let input = this.appendValueInput("ELT").appendField(
         BlockMirrorTextToBlocks.COMP_SETTINGS[kind].start,
@@ -178,7 +178,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
           itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
       }
       // Disconnect any children that don't belong.
-      for (var i = 1; i < this.itemCount_; i++) {
+      for (let i = 1; i < this.itemCount_; i++) {
         var connection = this.getInput("GENERATOR" + i).connection
           .targetConnection;
         if (connection && connections.indexOf(connection) === -1) {
@@ -213,7 +213,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       this.itemCount_ = connections.length;
       this.updateShape_();
       // Reconnect any child blocks.
-      for (var i = 1; i < this.itemCount_; i++) {
+      for (let i = 1; i < this.itemCount_; i++) {
         connections[i]?.reconnect(this, "GENERATOR" + i);
         // TODO: glitch when inserting into middle, deletes children values
         if (!connections[i]) {
@@ -294,13 +294,13 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
           python.pythonGenerator.valueToCode(
             child,
             "KEY",
-            python.pythonGenerator.ORDER_NONE,
+            python.Order.NONE,
           ) || python.pythonGenerator.blank;
         let value =
           python.pythonGenerator.valueToCode(
             child,
             "VALUE",
-            python.pythonGenerator.ORDER_NONE,
+            python.Order.NONE,
           ) || python.pythonGenerator.blank;
         elt = key + ": " + value;
       }
@@ -309,7 +309,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
         python.pythonGenerator.valueToCode(
           block,
           "ELT",
-          python.pythonGenerator.ORDER_NONE,
+          python.Order.NONE,
         ) || python.pythonGenerator.blank;
     }
     // generators
@@ -329,7 +329,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
           python.pythonGenerator.valueToCode(
             child,
             "TEST",
-            python.pythonGenerator.ORDER_NONE,
+            python.Order.NONE,
           ) || python.pythonGenerator.blank;
         elements[i] = "if " + test;
       } else if (child.type === "ast_comprehensionFor") {
@@ -337,13 +337,13 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
           python.pythonGenerator.valueToCode(
             child,
             "TARGET",
-            python.pythonGenerator.ORDER_NONE,
+            python.Order.NONE,
           ) || python.pythonGenerator.blank;
         let iter =
           python.pythonGenerator.valueToCode(
             child,
             "ITER",
-            python.pythonGenerator.ORDER_NONE,
+            python.Order.NONE,
           ) || python.pythonGenerator.blank;
         elements[i] = "for " + target + " in " + iter;
       } else {
@@ -357,7 +357,7 @@ BlockMirrorTextToBlocks.COMP_SETTINGS = {
       " " +
       elements.join(" ") +
       BlockMirrorTextToBlocks.COMP_SETTINGS[kind].end;
-    return [code, python.pythonGenerator.ORDER_ATOMIC];
+    return [code, python.Order.ATOMIC];
   };
 
   BlockMirrorTextToBlocks.prototype["ast_" + kind] = function (node, parent) {

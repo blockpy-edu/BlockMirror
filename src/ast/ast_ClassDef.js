@@ -11,7 +11,7 @@ Blockly.Blocks['ast_ClassDef'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(BlockMirrorTextToBlocks.COLOR.OO);
+        this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.OO));
         this.updateShape_();
     },
     // TODO: Not mutable currently
@@ -75,21 +75,21 @@ python.pythonGenerator.forBlock['ast_ClassDef'] = function(block, generator) {
     // Decorators
     let decorators = new Array(block.decorators_);
     for (let i = 0; i < block.decorators_; i++) {
-        let decorator = (python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.pythonGenerator.ORDER_NONE) ||
+        let decorator = (python.pythonGenerator.valueToCode(block, 'DECORATOR' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
         decorators[i] = "@" + decorator + "\n";
     }
     // Bases
     let bases = new Array(block.bases_);
     for (let i = 0; i < block.bases_; i++) {
-        bases[i] = (python.pythonGenerator.valueToCode(block, 'BASE' + i, python.pythonGenerator.ORDER_NONE) ||
+        bases[i] = (python.pythonGenerator.valueToCode(block, 'BASE' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
     }
     // Keywords
     let keywords = new Array(block.keywords_);
     for (let i = 0; i < block.keywords_; i++) {
         let name = block.getFieldValue('KEYWORDNAME' + i);
-        let value = (python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + i, python.pythonGenerator.ORDER_NONE) ||
+        let value = (python.pythonGenerator.valueToCode(block, 'KEYWORDVALUE' + i, python.Order.NONE) ||
             python.pythonGenerator.blank);
         if (name == '**') {
             keywords[i] = '**' + value;

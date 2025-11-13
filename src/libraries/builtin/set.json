@@ -1,0 +1,31 @@
+{
+  "__colour": "SET",
+  "__toolbox": false,
+  "class collections.abc.Collection": [],
+  "class collections.abc.Set(collections.abc.Collection)": [
+    "isdisjoint(self, other, /): bool",
+    "issubset(self, other, /): bool",
+    "issuperset(self, other, /): bool"
+  ],
+  "class collections.abc.MutableSet(collections.abc.Set)": [
+  ],
+  "class set(collections.abc.MutableSet)": [
+    "__init__(self, iterable = None, /): None",
+    "add(self, elem, /): None",
+    "difference(self, *others, /): set",
+    "difference_update(self, *others, /): None",
+    "discard(self, elem, /): None",
+    "intersection(self, *others, /): set",
+    "intersection_update(self, *others, /): None",
+    "symmetric_difference(self, others, /): set",
+    "symmetric_difference_update(self, others, /): None",
+    "union(self, *others, /): set",
+    "update(self, *others, /): None"
+  ],
+  "class frozenset(collections.abc.Set)": [
+    {
+      "signature": "__init__(self, iterable = None, /): None",
+      "colour": "SEQUENCES"
+    }
+  ]
+}

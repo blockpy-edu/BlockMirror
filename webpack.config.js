@@ -1,7 +1,9 @@
 const path = require('path');
+const fs = require('fs')
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 const Uglify = require("uglify-js");
 const babel = require("@babel/core");
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 // Blockly
 const JS_BLOCKLY_FILES = [
@@ -41,11 +43,13 @@ const JS_SKULPT_PARSER_FILES = [
 
 // BlockMirror
 const JS_BLOCKMIRROR_FILES = [
+    path.resolve(__dirname, 'src/type_registry.js'),
     path.resolve(__dirname, 'src/blockly_shims.js'),
     path.resolve(__dirname, 'src/block_mirror.js'),
     path.resolve(__dirname, 'src/text_editor.js'),
     path.resolve(__dirname, 'src/block_editor.js'),
     path.resolve(__dirname, 'src/text_to_blocks.js'),
+    path.resolve(__dirname, 'src/libraries.js'),
     path.resolve(__dirname, 'src/ast/ast_functions.js'),
     path.resolve(__dirname, 'src/toolbars.js'),
     // AST Handlers
@@ -138,9 +142,23 @@ const config = {
             },
             transform: {
                 "skulpt_parser.js":babelify,
-                "block_mirror.js":babelify
+                "block_mirror.js": code => {
+                    let result = babelify(code)
+                    let librariesDir = path.resolve(__dirname, 'src/libraries/')
+
+                    fs.readdirSync(librariesDir, {recursive: true}).forEach(file => {
+                        if (file.endsWith(".json")) {
+                            let libraryName = file.substring(0, file.length -5).replace('/', ' ');
+                            let libraryValue = fs.readFileSync(path.resolve(librariesDir, file), 'utf8')
+                            result += "\nBlockMirror.LIBRARIES['" + libraryName + "'] = " + libraryValue + ";\n"
+                        }
+                    });
+
+                    return result
+                }
             }
-        })
+        }),
+        new ESLintPlugin({})
     ]
     /*devServer: {
         port: 3000,

@@ -1,25 +1,13 @@
 Blockly.Blocks['ast_ReturnFull'] = {
   init: function() {
     this.appendValueInput('VALUE')
-      .appendField('return');
+      .appendField(this.translateText('return'));
     this.setInputsInline(true)
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(BlockMirrorTextToBlocks.COLOR.FUNCTIONS);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.FUNCTIONS));
   }
 };
-// Blockly.common.defineBlocks({ast_ReturnFull: ast_ReturnFull});
-
-// BlockMirrorTextToBlocks.BLOCKS.push({
-//     "message0": "return %1",
-//     "args0": [
-//         {"type": "input_value", "name": "VALUE"}
-//     ],
-//     "inputsInline": true,
-//     "previousStatement": null,
-//     "nextStatement": null,
-//     "colour": BlockMirrorTextToBlocks.COLOR.FUNCTIONS
-// });
 
 BlockMirrorTextToBlocks.BLOCKS.push({
     "type": "ast_Return",
@@ -35,7 +23,7 @@ python.pythonGenerator.forBlock['ast_Return'] = function(block, generator) {
 };
 
 python.pythonGenerator.forBlock['ast_ReturnFull'] = function(block, generator) {
-    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.pythonGenerator.ORDER_ATOMIC) || python.pythonGenerator.blank;
+    var value = python.pythonGenerator.valueToCode(block, 'VALUE', python.Order.ATOMIC) || python.pythonGenerator.blank;
     return "return " + value + "\n";
 };
 

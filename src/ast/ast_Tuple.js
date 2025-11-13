@@ -4,7 +4,7 @@ Blockly.Blocks["ast_Tuple"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.itemCount_ = 3;
     this.updateShape_();
     this.setOutput(true, "Tuple");
@@ -64,16 +64,16 @@ Blockly.Blocks["ast_Tuple"] = {
         itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
     }
     // Disconnect any children that don't belong.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       var connection = this.getInput("ADD" + i).connection.targetConnection;
-      if (connection && connections.indexOf(connection) == -1) {
+      if (connection && connections.indexOf(connection) === -1) {
         connection.disconnect();
       }
     }
     this.itemCount_ = connections.length;
     this.updateShape_();
     // Reconnect any child blocks.
-    for (var i = 0; i < this.itemCount_; i++) {
+    for (let i = 0; i < this.itemCount_; i++) {
       connections[i]?.reconnect(this, "ADD" + i);
     }
   },
@@ -142,7 +142,7 @@ Blockly.Blocks["ast_Tuple_create_with_container"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.appendDummyInput().appendField("Add new tuple elements below");
     this.appendStatementInput("STACK");
     this.contextMenu = false;
@@ -155,7 +155,7 @@ Blockly.Blocks["ast_Tuple_create_with_item"] = {
    * @this Blockly.Block
    */
   init: function () {
-    this.setColour(BlockMirrorTextToBlocks.COLOR.TUPLE);
+    this.setColour(this.convertColour(this.type, BlockMirrorTextToBlocks.COLOR.TUPLE));
     this.appendDummyInput().appendField("Element");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
@@ -171,15 +171,15 @@ python.pythonGenerator.forBlock["ast_Tuple"] = function (block, generator) {
       python.pythonGenerator.valueToCode(
         block,
         "ADD" + i,
-        python.pythonGenerator.ORDER_NONE,
+        python.Order.NONE,
       ) || python.pythonGenerator.blank;
   }
   let requiredComma = "";
-  if (block.itemCount_ == 1) {
+  if (block.itemCount_ === 1) {
     requiredComma = ", ";
   }
   var code = "(" + elements.join(", ") + requiredComma + ")";
-  return [code, python.pythonGenerator.ORDER_ATOMIC];
+  return [code, python.Order.ATOMIC];
 };
 
 BlockMirrorTextToBlocks.prototype["ast_Tuple"] = function (node, parent) {

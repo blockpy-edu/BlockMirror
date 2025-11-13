@@ -1,0 +1,7 @@
+{
+  "__colour": "TUPLE",
+  "__toolbox": false,
+  "class tuple": [
+    "__init__(self, iterable = None, /): None"
+  ]
+}

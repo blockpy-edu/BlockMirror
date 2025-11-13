@@ -1,0 +1,7 @@
+{
+  "__colour": "PYTHON",
+  "__toolbox": false,
+  "cisc108": [
+    "assert_equal(x: Any, y: Any, precision: int = 4, exact_strings: bool = False, *args): bool"
+  ]
+}
